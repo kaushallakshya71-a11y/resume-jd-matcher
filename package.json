@@ -7,7 +7,7 @@
   "scripts": {
     "start": "serve . --listen $PORT",
     "dev": "serve .",
-    "cap:sync": "npx cap sync",
+    "cap:sync": "mkdir -p www && cp index.html styles.css app.js ui.js features.js analyzer.js career-risk.js i18n.js www/ && npx cap sync",
     "cap:open": "npx cap open android",
     "cap:run": "npx cap run android"
   },

@@ -16,9 +16,9 @@ const UI = {
         ring.style.strokeDashoffset = circumference;
 
         let color;
-        if (score >= 75) color = '#10f580';
-        else if (score >= 50) color = '#f5a623';
-        else color = '#f55c5c';
+        if (score >= 75) color = '#34d399';
+        else if (score >= 50) color = '#fbbf24';
+        else color = '#f87171';
         ring.style.stroke = color;
 
         const duration = 1800;
@@ -504,12 +504,16 @@ const UI = {
         const btn = document.getElementById('analyze-btn');
         btn.disabled = true;
         btn.innerHTML = `<span class="spinner"></span> Analyzing...`;
+        document.getElementById('resume-drop')?.classList.add('active-scanning');
+        document.getElementById('jd-drop')?.classList.add('active-scanning');
     },
 
     hideLoading() {
         const btn = document.getElementById('analyze-btn');
         btn.disabled = false;
         btn.innerHTML = `<span>🔍</span> Analyze Match`;
+        document.getElementById('resume-drop')?.classList.remove('active-scanning');
+        document.getElementById('jd-drop')?.classList.remove('active-scanning');
     },
 
     // ---- Char counts ----

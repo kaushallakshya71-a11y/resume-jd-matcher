@@ -6,6 +6,7 @@
     let state = { resumeText: '', jdText: '', result: null };
 
     document.addEventListener('DOMContentLoaded', () => {
+        initThemeToggle();
         I18N.applyTranslations();
         bindEvents();
         initSampleData();
@@ -74,6 +75,32 @@
         const targetCompany = document.getElementById('target-company-input')?.value.trim() || '';
 
         return { roleLevel, industry, prioritySkills, targetRole, targetCompany };
+    }
+
+    // ---- Theme Toggle (Light/Dark Mode) ----
+    function initThemeToggle() {
+        const btn = document.getElementById('theme-toggle-btn');
+        if (!btn) return;
+        
+        // Check local storage or system preference
+        const savedTheme = localStorage.getItem('theme');
+        const systemPrefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+        const currentTheme = savedTheme || (systemPrefersLight ? 'light' : 'dark');
+
+        if (currentTheme === 'light') {
+            document.documentElement.classList.add('light-mode');
+            btn.textContent = '☀️';
+        } else {
+            document.documentElement.classList.remove('light-mode');
+            btn.textContent = '🌙';
+        }
+
+        btn.addEventListener('click', () => {
+            const isLight = document.documentElement.classList.toggle('light-mode');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            btn.textContent = isLight ? '☀️' : '🌙';
+            showToast(`${isLight ? 'Light' : 'Dark'} mode activated!`, 'success');
+        });
     }
 
     // ---- Language Toggle ----
@@ -396,7 +423,12 @@ REQUIREMENTS:
         }
 
         const analyzeBtn = document.getElementById('analyze-risk-btn');
-        if (analyzeBtn) { analyzeBtn.disabled = true; analyzeBtn.textContent = '⏳ Analyzing...'; }
+        const formCard = document.querySelector('.career-risk-form-card');
+        if (analyzeBtn) { 
+            analyzeBtn.disabled = true; 
+            analyzeBtn.innerHTML = `<span class="spinner"></span> Analyzing...`; 
+        }
+        if (formCard) formCard.classList.add('active-scanning');
 
         setTimeout(() => {
             const result = CareerRisk.analyze({
@@ -409,8 +441,12 @@ REQUIREMENTS:
                 careerGoal: goal
             });
             renderCareerRiskResult(result);
-            if (analyzeBtn) { analyzeBtn.disabled = false; analyzeBtn.textContent = '⚠️ Analyze Career Risk'; }
-        }, 400);
+            if (analyzeBtn) { 
+                analyzeBtn.disabled = false; 
+                analyzeBtn.innerHTML = `<span>⚠️</span> Analyze Career Risk`; 
+            }
+            if (formCard) formCard.classList.remove('active-scanning');
+        }, 900);
     }
 
     function renderCareerRiskResult(r) {

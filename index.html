@@ -9,10 +9,6 @@
     content="Analyze your resume against any job description. Get an ATS match score, skill gap analysis, resume tips, career roadmap, interview prep, and video resume support — instantly." />
   <link rel="stylesheet" href="styles.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <!-- Firebase v10 compat SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 </head>
 
 <body>
@@ -723,21 +719,21 @@
 
     <!-- ===== FOOTER ===== -->
     <footer class="footer">
-      <p>Made with <span>♥</span> for job seekers everywhere · ResumeMatch AI · AI-Powered Analysis · Sync across devices with Google Sign-In</p>
+      <p>Made with <span>♥</span> for job seekers everywhere · ResumeMatch AI · 100% Free · Your history is saved locally on this device</p>
     </footer>
 
   </div><!-- /.app-wrapper -->
 
   <!-- ===== HISTORY SIDEBAR ===== -->
   <div id="history-sidebar" class="history-sidebar">
-    <!-- Populated by FirebaseDB.renderHistoryPanel() -->
+    <!-- Populated by FirebaseDB (IndexedDB local storage) -->
     <div class="history-panel-header">
       <div class="history-panel-title">📚 Your History</div>
       <button class="history-close-btn" onclick="document.getElementById('history-sidebar').classList.remove('open');document.getElementById('history-overlay').classList.remove('open')">✕</button>
     </div>
     <div class="history-signin-prompt">
-      <div class="hsp-icon">🔑</div>
-      <p>Sign in with Google to save and access your analysis history across devices.</p>
+      <div class="hsp-icon">⏳</div>
+      <p>Loading your saved analyses…</p>
     </div>
   </div>
   <div id="history-overlay" class="history-overlay" onclick="document.getElementById('history-sidebar').classList.remove('open');this.classList.remove('open')"></div>

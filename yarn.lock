@@ -62,10 +62,10 @@
     tslib "^2.4.0"
     xml2js "^0.5.0"
 
-"@capacitor/cli@^7.6.0":
-  version "7.6.0"
-  resolved "https://registry.npmjs.org/@capacitor/cli/-/cli-7.6.0.tgz"
-  integrity sha512-3PL8xIgXLj1037NqmuzoKXNOi80AdY7eSCnX6/A7RfjFqT8TEiCL+PlHsHtg6/BSZGSmmxGGBjH3nXrNCRoFhw==
+"@capacitor/cli@^8.2.0":
+  version "8.4.1"
+  resolved "https://registry.yarnpkg.com/@capacitor/cli/-/cli-8.4.1.tgz#2e340118cb6d380a6484e5375a9fe99a39a25021"
+  integrity sha512-t7F2s7fFHCq113xgrggrmK6ctV0/8E5YfLNVLfPHp4GCTDO+tly9fZvWPf2/sOI8lMm18dLT43qbXLRTz/OZgw==
   dependencies:
     "@ionic/cli-framework-output" "^2.2.8"
     "@ionic/utils-subprocess" "^3.0.1"

@@ -9,6 +9,10 @@
     content="Analyze your resume against any job description. Get an ATS match score, skill gap analysis, resume tips, career roadmap, interview prep, and video resume support — instantly." />
   <link rel="stylesheet" href="styles.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- Firebase v10 compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 </head>
 
 <body>
@@ -25,6 +29,7 @@
         </div>
       </div>
       <div class="header-right">
+        <div id="auth-widget" class="auth-widget"></div>
         <button class="theme-toggle-btn" id="theme-toggle-btn" aria-label="Toggle Theme">🌙</button>
         <button class="lang-toggle-btn" id="lang-toggle-btn">हिंदी</button>
         <div class="header-badge" data-i18n="aiBadge">✨ AI-Powered</div>
@@ -718,11 +723,24 @@
 
     <!-- ===== FOOTER ===== -->
     <footer class="footer">
-      <p data-i18n="footerText">Made with <span>♥</span> for job seekers everywhere · ResumeMatch AI · All analysis is
-        100% local — your data never leaves your browser</p>
+      <p>Made with <span>♥</span> for job seekers everywhere · ResumeMatch AI · AI-Powered Analysis · Sync across devices with Google Sign-In</p>
     </footer>
 
   </div><!-- /.app-wrapper -->
+
+  <!-- ===== HISTORY SIDEBAR ===== -->
+  <div id="history-sidebar" class="history-sidebar">
+    <!-- Populated by FirebaseDB.renderHistoryPanel() -->
+    <div class="history-panel-header">
+      <div class="history-panel-title">📚 Your History</div>
+      <button class="history-close-btn" onclick="document.getElementById('history-sidebar').classList.remove('open');document.getElementById('history-overlay').classList.remove('open')">✕</button>
+    </div>
+    <div class="history-signin-prompt">
+      <div class="hsp-icon">🔑</div>
+      <p>Sign in with Google to save and access your analysis history across devices.</p>
+    </div>
+  </div>
+  <div id="history-overlay" class="history-overlay" onclick="document.getElementById('history-sidebar').classList.remove('open');this.classList.remove('open')"></div>
 
   <!-- Scripts — order matters! -->
   <script src="i18n.js"></script>
@@ -730,6 +748,7 @@
   <script src="ui.js"></script>
   <script src="features.js"></script>
   <script src="career-risk.js"></script>
+  <script src="firebase.js"></script>
   <script src="app.js"></script>
 
 </body>

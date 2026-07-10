@@ -17,6 +17,8 @@
         initCustomizePanel();
         initLangToggle();
         initCareerRisk();
+        // Initialize Firebase Auth + Firestore
+        if (window.FirebaseDB) FirebaseDB.init();
     });
 
     // ---- Bind Events ----
@@ -134,6 +136,10 @@
                 renderTldr(state.result);
                 Feedback.reset();
                 showToast('Analysis complete! 🎉', 'success');
+                // Auto-save to Firestore if user is signed in
+                if (window.FirebaseDB) {
+                    FirebaseDB.saveMatchAnalysis(state.result, state.resumeText, state.jdText);
+                }
             } catch (err) {
                 console.error('Analysis error:', err);
                 showToast('An error occurred. Please try again.', 'error');
@@ -441,6 +447,13 @@ REQUIREMENTS:
                 careerGoal: goal
             });
             renderCareerRiskResult(result);
+            // Auto-save to Firestore if user is signed in
+            if (window.FirebaseDB) {
+                FirebaseDB.saveRiskAnalysis(result, {
+                    currentRole: role,
+                    yearsOfExperience: parseFloat(years) || 0
+                });
+            }
             if (analyzeBtn) { 
                 analyzeBtn.disabled = false; 
                 analyzeBtn.innerHTML = `<span>⚠️</span> Analyze Career Risk`; 

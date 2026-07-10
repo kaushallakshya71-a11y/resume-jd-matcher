@@ -1,18 +1,12 @@
 {
   "name": "resumematch-ai",
   "version": "1.0.0",
-  "private": true,
-  "license": "MIT",
-  "description": "Resume & Job Description Matcher — AI-powered compatibility analyzer",
+  "description": "Resume & Job Description Matcher",
   "scripts": {
-    "start": "serve . --listen ${PORT:-3000}",
-    "dev": "serve .",
-    "build": "echo 'No build step required'"
+    "start": "serve . -l $PORT",
+    "dev": "serve ."
   },
   "dependencies": {
     "serve": "^14.2.1"
-  },
-  "engines": {
-    "node": ">=18.0.0"
   }
 }

@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: resumematch-ai
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 20.20.1

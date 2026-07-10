@@ -5,23 +5,14 @@
   "license": "MIT",
   "description": "Resume & Job Description Matcher — AI-powered compatibility analyzer",
   "scripts": {
-    "start": "serve . --listen $PORT",
+    "start": "serve . --listen ${PORT:-3000}",
     "dev": "serve .",
-    "build": "echo 'No build step required'",
-    "cap:sync": "mkdir -p www && cp index.html styles.css app.js ui.js features.js analyzer.js career-risk.js i18n.js www/ && npx cap sync",
-    "cap:open": "npx cap open android",
-    "cap:run": "npx cap run android"
+    "build": "echo 'No build step required'"
   },
   "dependencies": {
-    "@capacitor/android": "^8.2.0",
-    "@capacitor/cli": "^8.2.0",
-    "@capacitor/core": "^8.2.0",
     "serve": "^14.2.1"
   },
-  "devDependencies": {
-    "@capacitor/assets": "^3.0.5"
-  },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=18.0.0"
   }
 }

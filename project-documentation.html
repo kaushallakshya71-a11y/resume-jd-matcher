@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ResumeMatch AI — Project Documentation</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --gold: #d97706;
+    --gold-light: #fbbf24;
+    --bg: #0c0a09;
+    --bg2: #1c1917;
+    --card: rgba(28,25,23,0.8);
+    --text: #f5f5f4;
+    --muted: #a8a29e;
+    --green: #10b981;
+    --red: #ef4444;
+    --blue: #60a5fa;
+    --purple: #a78bfa;
+    --border: rgba(217,119,6,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15px;
+  }
+
+  /* ── COVER PAGE ── */
+  .cover {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0c0a09 0%, #1c1917 50%, #0c0a09 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 40px;
+    position: relative;
+    overflow: hidden;
+    page-break-after: always;
+  }
+
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: -200px; left: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(217,119,6,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .cover::after {
+    content: '';
+    position: absolute;
+    bottom: -200px; right: -200px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(251,191,36,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .cover-badge {
+    display: inline-block;
+    padding: 6px 18px;
+    border: 1px solid rgba(217,119,6,0.4);
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold-light);
+    background: rgba(217,119,6,0.1);
+    margin-bottom: 28px;
+  }
+
+  .cover-icon { font-size: 80px; margin-bottom: 24px; }
+
+  .cover h1 {
+    font-size: clamp(36px, 6vw, 64px);
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+
+  .cover h1 span { color: var(--gold-light); }
+
+  .cover-sub {
+    font-size: 18px;
+    color: var(--muted);
+    max-width: 600px;
+    margin: 0 auto 40px;
+    font-weight: 400;
+  }
+
+  .cover-meta {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+
+  .cover-meta-item {
+    text-align: center;
+  }
+
+  .cover-meta-num {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--gold-light);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .cover-meta-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+
+  .divider-line {
+    width: 120px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 32px auto;
+  }
+
+  /* ── TOC ── */
+  .toc-page {
+    min-height: 100vh;
+    padding: 60px 80px;
+    background: var(--bg2);
+    page-break-after: always;
+  }
+
+  .toc-title {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--gold-light);
+    margin-bottom: 40px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .toc-item {
+    display: flex;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    gap: 16px;
+    cursor: pointer;
+  }
+
+  .toc-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba(217,119,6,0.15);
+    border: 1px solid rgba(217,119,6,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 13px;
+    color: var(--gold-light);
+    flex-shrink: 0;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .toc-text { flex: 1; }
+  .toc-q { font-size: 16px; font-weight: 600; color: var(--text); }
+  .toc-hint { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .toc-dots { flex: 1; border-bottom: 1px dotted rgba(217,119,6,0.25); margin: 0 12px; }
+
+  /* ── SECTION PAGE ── */
+  .section-page {
+    padding: 60px 80px;
+    min-height: 100vh;
+    position: relative;
+    page-break-before: always;
+  }
+
+  .section-page:nth-child(even) { background: #0f0d0b; }
+  .section-page:nth-child(odd)  { background: var(--bg2); }
+
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 40px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .q-badge {
+    flex-shrink: 0;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(217,119,6,0.25), rgba(251,191,36,0.1));
+    border: 1px solid rgba(217,119,6,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--gold-light);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .section-title-wrap { flex: 1; }
+
+  .q-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+
+  .section-title {
+    font-size: clamp(20px, 3vw, 28px);
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.25;
+  }
+
+  /* ── CONTENT BLOCKS ── */
+  .answer-body {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.85;
+    max-width: 860px;
+  }
+
+  .answer-body p { margin-bottom: 16px; }
+  .answer-body p:last-child { margin-bottom: 0; }
+
+  .answer-body strong { color: var(--text); font-weight: 700; }
+
+  /* Highlight box */
+  .highlight-box {
+    background: rgba(217,119,6,0.08);
+    border: 1px solid rgba(217,119,6,0.2);
+    border-left: 4px solid var(--gold);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin: 24px 0;
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* Info grid */
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+  }
+
+  .info-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+
+  .info-card-icon { font-size: 28px; margin-bottom: 10px; }
+
+  .info-card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--gold-light);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  .info-card-body { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+  /* Step list */
+  .step-list { list-style: none; margin: 24px 0; }
+
+  .step-list li {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 18px;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(217,119,6,0.2);
+    border: 1px solid rgba(217,119,6,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--gold-light);
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 2px;
+  }
+
+  .step-content { flex: 1; }
+  .step-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .step-desc { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+  /* Tech stack pills */
+  .tech-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0; }
+
+  .tech-pill {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .pill-gold { background: rgba(217,119,6,0.15); color: var(--gold-light); border: 1px solid rgba(217,119,6,0.3); }
+  .pill-green { background: rgba(16,185,129,0.12); color: #34d399; border: 1px solid rgba(16,185,129,0.25); }
+  .pill-blue  { background: rgba(96,165,250,0.12); color: #93c5fd; border: 1px solid rgba(96,165,250,0.25); }
+  .pill-purple{ background: rgba(167,139,250,0.12); color: #c4b5fd; border: 1px solid rgba(167,139,250,0.25); }
+  .pill-red   { background: rgba(239,68,68,0.12); color: #fca5a5; border: 1px solid rgba(239,68,68,0.25); }
+
+  /* Architecture flow */
+  .arch-flow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 24px 0;
+    padding: 24px;
+    background: rgba(12,10,9,0.6);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+  }
+
+  .arch-box {
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    min-width: 120px;
+  }
+
+  .arch-arrow {
+    color: var(--gold);
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .arch-user { background: rgba(96,165,250,0.15); border: 1px solid rgba(96,165,250,0.3); color: #93c5fd; }
+  .arch-html { background: rgba(217,119,6,0.15); border: 1px solid rgba(217,119,6,0.3); color: var(--gold-light); }
+  .arch-js   { background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.25); color: #fde68a; }
+  .arch-db   { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.25); color: #6ee7b7; }
+  .arch-out  { background: rgba(167,139,250,0.12); border: 1px solid rgba(167,139,250,0.25); color: #c4b5fd; }
+
+  /* Code block */
+  .code-block {
+    background: #0a0908;
+    border: 1px solid rgba(217,119,6,0.15);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin: 20px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: #d4d4d8;
+    overflow-x: auto;
+    line-height: 1.8;
+  }
+
+  .code-block .kw { color: #c084fc; }
+  .code-block .fn { color: #60a5fa; }
+  .code-block .str{ color: #86efac; }
+  .code-block .cm { color: #6b7280; font-style: italic; }
+  .code-block .num{ color: #fb923c; }
+
+  /* Table */
+  .styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+    font-size: 14px;
+  }
+
+  .styled-table th {
+    background: rgba(217,119,6,0.15);
+    color: var(--gold-light);
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 1px solid rgba(217,119,6,0.2);
+  }
+
+  .styled-table td {
+    padding: 11px 16px;
+    border: 1px solid rgba(255,255,255,0.05);
+    color: var(--muted);
+    vertical-align: top;
+  }
+
+  .styled-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+  .styled-table td strong { color: var(--text); }
+
+  /* Challenge cards */
+  .challenge-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .challenge-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .challenge-icon { font-size: 24px; }
+
+  .challenge-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .challenge-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  .label-problem { color: #f87171; }
+  .label-solution { color: #34d399; }
+
+  .challenge-text { font-size: 14px; color: var(--muted); line-height: 1.65; }
+
+  /* Future cards */
+  .future-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+  }
+
+  .future-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    transition: border-color 0.2s;
+  }
+
+  .future-card:hover { border-color: rgba(217,119,6,0.4); }
+  .future-icon { font-size: 30px; margin-bottom: 10px; }
+  .future-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .future-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  /* Footer */
+  .doc-footer {
+    background: #0a0908;
+    border-top: 1px solid var(--border);
+    padding: 40px 80px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .doc-footer strong { color: var(--gold-light); }
+
+  /* Section sub-heading */
+  .sub-heading {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 28px 0 12px;
+    padding-left: 12px;
+    border-left: 3px solid var(--gold);
+  }
+
+  /* Emoji bullet */
+  .emoji-list { list-style: none; margin: 16px 0; }
+  .emoji-list li {
+    padding: 8px 0;
+    font-size: 14px;
+    color: var(--muted);
+    padding-left: 4px;
+  }
+  .emoji-list li strong { color: var(--text); }
+
+  /* Print */
+  @media print {
+    body { background: white; color: #111; }
+    .section-page { page-break-before: always; padding: 40px 60px; }
+    .cover { page-break-after: always; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     COVER PAGE
+═══════════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-badge">📄 Project Documentation — Beginner to Advanced</div>
+  <div class="cover-icon">🎯</div>
+  <h1>ResumeMatch <span>AI</span></h1>
+  <p class="cover-sub">
+    Ek AI-powered tool jo tumhara resume kisi bhi job description se match karta hai — instantly, privately, aur bilkul free mein.
+  </p>
+  <div class="divider-line"></div>
+  <div class="cover-meta">
+    <div class="cover-meta-item">
+      <div class="cover-meta-num">10</div>
+      <div class="cover-meta-label">Questions Answered</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-num">9</div>
+      <div class="cover-meta-label">Core Modules</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-num">6</div>
+      <div class="cover-meta-label">JS Files</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="cover-meta-num">0₹</div>
+      <div class="cover-meta-label">Cost to Run</div>
+    </div>
+  </div>
+  <div class="divider-line"></div>
+  <p style="color:var(--muted);font-size:13px;">Written in Hinglish · Easy for Beginners · Start se End tak</p>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     TABLE OF CONTENTS
+═══════════════════════════════════════════ -->
+<div class="toc-page">
+  <div class="toc-title">📋 Table of Contents</div>
+
+  <div class="toc-item">
+    <div class="toc-num">01</div>
+    <div class="toc-text">
+      <div class="toc-q">Project Title &amp; One-line Summary</div>
+      <div class="toc-hint">Kya banaya aur kis problem ko solve karta hai</div>
+    </div>
+  </div>
+  <div class="toc-item">
+    <div class="toc-num">02</div>
+    <div class="toc-text">
+      <div class="toc-q">Why Did You Build It?</div>
+      <div class="toc-hint">Real-world motivation aur pain point</div>
+    </div>
+  </div>
+  <div class="toc-item">
+    <div class="toc-num">03</div>
+    <div class="toc-text">
+      <div class="toc-q">Problem Statement</div>
+      <div class="toc-hint">Existing solutions mein kya khamiyan thi</div>
+    </div>
+  </div>
+  <div class="toc-item">
+    <div class="toc-num">04</div>
+    <div class="toc-text">
+      <div class="toc-q">Your Solution</div>
+      <div class="toc-hint">End-to-end kya build kiya</div>
+    </div>
+  </div>
+  <div class="toc-item">
+    <div class="toc-num">05</div>
+    <div class="toc-text">
+      <div class="toc-q">Tech Stack Justification</div>
+      <div class="toc-hint">Specific language/framework kyun choose kiya</div>
+    </div>
+  </div>
+  <div class="toc-item">
+    <div class="toc-num">06</div>
+    <div class="toc-text">
+      <div class="toc-q">Your Exact Role &amp; Contributions</div>
+      <div class="toc-hint">Tumhara specific kaam kya tha</div>
+    </div>
+  </div>
+  <div class="toc-item">
+    <div class="toc-num">07</div>
+    <div class="toc-text">
+      <div class="toc-q">Architecture &amp; Data Flow</div>
+      <div class="toc-hint">Frontend se Database tak request kaise travel karti hai</div>
+    </div>
+  </div>
+  <div class="toc-item">
+    <div class="toc-num">08</div>
+    <div class="toc-text">
+      <div class="toc-q">Database Schema &amp; APIs</div>
+      <div class="toc-hint">Entities, tables aur key endpoints</div>
+    </div>
+  </div>
+  <div class="toc-item">
+    <div class="toc-num">09</div>
+    <div class="toc-text">
+      <div class="toc-q">Major Technical Challenges &amp; Resolution</div>
+      <div class="toc-hint">Bugs, issues aur unko kaise fix kiya</div>
+    </div>
+  </div>
+  <div class="toc-item">
+    <div class="toc-num">10</div>
+    <div class="toc-text">
+      <div class="toc-q">Future Enhancements</div>
+      <div class="toc-hint">Scalability, cloud integration aur future scope</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     Q1 — PROJECT TITLE
+═══════════════════════════════════════════ -->
+<div class="section-page">
+  <div class="section-header">
+    <div class="q-badge">Q1</div>
+    <div class="section-title-wrap">
+      <div class="q-label">Question 1</div>
+      <div class="section-title">Project Title &amp; One-line Summary</div>
+    </div>
+  </div>
+
+  <div class="answer-body">
+    <div class="highlight-box">
+      🎯 <strong>Project Title:</strong> ResumeMatch AI — Smart Resume &amp; Job Description Analyzer<br><br>
+      📌 <strong>One-line Summary:</strong> Ek AI-powered web tool jo tumhara resume paste karo aur koi bhi job description paste karo — aur instantly bata deta hai ki tum us job ke liye kitne percent match ho, kya skills missing hain, aur kaise apply karna chahiye.
+    </div>
+
+    <p>
+      <strong>Seedha baat karo toh —</strong> jab bhi hum job apply karte hain, hume confuse hota hai ki "kya mera resume is job ke liye theek hai?" ResumeMatch AI isi confusion ko solve karta hai. Tum apna resume aur job ka description dono paste karo — tool 2 second mein sab analyse kar deta hai.
+    </p>
+
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-card-icon">📊</div>
+        <div class="info-card-title">Match Score</div>
+        <div class="info-card-body">0–100% score milta hai jo batata hai resume aur JD kितना align hai</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-icon">🔍</div>
+        <div class="info-card-title">Skills Gap</div>
+        <div class="info-card-body">Exactly kaunsi skills missing hain — aur unhe kahan se seekho</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-icon">🤖</div>
+        <div class="info-card-title">ATS Analysis</div>
+        <div class="info-card-body">Company ke Applicant Tracking System mein resume pass hoga ya nahi</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-icon">⚠️</div>
+        <div class="info-card-title">Career Risk IQ</div>
+        <div class="info-card-body">Future mein tumhara role safe hai ya automation ka risk hai</div>
+      </div>
+    </div>
+
+    <p>
+      <strong>Live URL:</strong> <span style="color:var(--gold-light); font-family:'JetBrains Mono',monospace;">https://resumematch-ai-1.onrender.com</span>
+    </p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     Q2 — WHY DID YOU BUILD IT?
+═══════════════════════════════════════════ -->
+<div class="section-page">
+  <div class="section-header">
+    <div class="q-badge">Q2</div>
+    <div class="section-title-wrap">
+      <div class="q-label">Question 2</div>
+      <div class="section-title">Why Did You Build It? Real-world Motivation</div>
+    </div>
+  </div>
+
+  <div class="answer-body">
+    <p>
+      <strong>Real pain point yeh tha:</strong> India mein har saal lakho students aur freshers job applications bhejte hain — lekin 75% rejections is liye hote hain kyunki unka resume ATS (Applicant Tracking System) se pass nahi hota. Company ka HR kabhi directly resume nahi dekhta pehle — ek computer software (ATS) pehle filter karta hai.
+    </p>
+
+    <div class="highlight-box">
+      💡 <strong>Real Story:</strong> Ek student ne 200+ jobs apply kiye lekin single interview nahi mila. Reason? Uska resume theek tha lekin job description ke keywords match nahi kar rahe the. ATS ne sab reject kar diya bina kisi human ne dekhe.
+    </div>
+
+    <div class="sub-heading">3 Real Problems Jo Dekhe</div>
+
+    <ul class="step-list">
+      <li>
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">ATS Invisibility Problem 👻</div>
+          <div class="step-desc">90% companies ATS use karti hain (TCS, Infosys, Google, Amazon sab). Agar resume mein exact keywords nahi hain jo JD mein hain — toh automatically reject. Koi human nahi dekhta.</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Skills Gap Awareness Nahi 😶</div>
+          <div class="step-desc">Fresher ko pata hi nahi hota ki exactly kaunsi skill missing hai. Bas "rejected" aa jaata hai — koi explanation nahi. Isse career growth slow ho jaati hai.</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Existing Tools Expensive Hain 💸</div>
+          <div class="step-desc">Resume.io, Jobscan jaise tools ₹800–₹2000/month charge karte hain. Ek student ya fresher ke liye afford karna mushkil hai. Free version mein features bahut limited hote hain.</div>
+        </div>
+      </li>
+    </ul>
+
+    <p>
+      <strong>Isliye build kiya</strong> — ek ऐसा tool jo completely free ho, koi login na chahiye, koi data upload na ho, aur result instant mile. <strong>Privacy first</strong> — sara analysis user ke browser mein hi hota hai, koi data server pe nahi jaata.
+    </p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     Q3 — PROBLEM STATEMENT
+═══════════════════════════════════════════ -->
+<div class="section-page">
+  <div class="section-header">
+    <div class="q-badge">Q3</div>
+    <div class="section-title-wrap">
+      <div class="q-label">Question 3</div>
+      <div class="section-title">Problem Statement — Existing Solutions Mein Kya Khamiyan Thi?</div>
+    </div>
+  </div>
+
+  <div class="answer-body">
+
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>Existing Tool</th>
+          <th>Kya Problem Tha</th>
+          <th>Hamara Solution</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Jobscan.co</strong></td>
+          <td>₹1500+/month, sirf 5 scans free, US-focused scoring</td>
+          <td>Unlimited free, India-relevant scoring</td>
+        </tr>
+        <tr>
+          <td><strong>Resume.io</strong></td>
+          <td>Resume builder hai, matcher nahi — alag tool chahiye</td>
+          <td>Paste-and-analyze — no account needed</td>
+        </tr>
+        <tr>
+          <td><strong>LinkedIn Easy Apply</strong></td>
+          <td>Batata nahi ki resume match hua ya nahi</td>
+          <td>Exact % score aur detailed breakdown</td>
+        </tr>
+        <tr>
+          <td><strong>ChatGPT se review</strong></td>
+          <td>Manual prompt likhna padta hai, consistent nahi, data privacy concern</td>
+          <td>One-click analysis, structured output, local processing</td>
+        </tr>
+        <tr>
+          <td><strong>HR se feedback</strong></td>
+          <td>Milta hi nahi — rejection ke baad koi response nahi</td>
+          <td>Instant detailed feedback, actionable steps</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sub-heading">Root Cause Analysis (Asli Problem)</div>
+
+    <p>
+      Sabse badi problem thi ki existing tools ya toh <strong>paid hain</strong>, ya <strong>data upload maangti hain</strong> (privacy risk), ya <strong>generic advice</strong> deti hain jo actually helpful nahi hoti. Koi tool nahi tha jo:
+    </p>
+
+    <ul class="emoji-list">
+      <li>🆓 <strong>Completely free</strong> ho, koi hidden paywall nahi</li>
+      <li>🔒 <strong>100% private</strong> ho — resume kisi server pe na jaaye</li>
+      <li>🇮🇳 <strong>India ke job market</strong> ke liye relevant ho</li>
+      <li>⚡ <strong>Instant results</strong> de — koi loading wait nahi</li>
+      <li>📱 <strong>Mobile friendly</strong> ho — students mostly phone use karte hain</li>
+      <li>🎓 <strong>Beginner-friendly</strong> ho — complex UI nahi</li>
+    </ul>
+
+    <div class="highlight-box">
+      <strong>Problem ko ek line mein:</strong> "Job seekers ko real-time, private, actionable aur free resume feedback nahi milta tha jo unhe bataye ki exactly kahan improve karna hai aur ATS kaise pass karna hai."
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     Q4 — YOUR SOLUTION
+═══════════════════════════════════════════ -->
+<div class="section-page">
+  <div class="section-header">
+    <div class="q-badge">Q4</div>
+    <div class="section-title-wrap">
+      <div class="q-label">Question 4</div>
+      <div class="section-title">Your Solution — End-to-End Kya Build Kiya?</div>
+    </div>
+  </div>
+
+  <div class="answer-body">
+    <p>
+      Maine ek <strong>complete AI-powered web application</strong> build kiya jo 9 alag-alag modules mein kaam karta hai. Har module ek specific problem solve karta hai.
+    </p>
+
+    <div class="sub-heading">9 Core Modules</div>
+
+    <ul class="step-list">
+      <li>
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">🎯 Smart Match Score Engine</div>
+          <div class="step-desc">Resume aur JD dono se skills extract karta hai — Skill Taxonomy (600+ skills) use karta hai. Weighted scoring: Skills 40% + Experience 20% + Domain 15% + Soft Skills 15% + ATS 10%.</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">🔍 Skills Gap Analyzer</div>
+          <div class="step-desc">JD mein jo skills hain aur resume mein jo nahi hain — unki exact list. High Priority vs Nice-to-Have categorize karta hai. Learning resources bhi suggest karta hai (free sources).</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">🤖 ATS Analysis Engine</div>
+          <div class="step-desc">Keyword density check karta hai. Pass probability percentage deta hai. Specific ATS-friendly improvements suggest karta hai (formatting, keywords, sections).</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-title">💼 Company Optimization</div>
+          <div class="step-desc">Startup vs MNC vs Product company ke liye alag resume tips. Tone, length, focus areas — sab company type ke hisaab se customize hota hai.</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <div class="step-title">📋 Resume Tips Generator</div>
+          <div class="step-desc">Role level (Fresher/Mid/Senior) ke hisaab se specific actionable tips. 20+ personalized suggestions generate hoti hain.</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">6</div>
+        <div class="step-content">
+          <div class="step-title">🗺️ Career Roadmap</div>
+          <div class="step-desc">3-phase plan: Phase 1 (0–3 months), Phase 2 (3–6 months), Phase 3 (6–12 months). Next role suggestions based on current skills.</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">7</div>
+        <div class="step-content">
+          <div class="step-title">🎤 Interview Prep</div>
+          <div class="step-desc">Resume + JD ke basis pe customized interview questions generate karta hai. STAR format mein answers kaise dein — tips bhi deta hai.</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">8</div>
+        <div class="step-content">
+          <div class="step-title">⚠️ Career Risk IQ</div>
+          <div class="step-desc">5 modules: Learning Adaptability, Consistency Stability, Skill Decay Index, Automation Risk, Direction Clarity. Batata hai ki 2 years baad career kaisi hogi.</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">9</div>
+        <div class="step-content">
+          <div class="step-title">📚 Local History Database</div>
+          <div class="step-desc">IndexedDB (browser ka built-in DB) use karke saari analyses save hoti hain. No account, no server — completely local aur free.</div>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     Q5 — TECH STACK JUSTIFICATION
+═══════════════════════════════════════════ -->
+<div class="section-page">
+  <div class="section-header">
+    <div class="q-badge">Q5</div>
+    <div class="section-title-wrap">
+      <div class="q-label">Question 5</div>
+      <div class="section-title">Tech Stack Justification — Kyun Yeh Choose Kiya?</div>
+    </div>
+  </div>
+
+  <div class="answer-body">
+
+    <div class="sub-heading">Technologies Used</div>
+
+    <div class="tech-row">
+      <span class="tech-pill pill-gold">HTML5</span>
+      <span class="tech-pill pill-gold">CSS3</span>
+      <span class="tech-pill pill-gold">Vanilla JavaScript</span>
+      <span class="tech-pill pill-green">IndexedDB</span>
+      <span class="tech-pill pill-blue">Render (Hosting)</span>
+      <span class="tech-pill pill-blue">serve (npm)</span>
+      <span class="tech-pill pill-purple">PDF.js (CDN)</span>
+      <span class="tech-pill pill-purple">Google Fonts</span>
+      <span class="tech-pill pill-red">GitHub (Version Control)</span>
+    </div>
+
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>Technology</th>
+          <th>Kyun Choose Kiya</th>
+          <th>Alternative Kya Tha</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Vanilla JS (No Framework)</strong></td>
+          <td>React/Vue use karne se build step chahiye hota — Render pe complexity badti. Vanilla JS seedha browser mein chalta hai, zero setup, zero cost.</td>
+          <td>React — lekin overkill tha is simple app ke liye</td>
+        </tr>
+        <tr>
+          <td><strong>IndexedDB (Browser DB)</strong></td>
+          <td>Firebase/Supabase = paid ya account needed. IndexedDB = browser ka built-in database, 100% free, no server, no privacy risk, offline bhi kaam karta hai.</td>
+          <td>Firebase Firestore — lekin charges lagte</td>
+        </tr>
+        <tr>
+          <td><strong>CSS Custom Properties</strong></td>
+          <td>Design system banane ke liye — ek jagah color change karo, poori app change ho jaati hai. Dark/Light mode toggle bhi isi se possible hua.</td>
+          <td>Tailwind CSS — lekin CDN version limited hai</td>
+        </tr>
+        <tr>
+          <td><strong>Render (Hosting)</strong></td>
+          <td>Free tier available, auto-deploy from GitHub, SSL certificate free, custom domain support. Heroku ne free tier band kar diya tha.</td>
+          <td>Vercel, Netlify — dono theek hain lekin Render already setup tha</td>
+        </tr>
+        <tr>
+          <td><strong>serve (npm package)</strong></td>
+          <td>Static files serve karne ke liye — sirf ek dependency. Nginx setup karna complex hota.</td>
+          <td>Nginx, Apache — lekin configuration complex hai</td>
+        </tr>
+        <tr>
+          <td><strong>PDF.js (CDN)</strong></td>
+          <td>Users PDF resume upload karte hain — PDF.js se browser mein hi text extract hota hai, server pe nahi jaata. Privacy maintain rehti hai.</td>
+          <td>Server-side PDF parsing — privacy risk hota</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="highlight-box">
+      🧠 <strong>Key Decision:</strong> "No backend, no database server, no API calls" — yeh deliberate design choice tha. Jab koi backend nahi hai, toh koi server crash nahi, koi downtime nahi, koi cost nahi, aur koi data breach nahi. Pure client-side app = maximum reliability at zero cost.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     Q6 — YOUR ROLE & CONTRIBUTIONS
+═══════════════════════════════════════════ -->
+<div class="section-page">
+  <div class="section-header">
+    <div class="q-badge">Q6</div>
+    <div class="section-title-wrap">
+      <div class="q-label">Question 6</div>
+      <div class="section-title">Your Exact Role &amp; Contributions</div>
+    </div>
+  </div>
+
+  <div class="answer-body">
+    <div class="highlight-box">
+      👤 <strong>Solo Project</strong> — Yeh project akele build kiya. Har cheez khud design ki, khud code ki, aur khud deploy kiya. Koi team nahi tha.
+    </div>
+
+    <div class="sub-heading">File-wise Contributions</div>
+
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>File</th>
+          <th>Mera Kaam</th>
+          <th>Size / Complexity</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>analyzer.js</strong></td>
+          <td>Poora skill taxonomy (600+ skills, 10 categories), scoring algorithm (weighted), ATS engine, company profiles, career roadmap generator</td>
+          <td>774 lines — Most complex</td>
+        </tr>
+        <tr>
+          <td><strong>career-risk.js</strong></td>
+          <td>5-module risk intelligence system, automation risk database by role, salary growth matrix, 6–12 month recovery roadmap</td>
+          <td>425 lines — AI Logic</td>
+        </tr>
+        <tr>
+          <td><strong>app.js</strong></td>
+          <td>Main entry point, event binding, file upload (PDF + TXT), drag & drop, state management, tool switching, history integration</td>
+          <td>590 lines — Orchestration</td>
+        </tr>
+        <tr>
+          <td><strong>ui.js</strong></td>
+          <td>All result rendering functions, charts, progress bars, score circles, verdict display</td>
+          <td>Dynamic UI generation</td>
+        </tr>
+        <tr>
+          <td><strong>storage.js</strong></td>
+          <td>Client-side IndexedDB database module (LocalDB). Handles match history save/load, career risk history, aggregate stats, export/import JSON backup, and history sidebar.</td>
+          <td>Local DB module</td>
+        </tr>
+
+        <tr>
+          <td><strong>styles.css</strong></td>
+          <td>Complete dark glassmorphism design system, 4200+ lines CSS, light/dark mode, responsive, animations</td>
+          <td>4200+ lines — Full Design</td>
+        </tr>
+        <tr>
+          <td><strong>index.html</strong></td>
+          <td>Full app structure, 9 sections, nav, tool tabs, career risk form, history sidebar</td>
+          <td>Structure &amp; Markup</td>
+        </tr>
+        <tr>
+          <td><strong>i18n.js</strong></td>
+          <td>Hindi/English language toggle system</td>
+          <td>Internationalization</td>
+        </tr>
+        <tr>
+          <td><strong>features.js</strong></td>
+          <td>PDF report download, video resume section, feedback system</td>
+          <td>Additional Features</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sub-heading">Non-Coding Contributions</div>
+    <ul class="emoji-list">
+      <li>📐 <strong>UX Design:</strong> Wireframes se leke final dark glassmorphism design — sab khud design kiya</li>
+      <li>🚀 <strong>DevOps:</strong> GitHub setup, Render deployment, build errors fix (yarn vs npm conflict, Android files remove)</li>
+      <li>🧪 <strong>Testing:</strong> Node.js test scripts se algorithms verify kiye bina browser ke</li>
+      <li>📊 <strong>Data Research:</strong> 600+ skills manually curate kiye, automation risk database research kiya</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     Q7 — ARCHITECTURE & DATA FLOW
+═══════════════════════════════════════════ -->
+<div class="section-page">
+  <div class="section-header">
+    <div class="q-badge">Q7</div>
+    <div class="section-title-wrap">
+      <div class="q-label">Question 7</div>
+      <div class="section-title">Architecture &amp; Data Flow</div>
+    </div>
+  </div>
+
+  <div class="answer-body">
+
+    <div class="sub-heading">High-Level Architecture</div>
+
+    <div class="arch-flow">
+      <div class="arch-box arch-user">👤 User<br><small>Browser</small></div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box arch-html">index.html<br><small>UI Structure</small></div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box arch-js">app.js<br><small>Orchestrator</small></div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box arch-js">analyzer.js<br><small>AI Engine</small></div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box arch-db">IndexedDB<br><small>Local Storage</small></div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box arch-out">UI Results<br><small>Rendered HTML</small></div>
+    </div>
+
+    <div class="sub-heading">Step-by-Step Data Flow — Resume Analysis</div>
+
+    <ul class="step-list">
+      <li>
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">User Input (index.html → app.js)</div>
+          <div class="step-desc">User resume aur JD paste karta hai ya PDF upload karta hai. app.js ka <code style="color:var(--gold-light);background:rgba(217,119,6,0.1);padding:2px 6px;border-radius:4px;">runAnalysis()</code> function trigger hota hai "Analyze Match" button click pe.</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">PDF Extraction (PDF.js CDN)</div>
+          <div class="step-desc">Agar PDF upload hua toh PDF.js CDN library se text extract hota hai — completely browser mein. Server pe kuch nahi jaata.</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Text Normalization (analyzer.js)</div>
+          <div class="step-desc"><code style="color:var(--gold-light);background:rgba(217,119,6,0.1);padding:2px 6px;border-radius:4px;">normalizeText()</code> function — lowercase karo, special characters hata do, whitespace clean karo. Fir <code style="color:var(--gold-light);background:rgba(217,119,6,0.1);padding:2px 6px;border-radius:4px;">extractSkillsFromText()</code> se 600+ skills mein se match dhundo.</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-title">Weighted Scoring (analyzer.js)</div>
+          <div class="step-desc">Skills match (40%) + Experience years comparison (20%) + Domain detection (15%) + Soft skills (15%) + ATS keywords (10%) = Final Score 0–100%.</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <div class="step-title">9 Module Results Generation</div>
+          <div class="step-desc">Ek hi pass mein sab generate hota hai: missingSkills, strongMatches, atsAnalysis, companyOptimization, resumeTips, roadmap, interviewPrep, strengthsWeaknesses, verdict.</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">6</div>
+        <div class="step-content">
+          <div class="step-title">UI Render (ui.js)</div>
+          <div class="step-desc">Result object <code style="color:var(--gold-light);background:rgba(217,119,6,0.1);padding:2px 6px;border-radius:4px;">UI.renderResults(state.result)</code> ko pass hota hai — dynamically HTML generate hoti hai aur screen pe display hoti hai.</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">7</div>
+        <div class="step-content">
+          <div class="step-title">Auto-Save to IndexedDB (storage.js)</div>
+          <div class="step-desc"><code style="color:var(--gold-light);background:rgba(217,119,6,0.1);padding:2px 6px;border-radius:4px;">LocalDB.saveMatchAnalysis()</code> call hota hai — result browser ke IndexedDB mein save ho jaata hai permanently (jab tak user browser data clear nahi karta).</div>
+
+        </div>
+      </li>
+    </ul>
+
+    <div class="code-block">
+<span class="cm">// Simplified Data Flow — app.js</span>
+<span class="kw">async function</span> <span class="fn">runAnalysis</span>() {
+  <span class="kw">const</span> resumeText = <span class="fn">getInput</span>(<span class="str">'resume-input'</span>);
+  <span class="kw">const</span> jdText     = <span class="fn">getInput</span>(<span class="str">'jd-input'</span>);
+
+  <span class="cm">// Step 3–5: Analyze in analyzer.js</span>
+  <span class="kw">const</span> result = ResumeAnalyzer.<span class="fn">analyzeMatch</span>(resumeText, jdText, options);
+
+  <span class="cm">// Step 6: Render results</span>
+  UI.<span class="fn">renderResults</span>(result);
+
+  <span class="cm">// Step 7: Save to IndexedDB (free local DB)</span>
+  FirebaseDB.<span class="fn">saveMatchAnalysis</span>(result, resumeText, jdText);
+}</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     Q8 — DATABASE SCHEMA & APIs
+═══════════════════════════════════════════ -->
+<div class="section-page">
+  <div class="section-header">
+    <div class="q-badge">Q8</div>
+    <div class="section-title-wrap">
+      <div class="q-label">Question 8</div>
+      <div class="section-title">Database Schema &amp; APIs</div>
+    </div>
+  </div>
+
+  <div class="answer-body">
+
+    <div class="highlight-box">
+      ℹ️ <strong>Important:</strong> Yeh app "serverless" hai — koi backend API nahi hai, koi REST endpoint nahi hai. Sab kuch browser mein hota hai. Database bhi browser ka built-in <strong>IndexedDB</strong> use karta hai.
+    </div>
+
+    <div class="sub-heading">IndexedDB Schema (Local Database)</div>
+
+    <p>IndexedDB ek browser-level database hai — SQL jaisa lekin NoSQL structure. Hamare paas 3 Object Stores hain (SQL mein "tables" bolte):</p>
+
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>Object Store (Table)</th>
+          <th>Key</th>
+          <th>Fields (Columns)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>matchHistory</strong></td>
+          <td>id (auto-increment)</td>
+          <td>score, verdict, missingSkills[], strongMatches[], targetRole, atsPassProbability, resumeSnippet (2000 chars), jdSnippet (2000 chars), createdAt (timestamp)</td>
+        </tr>
+        <tr>
+          <td><strong>riskHistory</strong></td>
+          <td>id (auto-increment)</td>
+          <td>overallScore, riskCategory, currentRole, yearsOfExperience, salaryGrowth, automationRisk, topRiskFactors[], projection, createdAt</td>
+        </tr>
+        <tr>
+          <td><strong>stats</strong></td>
+          <td>"main" (single doc)</td>
+          <td>totalMatchAnalyses, totalRiskAnalyses, avgMatchScore, topMissingSkills[], lastActive</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sub-heading">Internal "API" Functions (No HTTP — Direct JS Calls)</div>
+
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>Function (API Equivalent)</th>
+          <th>Kaam Kya Karta Hai</th>
+          <th>HTTP Equivalent</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code style="color:var(--gold-light);">ResumeAnalyzer.analyzeMatch()</code></td>
+          <td>Resume + JD se full analysis result object generate karta hai</td>
+          <td>POST /api/analyze</td>
+        </tr>
+        <tr>
+          <td><code style="color:var(--gold-light);">CareerRisk.analyze()</code></td>
+          <td>Career risk inputs se risk report generate karta hai</td>
+          <td>POST /api/career-risk</td>
+        </tr>
+        <tr>
+          <td><code style="color:var(--gold-light);">FirebaseDB.saveMatchAnalysis()</code></td>
+          <td>Result ko IndexedDB mein save karta hai</td>
+          <td>POST /api/history/match</td>
+        </tr>
+        <tr>
+          <td><code style="color:var(--gold-light);">FirebaseDB.loadHistory()</code></td>
+          <td>IndexedDB se last 15 analyses fetch karta hai</td>
+          <td>GET /api/history?limit=15</td>
+        </tr>
+        <tr>
+          <td><code style="color:var(--gold-light);">DownloadReport.generate()</code></td>
+          <td>Result se HTML report banata hai aur PDF download karta hai</td>
+          <td>GET /api/report/download</td>
+        </tr>
+        <tr>
+          <td><code style="color:var(--gold-light);">I18N.toggleLang()</code></td>
+          <td>Hindi/English switch karta hai</td>
+          <td>PUT /api/preferences/lang</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sub-heading">External CDN Dependencies (Free APIs)</div>
+    <ul class="emoji-list">
+      <li>📄 <strong>PDF.js CDN:</strong> <code style="color:var(--gold-light);">cdnjs.cloudflare.com</code> — PDF se text extract karta hai</li>
+      <li>🔤 <strong>Google Fonts CDN:</strong> Outfit + JetBrains Mono fonts load karta hai</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     Q9 — MAJOR TECHNICAL CHALLENGES
+═══════════════════════════════════════════ -->
+<div class="section-page">
+  <div class="section-header">
+    <div class="q-badge">Q9</div>
+    <div class="section-title-wrap">
+      <div class="q-label">Question 9</div>
+      <div class="section-title">Major Technical Challenges &amp; Resolution</div>
+    </div>
+  </div>
+
+  <div class="answer-body">
+
+    <div class="challenge-card">
+      <div class="challenge-top">
+        <div class="challenge-icon">🔴</div>
+        <div class="challenge-title">Challenge 1: Render Build Repeatedly Fail Ho Raha Tha</div>
+      </div>
+      <div class="challenge-section-label label-problem">🐛 Problem</div>
+      <p class="challenge-text">Render pe deploy karte time "Exited with status 1" error aa raha tha. Multiple commits kiye lekin har baar fail. Root causes:
+        (a) <code style="color:#f87171;">android/</code> folder ke 79 files git mein the — Render Android Gradle build try karta tha.
+        (b) <code style="color:#f87171;">yarn.lock</code> + <code style="color:#f87171;">package-lock.json</code> dono the — package manager conflict.
+        (c) <code style="color:#f87171;">render.yaml</code> dashboard settings se conflict kar raha tha.
+        (d) <code style="color:#f87171;">"node": ">=22.0.0"</code> — Render Node 20 use karta tha.
+      </p>
+      <br>
+      <div class="challenge-section-label label-solution">✅ Resolution</div>
+      <p class="challenge-text">
+        Step 1: <code style="color:#34d399;">git rm -r --cached android/</code> — Android files permanently remove kiye.<br>
+        Step 2: <code style="color:#34d399;">render.yaml</code> delete kiya — dashboard settings conflict nahi hota ab.<br>
+        Step 3: Dono lockfiles <code style="color:#34d399;">.gitignore</code> mein daale — Render fresh install karta hai.<br>
+        Step 4: <code style="color:#34d399;">package.json</code> ultra-minimal rakha — sirf <code>serve</code> dependency.<br>
+        Result: Clean build in 2.15 seconds ✅
+      </p>
+    </div>
+
+    <div class="challenge-card">
+      <div class="challenge-top">
+        <div class="challenge-icon">🟡</div>
+        <div class="challenge-title">Challenge 2: Skill Matching Mein False Positives</div>
+      </div>
+      <div class="challenge-section-label label-problem">🐛 Problem</div>
+      <p class="challenge-text">Simple text search se "Java" search karne pe "JavaScript" bhi match ho jaata tha. "Go" search karne pe "good", "google" bhi match ho jaate the. Scoring inaccurate ho raha tha.</p>
+      <br>
+      <div class="challenge-section-label label-solution">✅ Resolution</div>
+      <p class="challenge-text">
+        Word boundary regex implement kiya: <code style="color:#34d399;">/\bjava\b/i</code> — yeh sirf exact word match karta hai.<br>
+        ALIASES system banaya: <code style="color:#34d399;">"js" → "javascript"</code>, <code style="color:#34d399;">"node.js" → "node"</code> taaki variants handle ho sakein.<br>
+        Longest-match-first algorithm: pehle "react native" match karo, fir "react" — taaki substring conflict na ho.
+      </p>
+    </div>
+
+    <div class="challenge-card">
+      <div class="challenge-top">
+        <div class="challenge-icon">🟠</div>
+        <div class="challenge-title">Challenge 3: Firebase Chargeable Tha — Free Alternative Chahiye Tha</div>
+      </div>
+      <div class="challenge-section-label label-problem">🐛 Problem</div>
+      <p class="challenge-text">Pehle Google Firebase + Firestore implement kiya tha history save karne ke liye. Lekin Firebase account, config keys chahiye the aur potential charges ka risk tha. User ne free alternative maanga.</p>
+      <br>
+      <div class="challenge-section-label label-solution">✅ Resolution</div>
+      <p class="challenge-text">
+        Firebase ko completely remove kiya — teen CDN script tags hata diye.<br>
+        Same public API maintain rakhi (<code style="color:#34d399;">FirebaseDB.saveMatchAnalysis()</code>) taaki app.js change na karna pade.<br>
+        Browser ke built-in <strong>IndexedDB</strong> use kiya — zero cost, zero account, offline bhi kaam karta hai, up to 50MB+ storage.
+      </p>
+    </div>
+
+    <div class="challenge-card">
+      <div class="challenge-top">
+        <div class="challenge-icon">🔵</div>
+        <div class="challenge-title">Challenge 4: PDF Upload Privacy Issue</div>
+      </div>
+      <div class="challenge-section-label label-problem">🐛 Problem</div>
+      <p class="challenge-text">PDF resume upload karne pe server pe bhejne se privacy risk hota. Log nahi chahte ki unka resume kisi server pe store ho.</p>
+      <br>
+      <div class="challenge-section-label label-solution">✅ Resolution</div>
+      <p class="challenge-text">
+        PDF.js CDN library browser mein hi PDF parse karta hai. <code style="color:#34d399;">FileReader API</code> use kiya — file ko ArrayBuffer mein convert karo, PDF.js se pages read karo, text extract karo. Server pe kuch nahi jaata. 100% client-side.
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     Q10 — FUTURE ENHANCEMENTS
+═══════════════════════════════════════════ -->
+<div class="section-page">
+  <div class="section-header">
+    <div class="q-badge">Q10</div>
+    <div class="section-title-wrap">
+      <div class="q-label">Question 10</div>
+      <div class="section-title">Future Enhancements — Aage Kya Banana Hai?</div>
+    </div>
+  </div>
+
+  <div class="answer-body">
+
+    <div class="future-grid">
+      <div class="future-card">
+        <div class="future-icon">🤖</div>
+        <div class="future-title">Real AI Integration (LLM)</div>
+        <div class="future-desc">Gemini API ya OpenAI API integrate karo — current rule-based matching ki jagah actual LLM se contextual understanding. "2 saal ka experience" bhi samjhe, sirf keywords nahi.</div>
+      </div>
+      <div class="future-card">
+        <div class="future-icon">☁️</div>
+        <div class="future-title">Cloud Sync</div>
+        <div class="future-desc">Supabase (free tier) integrate karo — user ka history alag devices pe bhi accessible ho. Google OAuth se login — cross-device sync.</div>
+      </div>
+      <div class="future-card">
+        <div class="future-icon">📊</div>
+        <div class="future-title">Dashboard Analytics</div>
+        <div class="future-desc">User ki sab analyses ka trend chart — "Teri TypeScript skill improve ho rahi hai month over month." Progress tracking aur weekly report.</div>
+      </div>
+      <div class="future-card">
+        <div class="future-icon">🔗</div>
+        <div class="future-title">LinkedIn Integration</div>
+        <div class="future-desc">LinkedIn job URL paste karo — tool automatically JD extract kare. Resume bhi LinkedIn profile se auto-fill ho. Browser extension version.</div>
+      </div>
+      <div class="future-card">
+        <div class="future-icon">🌐</div>
+        <div class="future-title">Multi-Language Support</div>
+        <div class="future-desc">Hindi JD aur resume bhi analyze ho sake. Regional languages: Tamil, Telugu, Marathi. Global markets: Spanish, German JD support.</div>
+      </div>
+      <div class="future-card">
+        <div class="future-icon">📱</div>
+        <div class="future-title">Native Mobile App</div>
+        <div class="future-desc">React Native ya Flutter app banao — phone camera se resume scan karo (OCR), offline bhi kaam kare, push notifications: "Naya job match mila!"</div>
+      </div>
+      <div class="future-card">
+        <div class="future-icon">🎓</div>
+        <div class="future-title">Learning Path Integration</div>
+        <div class="future-desc">Missing skills ke liye Coursera, YouTube, Udemy ke actual free courses link karo — "TypeScript seekhne ke liye yeh 3 free resources hain."</div>
+      </div>
+      <div class="future-card">
+        <div class="future-icon">🏢</div>
+        <div class="future-title">B2B / Campus Placement Tool</div>
+        <div class="future-desc">Colleges aur bootcamps ke liye bulk resume analysis — ek teacher 100 students ke resumes ek saath analyze kare, class-level skill gap report mile.</div>
+      </div>
+    </div>
+
+    <div class="sub-heading">Scalability Plan</div>
+
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>Phase</th>
+          <th>Enhancement</th>
+          <th>Tech Choice</th>
+          <th>Timeline</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Phase 1</strong></td>
+          <td>Gemini API integration for smarter matching</td>
+          <td>Google AI Studio (free tier)</td>
+          <td>1–2 months</td>
+        </tr>
+        <tr>
+          <td><strong>Phase 2</strong></td>
+          <td>User accounts + cloud history sync</td>
+          <td>Supabase free tier</td>
+          <td>2–3 months</td>
+        </tr>
+        <tr>
+          <td><strong>Phase 3</strong></td>
+          <td>LinkedIn URL parser + browser extension</td>
+          <td>Chrome Extension API</td>
+          <td>3–4 months</td>
+        </tr>
+        <tr>
+          <td><strong>Phase 4</strong></td>
+          <td>Mobile app</td>
+          <td>React Native / Flutter</td>
+          <td>6+ months</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="highlight-box">
+      🚀 <strong>Vision:</strong> "ResumeMatch AI ko India ka #1 free career tool banana — jahan har fresher, job seeker, aur career changer apna resume optimize kar sake bina ek rupaya kharch kiye — aur ATS ko confidently pass kar sake."
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════ -->
+<div class="doc-footer">
+  <div style="font-size:40px;margin-bottom:16px;">🎯</div>
+  <div style="font-size:20px;font-weight:800;color:var(--text);margin-bottom:8px;">ResumeMatch AI</div>
+  <p>Built with ❤️ · <strong>Vanilla JS</strong> · <strong>IndexedDB</strong> · <strong>Render Hosting</strong></p>
+  <div style="margin:16px 0;border-top:1px solid var(--border);padding-top:16px;">
+    <strong>Live:</strong> https://resumematch-ai-1.onrender.com &nbsp;|&nbsp;
+    <strong>GitHub:</strong> github.com/kaushallakshya71-a11y/resume-jd-matcher
+  </div>
+  <p style="font-size:11px;margin-top:8px;color:#57534e;">
+    Yeh documentation Hinglish mein likhi gayi hai taaki beginner developers bhi easily samajh sakein.<br>
+    100% Free · No Backend · No Database Server · No Privacy Risk
+  </p>
+</div>
+
+</body>
+</html>

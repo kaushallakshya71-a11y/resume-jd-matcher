@@ -1,0 +1,842 @@
+[
+  {
+    "name": "JavaScript",
+    "aliases": [
+      "JS",
+      "Javascript",
+      "ECMAScript"
+    ],
+    "category": "Programming Languages",
+    "related": [
+      "TypeScript",
+      "Node.js"
+    ]
+  },
+  {
+    "name": "TypeScript",
+    "aliases": [
+      "TS"
+    ],
+    "category": "Programming Languages",
+    "related": [
+      "JavaScript"
+    ]
+  },
+  {
+    "name": "Python",
+    "aliases": [
+      "Python3",
+      "Py"
+    ],
+    "category": "Programming Languages",
+    "related": [
+      "Django",
+      "Flask",
+      "FastAPI"
+    ]
+  },
+  {
+    "name": "Java",
+    "aliases": [
+      "Core Java",
+      "Java 8",
+      "Java 11",
+      "Java 17",
+      "Java 21"
+    ],
+    "category": "Programming Languages",
+    "notMatches": [
+      "JavaScript",
+      "Java Android"
+    ],
+    "related": [
+      "Spring Boot"
+    ]
+  },
+  {
+    "name": "C++",
+    "aliases": [
+      "CPP",
+      "C Plus Plus"
+    ],
+    "category": "Programming Languages",
+    "related": [
+      "C"
+    ]
+  },
+  {
+    "name": "C",
+    "aliases": [
+      "C Language"
+    ],
+    "category": "Programming Languages",
+    "notMatches": [
+      "C++",
+      "C#"
+    ],
+    "boundaryRegex": "(?:^|[^\\w+#])c(?=[^\\w+#]|$)"
+  },
+  {
+    "name": "C#",
+    "aliases": [
+      "CSharp",
+      "C Sharp"
+    ],
+    "category": "Programming Languages",
+    "related": [
+      ".NET",
+      "ASP.NET"
+    ]
+  },
+  {
+    "name": "Go",
+    "aliases": [
+      "Golang"
+    ],
+    "category": "Programming Languages",
+    "boundaryRegex": "\\bgolang\\b|(?:^|[^\\w])go(?=\\s+(?:lang|programming|developer|engineer|code)|[^\\w]|$)"
+  },
+  {
+    "name": "Rust",
+    "aliases": [
+      "Rustlang"
+    ],
+    "category": "Programming Languages"
+  },
+  {
+    "name": "PHP",
+    "aliases": [
+      "PHP7",
+      "PHP8"
+    ],
+    "category": "Programming Languages",
+    "related": [
+      "Laravel"
+    ]
+  },
+  {
+    "name": "Ruby",
+    "aliases": [],
+    "category": "Programming Languages",
+    "related": [
+      "Ruby on Rails"
+    ]
+  },
+  {
+    "name": "Swift",
+    "aliases": [
+      "SwiftUI"
+    ],
+    "category": "Programming Languages",
+    "related": [
+      "iOS"
+    ]
+  },
+  {
+    "name": "Kotlin",
+    "aliases": [],
+    "category": "Programming Languages",
+    "related": [
+      "Android"
+    ]
+  },
+  {
+    "name": "Dart",
+    "aliases": [],
+    "category": "Programming Languages",
+    "related": [
+      "Flutter"
+    ]
+  },
+  {
+    "name": "R",
+    "aliases": [
+      "R Language"
+    ],
+    "category": "Programming Languages",
+    "boundaryRegex": "\\br\\s+(?:programming|script|package|studio|lang)\\b|(?:^|[^\\w])r(?=[^\\w]|$)"
+  },
+  {
+    "name": "SQL",
+    "aliases": [
+      "Structured Query Language"
+    ],
+    "category": "Programming Languages",
+    "related": [
+      "MySQL",
+      "PostgreSQL"
+    ]
+  },
+  {
+    "name": "Bash",
+    "aliases": [
+      "Shell Scripting",
+      "Shell",
+      "Zsh"
+    ],
+    "category": "Programming Languages",
+    "related": [
+      "Linux"
+    ]
+  },
+  {
+    "name": "React",
+    "aliases": [
+      "ReactJS",
+      "React.js"
+    ],
+    "category": "Frameworks",
+    "notMatches": [
+      "React Native"
+    ],
+    "related": [
+      "Next.js",
+      "Redux"
+    ]
+  },
+  {
+    "name": "React Native",
+    "aliases": [
+      "ReactNative"
+    ],
+    "category": "Frameworks",
+    "related": [
+      "React",
+      "Mobile Development"
+    ]
+  },
+  {
+    "name": "Next.js",
+    "aliases": [
+      "Nextjs",
+      "Next JS"
+    ],
+    "category": "Frameworks",
+    "related": [
+      "React"
+    ]
+  },
+  {
+    "name": "Vue.js",
+    "aliases": [
+      "Vue",
+      "VueJS",
+      "Vue3"
+    ],
+    "category": "Frameworks",
+    "related": [
+      "Nuxt"
+    ]
+  },
+  {
+    "name": "Nuxt",
+    "aliases": [
+      "Nuxt.js",
+      "NuxtJS"
+    ],
+    "category": "Frameworks",
+    "related": [
+      "Vue.js"
+    ]
+  },
+  {
+    "name": "Angular",
+    "aliases": [
+      "AngularJS",
+      "Angular 2+"
+    ],
+    "category": "Frameworks"
+  },
+  {
+    "name": "Svelte",
+    "aliases": [
+      "SvelteKit"
+    ],
+    "category": "Frameworks"
+  },
+  {
+    "name": "Node.js",
+    "aliases": [
+      "NodeJS",
+      "Node js"
+    ],
+    "category": "Frameworks",
+    "boundaryRegex": "\\bnode(?:\\.js|js)?\\b",
+    "related": [
+      "Express",
+      "NestJS"
+    ]
+  },
+  {
+    "name": "Express",
+    "aliases": [
+      "Express.js",
+      "ExpressJS"
+    ],
+    "category": "Frameworks",
+    "related": [
+      "Node.js"
+    ]
+  },
+  {
+    "name": "NestJS",
+    "aliases": [
+      "Nest.js",
+      "Nest"
+    ],
+    "category": "Frameworks",
+    "related": [
+      "Node.js",
+      "TypeScript"
+    ]
+  },
+  {
+    "name": "Django",
+    "aliases": [
+      "Django REST Framework",
+      "DRF"
+    ],
+    "category": "Frameworks",
+    "related": [
+      "Python"
+    ]
+  },
+  {
+    "name": "Flask",
+    "aliases": [],
+    "category": "Frameworks",
+    "related": [
+      "Python"
+    ]
+  },
+  {
+    "name": "FastAPI",
+    "aliases": [
+      "Fast API"
+    ],
+    "category": "Frameworks",
+    "related": [
+      "Python"
+    ]
+  },
+  {
+    "name": "Spring Boot",
+    "aliases": [
+      "SpringBoot",
+      "Spring Framework",
+      "Spring"
+    ],
+    "category": "Frameworks",
+    "related": [
+      "Java"
+    ]
+  },
+  {
+    "name": "Ruby on Rails",
+    "aliases": [
+      "Rails",
+      "RoR"
+    ],
+    "category": "Frameworks",
+    "related": [
+      "Ruby"
+    ]
+  },
+  {
+    "name": "Laravel",
+    "aliases": [],
+    "category": "Frameworks",
+    "related": [
+      "PHP"
+    ]
+  },
+  {
+    "name": "ASP.NET",
+    "aliases": [
+      ".NET",
+      ".NET Core",
+      "dot net",
+      "ASP.NET Core"
+    ],
+    "category": "Frameworks",
+    "related": [
+      "C#"
+    ]
+  },
+  {
+    "name": "Flutter",
+    "aliases": [],
+    "category": "Frameworks",
+    "related": [
+      "Dart",
+      "Mobile Development"
+    ]
+  },
+  {
+    "name": "Redux",
+    "aliases": [
+      "Redux Toolkit",
+      "RTK"
+    ],
+    "category": "Libraries",
+    "related": [
+      "React"
+    ]
+  },
+  {
+    "name": "Tailwind CSS",
+    "aliases": [
+      "Tailwind",
+      "TailwindCSS"
+    ],
+    "category": "Libraries"
+  },
+  {
+    "name": "Bootstrap",
+    "aliases": [],
+    "category": "Libraries"
+  },
+  {
+    "name": "Pandas",
+    "aliases": [],
+    "category": "Libraries",
+    "related": [
+      "Python",
+      "Data Science"
+    ]
+  },
+  {
+    "name": "NumPy",
+    "aliases": [
+      "Numpy"
+    ],
+    "category": "Libraries",
+    "related": [
+      "Python",
+      "Data Science"
+    ]
+  },
+  {
+    "name": "SciPy",
+    "aliases": [
+      "Scipy"
+    ],
+    "category": "Libraries",
+    "related": [
+      "Python"
+    ]
+  },
+  {
+    "name": "Scikit-Learn",
+    "aliases": [
+      "sklearn",
+      "Scikit Learn"
+    ],
+    "category": "Libraries",
+    "related": [
+      "Machine Learning",
+      "Python"
+    ]
+  },
+  {
+    "name": "TensorFlow",
+    "aliases": [
+      "Tensorflow",
+      "TF"
+    ],
+    "category": "Libraries",
+    "related": [
+      "Deep Learning"
+    ]
+  },
+  {
+    "name": "PyTorch",
+    "aliases": [
+      "Pytorch",
+      "Torch"
+    ],
+    "category": "Libraries",
+    "related": [
+      "Deep Learning"
+    ]
+  },
+  {
+    "name": "Keras",
+    "aliases": [],
+    "category": "Libraries",
+    "related": [
+      "TensorFlow"
+    ]
+  },
+  {
+    "name": "PostgreSQL",
+    "aliases": [
+      "Postgres",
+      "Postgre SQL"
+    ],
+    "category": "Databases",
+    "related": [
+      "SQL"
+    ]
+  },
+  {
+    "name": "MySQL",
+    "aliases": [],
+    "category": "Databases",
+    "notMatches": [
+      "PostgreSQL"
+    ],
+    "related": [
+      "SQL"
+    ]
+  },
+  {
+    "name": "MongoDB",
+    "aliases": [
+      "Mongo",
+      "Mongoose"
+    ],
+    "category": "Databases"
+  },
+  {
+    "name": "Redis",
+    "aliases": [],
+    "category": "Databases"
+  },
+  {
+    "name": "SQLite",
+    "aliases": [],
+    "category": "Databases"
+  },
+  {
+    "name": "DynamoDB",
+    "aliases": [
+      "Dynamo DB"
+    ],
+    "category": "Databases",
+    "related": [
+      "AWS"
+    ]
+  },
+  {
+    "name": "Cassandra",
+    "aliases": [
+      "Apache Cassandra"
+    ],
+    "category": "Databases"
+  },
+  {
+    "name": "Elasticsearch",
+    "aliases": [
+      "Elastic Search",
+      "ELK"
+    ],
+    "category": "Databases"
+  },
+  {
+    "name": "Supabase",
+    "aliases": [],
+    "category": "Databases",
+    "related": [
+      "PostgreSQL"
+    ]
+  },
+  {
+    "name": "AWS",
+    "aliases": [
+      "Amazon Web Services"
+    ],
+    "category": "Cloud",
+    "notMatches": [
+      "Azure",
+      "Google Cloud"
+    ],
+    "related": [
+      "Cloud Computing"
+    ]
+  },
+  {
+    "name": "Azure",
+    "aliases": [
+      "Microsoft Azure"
+    ],
+    "category": "Cloud",
+    "notMatches": [
+      "AWS",
+      "Google Cloud"
+    ]
+  },
+  {
+    "name": "Google Cloud",
+    "aliases": [
+      "GCP",
+      "Google Cloud Platform"
+    ],
+    "category": "Cloud",
+    "notMatches": [
+      "AWS",
+      "Azure"
+    ]
+  },
+  {
+    "name": "Docker",
+    "aliases": [
+      "Containerization",
+      "Containers"
+    ],
+    "category": "DevOps",
+    "related": [
+      "Kubernetes"
+    ]
+  },
+  {
+    "name": "Kubernetes",
+    "aliases": [
+      "K8s"
+    ],
+    "category": "DevOps",
+    "related": [
+      "Docker"
+    ]
+  },
+  {
+    "name": "Terraform",
+    "aliases": [
+      "IaC",
+      "Infrastructure as Code"
+    ],
+    "category": "DevOps"
+  },
+  {
+    "name": "Ansible",
+    "aliases": [],
+    "category": "DevOps"
+  },
+  {
+    "name": "Jenkins",
+    "aliases": [],
+    "category": "DevOps",
+    "related": [
+      "CI/CD"
+    ]
+  },
+  {
+    "name": "GitHub Actions",
+    "aliases": [
+      "Github Actions",
+      "GHA"
+    ],
+    "category": "DevOps",
+    "related": [
+      "CI/CD"
+    ]
+  },
+  {
+    "name": "CI/CD",
+    "aliases": [
+      "Continuous Integration",
+      "Continuous Deployment"
+    ],
+    "category": "DevOps"
+  },
+  {
+    "name": "Linux",
+    "aliases": [
+      "Ubuntu",
+      "Debian",
+      "CentOS",
+      "RHEL"
+    ],
+    "category": "DevOps"
+  },
+  {
+    "name": "Nginx",
+    "aliases": [],
+    "category": "DevOps"
+  },
+  {
+    "name": "Machine Learning",
+    "aliases": [
+      "ML"
+    ],
+    "category": "AI/ML"
+  },
+  {
+    "name": "Deep Learning",
+    "aliases": [
+      "DL",
+      "Neural Networks"
+    ],
+    "category": "AI/ML"
+  },
+  {
+    "name": "Natural Language Processing",
+    "aliases": [
+      "NLP"
+    ],
+    "category": "AI/ML"
+  },
+  {
+    "name": "Large Language Models",
+    "aliases": [
+      "LLM",
+      "LLMs"
+    ],
+    "category": "AI/ML"
+  },
+  {
+    "name": "Data Analysis",
+    "aliases": [
+      "Data Analytics"
+    ],
+    "category": "Data Science"
+  },
+  {
+    "name": "Power BI",
+    "aliases": [
+      "PowerBI"
+    ],
+    "category": "Data Science"
+  },
+  {
+    "name": "Tableau",
+    "aliases": [],
+    "category": "Data Science"
+  },
+  {
+    "name": "Apache Spark",
+    "aliases": [
+      "Spark",
+      "PySpark"
+    ],
+    "category": "Data Science"
+  },
+  {
+    "name": "Jest",
+    "aliases": [],
+    "category": "Testing",
+    "related": [
+      "JavaScript"
+    ]
+  },
+  {
+    "name": "PyTest",
+    "aliases": [
+      "pytest"
+    ],
+    "category": "Testing",
+    "related": [
+      "Python"
+    ]
+  },
+  {
+    "name": "Cypress",
+    "aliases": [],
+    "category": "Testing"
+  },
+  {
+    "name": "Playwright",
+    "aliases": [],
+    "category": "Testing"
+  },
+  {
+    "name": "Selenium",
+    "aliases": [],
+    "category": "Testing"
+  },
+  {
+    "name": "Unit Testing",
+    "aliases": [
+      "Unit Tests",
+      "TDD",
+      "Test Driven Development"
+    ],
+    "category": "Testing"
+  },
+  {
+    "name": "Git",
+    "aliases": [
+      "Version Control",
+      "VCS"
+    ],
+    "category": "Tools"
+  },
+  {
+    "name": "GitHub",
+    "aliases": [
+      "Github"
+    ],
+    "category": "Tools"
+  },
+  {
+    "name": "Postman",
+    "aliases": [],
+    "category": "Tools"
+  },
+  {
+    "name": "Figma",
+    "aliases": [],
+    "category": "Tools"
+  },
+  {
+    "name": "Jira",
+    "aliases": [],
+    "category": "Tools"
+  },
+  {
+    "name": "GraphQL",
+    "aliases": [],
+    "category": "Tools"
+  },
+  {
+    "name": "REST API",
+    "aliases": [
+      "RESTful",
+      "REST APIs",
+      "REST"
+    ],
+    "category": "Tools"
+  },
+  {
+    "name": "Communication",
+    "aliases": [
+      "Strong Communication",
+      "Verbal Communication",
+      "Written Communication"
+    ],
+    "category": "Soft Skills"
+  },
+  {
+    "name": "Teamwork",
+    "aliases": [
+      "Collaboration",
+      "Collaborative"
+    ],
+    "category": "Soft Skills"
+  },
+  {
+    "name": "Leadership",
+    "aliases": [
+      "Team Leadership",
+      "Mentoring",
+      "Mentorship"
+    ],
+    "category": "Soft Skills"
+  },
+  {
+    "name": "Problem Solving",
+    "aliases": [
+      "Problem-Solving",
+      "Analytical Skills"
+    ],
+    "category": "Soft Skills"
+  },
+  {
+    "name": "Agile",
+    "aliases": [
+      "Scrum",
+      "Kanban"
+    ],
+    "category": "Soft Skills"
+  }
+]

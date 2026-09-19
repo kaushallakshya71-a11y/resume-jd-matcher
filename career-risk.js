@@ -1,8 +1,10 @@
 // ============================================================
-// career-risk.js — AI Career Risk Intelligence System
+// career-risk.js — Rule-Based Career Risk Signals Engine
+// Informational career health assessment based on user inputs.
 // Modules: Learning Adaptability, Consistency Stability,
 // Skill Decay, Market Mismatch, Career Direction Clarity
 // ============================================================
+
 
 const CareerRisk = (function () {
 
@@ -298,13 +300,14 @@ const CareerRisk = (function () {
 
     function getProjection(score, m4, m5) {
         if (score <= 35) {
-            return `You are on a stable career trajectory. With your current momentum, expect strong growth over the next 2 years — especially if you continue building in-demand skills. Market sustainability appears ${m4.sustainability.split('—')[0].trim().toLowerCase()}.`;
+            return `Current indicators suggest a relatively resilient career profile. Continued development in high-demand areas can maintain a healthy career trajectory over the next 1–2 years. Estimated role sustainability is ${m4.sustainability.split('—')[0].trim().toLowerCase()}.`;
         } else if (score <= 65) {
-            return `Your career shows moderate risk signals. Without course correction in the next 6–12 months, you may experience salary plateaus or reduced opportunities. Your current role's market sustainability is ${m4.sustainability.split('—')[0].trim().toLowerCase()}.`;
+            return `Career indicators suggest moderate vulnerability signals. Proactive upskilling in high-demand tools over the next 6–12 months is advisable to avoid skill decay. Role sustainability indicator: ${m4.sustainability.split('—')[0].trim().toLowerCase()}.`;
         } else {
-            return `High stagnation risk detected. Without immediate action, the next 2 years could see limited growth, difficulty in job transitions, and salary compression. Your direction clarity is ${m5.clarity.toLowerCase()}, which compounds this risk.`;
+            return `Signals suggest noticeable stagnation exposure based on current inputs. Focusing on high-demand market skills and establishing a clear career target can meaningfully lower this vulnerability. Direction clarity was assessed as ${m5.clarity.toLowerCase()}.`;
         }
     }
+
 
     function getRecoveryRoadmap(score, m1, m3, m5) {
         const months1to3 = [];
@@ -421,4 +424,11 @@ const CareerRisk = (function () {
     return { analyze };
 })();
 
-window.CareerRisk = CareerRisk;
+if (typeof window !== 'undefined') {
+    window.CareerRisk = CareerRisk;
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = CareerRisk;
+}
+

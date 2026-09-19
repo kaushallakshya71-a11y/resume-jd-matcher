@@ -1,10 +1,14 @@
 // ============================================================
-// analyzer.js — Skill Taxonomy, Scoring Engine & AI Matching v3
-// All 9 Modules: Smart Match Score, Skills Gap, ATS, Company
-// Optimization, Resume Tips, Career Roadmap, Interview Prep,
-// Video/Soft Skills, Final Verdict
+// analyzer.js — Skill Taxonomy, Scoring Engine & Matching v4
+// ResumeMatch AI — Client-Side Rule-Based Matching Engine
+// Preserves all 9 modules: Smart Match Score, Skills Gap, ATS,
+// Company Optimization, Resume Tips, Career Roadmap,
+// Interview Prep, Video/Soft Skills, Final Verdict.
 // ============================================================
 
+// ==============================
+// 1. STRUCTURED SKILL TAXONOMY
+// ==============================
 const SKILL_TAXONOMY = {
     frontend: {
         label: "Frontend Development",
@@ -22,7 +26,8 @@ const SKILL_TAXONOMY = {
         skills: [
             "node", "nodejs", "node.js", "express", "expressjs", "nestjs", "fastapi",
             "django", "flask", "spring", "spring boot", "laravel", "rails", "ruby on rails",
-            "php", "python", "java", "golang", "go", "rust", "c#", ".net", "asp.net",
+            "php", "python", "java", "golang", "go", "rust", "c", "c++", "c#", ".net", "asp.net",
+
             "graphql", "rest", "restful", "rest api", "grpc", "websockets", "microservices",
             "api", "authentication", "oauth", "jwt", "mvc", "orm"
         ]
@@ -62,7 +67,7 @@ const SKILL_TAXONOMY = {
         skills: [
             "ios", "android", "react native", "flutter", "dart", "swift", "objective-c",
             "kotlin", "java android", "xamarin", "ionic", "expo", "app development",
-            "mobile ui", "push notifications", "firebase", "app store", "play store"
+            "mobile ui", "push notifications", "app store", "play store"
         ]
     },
     tools: {
@@ -71,7 +76,7 @@ const SKILL_TAXONOMY = {
             "git", "github", "gitlab", "bitbucket", "version control", "agile", "scrum",
             "kanban", "jira", "confluence", "trello", "notion", "slack", "linear",
             "tdd", "unit testing", "integration testing", "jest", "mocha", "pytest",
-            "cypress", "selenium", "postman", "swagger", "openapi", "code review",
+            "cypress", "selenium", "playwright", "postman", "swagger", "openapi", "code review",
             "pair programming", "debugging", "performance optimization", "seo"
         ]
     },
@@ -103,48 +108,268 @@ const SKILL_TAXONOMY = {
     }
 };
 
+// ==============================
+// 2. CANONICAL ALIASES & RELATIONS
+// ==============================
 const ALIASES = {
-    "js": "javascript", "ts": "typescript", "react.js": "react", "reactjs": "react",
-    "vue.js": "vue", "vuejs": "vue", "node.js": "node", "nodejs": "node", "next.js": "nextjs",
-    "postgres": "postgresql", "sklearn": "scikit-learn", "k8s": "kubernetes",
-    "ml": "machine learning", "dl": "deep learning", "nlp": "natural language processing",
-    "rest api": "restful", "rest": "restful", "amazon web services": "aws",
-    "google cloud": "gcp", "ci/cd": "continuous integration", "tdd": "test driven development",
-    "oop": "object oriented programming", "api": "rest api", "nosql": "mongodb"
+    "js": "javascript",
+    "ts": "typescript",
+    "react.js": "react",
+    "reactjs": "react",
+    "vue.js": "vue",
+    "vuejs": "vue",
+    "node.js": "node.js",
+    "nodejs": "node.js",
+    "node": "node.js",
+    "next.js": "nextjs",
+    "next js": "nextjs",
+    "postgres": "postgresql",
+    "postgre sql": "postgresql",
+    "sklearn": "scikit-learn",
+    "k8s": "kubernetes",
+    "ml": "machine learning",
+    "dl": "deep learning",
+    "nlp": "natural language processing",
+    "rest api": "rest api",
+    "rest": "rest api",
+    "restful": "rest api",
+    "amazon web services": "aws",
+    "google cloud": "gcp",
+    "google cloud platform": "gcp",
+    "ci/cd": "ci/cd",
+    "continuous integration": "ci/cd",
+    "tdd": "unit testing",
+    "test driven development": "unit testing",
+    "oop": "object oriented programming",
+    "nosql": "mongodb",
+    "golang": "go",
+    "c plus plus": "c++",
+    "cpp": "c++",
+    "c sharp": "c#",
+    "csharp": "c#"
 };
 
-const TRENDING_SKILLS = {
-    frontend: ["TypeScript", "Next.js 14", "React Server Components", "Tailwind CSS", "Web3", "WebAssembly"],
-    backend: ["Go (Golang)", "Rust", "GraphQL", "gRPC", "Kafka", "Microservices Architecture"],
-    devops: ["Kubernetes", "Terraform IaC", "GitHub Actions", "ArgoCD", "eBPF", "Platform Engineering"],
-    data: ["LLMs", "LangChain", "RAG", "Vector Databases", "MLOps", "Hugging Face", "PyTorch"],
-    mobile: ["Flutter", "React Native (New Arch)", "SwiftUI", "Jetpack Compose"],
-    design: ["AI-assisted design", "Figma Dev Mode", "Motion Design", "Design Systems"],
-    databases: ["CockroachDB", "PlanetScale", "Supabase", "Convex", "Neon Postgres"],
-    tools: ["GitHub Copilot", "AI-Assisted Development", "Playwright", "Vitest"],
+// Explicit safe relationships for Layer 3 partial matching
+const RELATED_SKILLS = {
+    "react": ["nextjs", "redux", "javascript", "typescript"],
+    "nextjs": ["react", "typescript", "javascript"],
+    "javascript": ["typescript", "node.js", "react", "vue", "html", "css"],
+    "typescript": ["javascript", "node.js", "react", "angular", "nestjs"],
+    "node.js": ["express", "nestjs", "javascript", "typescript"],
+    "express": ["node.js", "javascript"],
+    "python": ["django", "flask", "fastapi", "pandas", "numpy"],
+    "django": ["python", "rest api"],
+    "flask": ["python"],
+    "fastapi": ["python"],
+    "java": ["spring boot"],
+    "spring boot": ["java"],
+    "c#": [".net", "asp.net"],
+    "sql": ["postgresql", "mysql", "sqlite"],
+    "postgresql": ["sql"],
+    "mysql": ["sql"],
+    "docker": ["kubernetes"],
+    "kubernetes": ["docker"],
+    "aws": ["cloud"],
+    "flutter": ["dart"]
 };
 
+// False positive pairs that must NEVER match
+const DISALLOWED_MATCHES = [
+    ["java", "javascript"],
+    ["c", "c++"],
+    ["c", "c#"],
+    ["react", "react native"],
+    ["aws", "azure"],
+    ["aws", "gcp"],
+    ["azure", "gcp"],
+    ["go", "google"],
+    ["sql", "mysql"],
+    ["sql", "postgresql"]
+];
+
+function areSkillsIncompatible(s1, s2) {
+    const a = (s1 || '').toLowerCase().trim();
+    const b = (s2 || '').toLowerCase().trim();
+    return DISALLOWED_MATCHES.some(([x, y]) =>
+        (a === x && b === y) || (a === y && b === x)
+    );
+}
+
+// Canonical name helper
+function canonicalizeSkill(skill) {
+    const s = (skill || '').toLowerCase().trim();
+    return ALIASES[s] || s;
+}
+
+// ==============================
+// 3. LEARNING RESOURCES METADATA
+// ==============================
 const LEARNING_RESOURCES = {
-    "TypeScript": "typescriptlang.org / Total TypeScript",
-    "Docker": "Docker Official Docs / Play with Docker",
-    "Kubernetes": "Kubernetes.io / KubeAcademy",
-    "AWS": "AWS Skill Builder (free tier)",
-    "React": "react.dev (official)",
-    "Next.js": "nextjs.org/learn",
-    "Python": "Python.org / Real Python",
-    "Machine Learning": "fast.ai / Coursera ML Specialization",
-    "GraphQL": "howtographql.com",
-    "PostgreSQL": "postgresqltutorial.com",
-    "Figma": "figma.com/resources",
-    "Go": "go.dev/tour",
-    "Rust": "rust-lang.org/learn",
-    "Redis": "redis.io/docs",
-    "MongoDB": "mongodb.com/docs / mongodbuniversity.com",
-    "Spring Boot": "spring.io/quickstart",
-    "Flutter": "flutter.dev/docs",
-    "Terraform": "developer.hashicorp.com/terraform/tutorials",
-    "GitHub Actions": "docs.github.com/actions",
+    "TypeScript": {
+        name: "Official TypeScript Handbook",
+        platform: "typescriptlang.org",
+        type: "Free",
+        topic: "TypeScript",
+        url: "https://www.typescriptlang.org/docs/handbook/intro.html",
+        verifiedDate: "2025-01"
+    },
+    "Docker": {
+        name: "Docker Documentation & Getting Started",
+        platform: "Docker Docs",
+        type: "Free",
+        topic: "Containerization",
+        url: "https://docs.docker.com/get-started/",
+        verifiedDate: "2025-01"
+    },
+    "Kubernetes": {
+        name: "Kubernetes Basics & Tutorials",
+        platform: "kubernetes.io",
+        type: "Free",
+        topic: "Container Orchestration",
+        url: "https://kubernetes.io/docs/tutorials/kubernetes-basics/",
+        verifiedDate: "2025-01"
+    },
+    "AWS": {
+        name: "AWS Skill Builder Free Tier",
+        platform: "Amazon Web Services",
+        type: "Free",
+        topic: "Cloud Architecture",
+        url: "https://skillbuilder.aws/",
+        verifiedDate: "2025-01"
+    },
+    "React": {
+        name: "Official React Documentation",
+        platform: "react.dev",
+        type: "Free",
+        topic: "Frontend UI",
+        url: "https://react.dev/learn",
+        verifiedDate: "2025-01"
+    },
+    "Next.js": {
+        name: "Next.js Interactive Learn Course",
+        platform: "nextjs.org",
+        type: "Free",
+        topic: "Full Stack React",
+        url: "https://nextjs.org/learn",
+        verifiedDate: "2025-01"
+    },
+    "Python": {
+        name: "Python Official Tutorial",
+        platform: "python.org",
+        type: "Free",
+        topic: "Programming Fundamentals",
+        url: "https://docs.python.org/3/tutorial/",
+        verifiedDate: "2025-01"
+    },
+    "Machine Learning": {
+        name: "Practical Deep Learning for Coders",
+        platform: "fast.ai",
+        type: "Free",
+        topic: "Machine Learning & AI",
+        url: "https://course.fast.ai/",
+        verifiedDate: "2025-01"
+    },
+    "GraphQL": {
+        name: "How to GraphQL Fullstack Tutorial",
+        platform: "howtographql.com",
+        type: "Free",
+        topic: "APIs & Data Fetching",
+        url: "https://www.howtographql.com/",
+        verifiedDate: "2025-01"
+    },
+    "PostgreSQL": {
+        name: "PostgreSQL Tutorial & Exercises",
+        platform: "postgresqltutorial.com",
+        type: "Free",
+        topic: "Relational Databases",
+        url: "https://www.postgresqltutorial.com/",
+        verifiedDate: "2025-01"
+    },
+    "Figma": {
+        name: "Figma Learn & Design Resources",
+        platform: "figma.com",
+        type: "Free",
+        topic: "UI/UX Design",
+        url: "https://help.figma.com/hc/en-us/categories/360002051613",
+        verifiedDate: "2025-01"
+    },
+    "Go": {
+        name: "A Tour of Go",
+        platform: "go.dev",
+        type: "Free",
+        topic: "Backend Systems",
+        url: "https://go.dev/tour/",
+        verifiedDate: "2025-01"
+    },
+    "Rust": {
+        name: "The Rust Programming Language Book",
+        platform: "rust-lang.org",
+        type: "Free",
+        topic: "Systems Programming",
+        url: "https://doc.rust-lang.org/book/",
+        verifiedDate: "2025-01"
+    },
+    "Redis": {
+        name: "Redis University & Documentation",
+        platform: "redis.io",
+        type: "Free",
+        topic: "In-Memory Caching",
+        url: "https://redis.io/docs/latest/develop/get-started/",
+        verifiedDate: "2025-01"
+    },
+    "MongoDB": {
+        name: "MongoDB University Free Courses",
+        platform: "learn.mongodb.com",
+        type: "Free",
+        topic: "NoSQL Databases",
+        url: "https://learn.mongodb.com/",
+        verifiedDate: "2025-01"
+    },
+    "Spring Boot": {
+        name: "Spring Boot Quickstart Guide",
+        platform: "spring.io",
+        type: "Free",
+        topic: "Java Enterprise",
+        url: "https://spring.io/quickstart",
+        verifiedDate: "2025-01"
+    },
+    "Flutter": {
+        name: "Flutter Official Getting Started",
+        platform: "flutter.dev",
+        type: "Free",
+        topic: "Cross-Platform Mobile",
+        url: "https://docs.flutter.dev/get-started/install",
+        verifiedDate: "2025-01"
+    },
+    "Terraform": {
+        name: "HashiCorp Terraform Tutorials",
+        platform: "developer.hashicorp.com",
+        type: "Free",
+        topic: "Infrastructure as Code",
+        url: "https://developer.hashicorp.com/terraform/tutorials",
+        verifiedDate: "2025-01"
+    },
+    "GitHub Actions": {
+        name: "GitHub Actions Quickstart & Docs",
+        platform: "docs.github.com",
+        type: "Free",
+        topic: "CI/CD Automation",
+        url: "https://docs.github.com/en/actions/quickstart",
+        verifiedDate: "2025-01"
+    }
 };
+
+function formatLearningResource(resOrTitle) {
+    if (!resOrTitle) return 'Self-study and official documentation';
+    if (typeof resOrTitle === 'object' && resOrTitle.platform) {
+        return `${resOrTitle.platform} (${resOrTitle.type}) — ${resOrTitle.name}`;
+    }
+    const fromMap = LEARNING_RESOURCES[resOrTitle];
+    if (fromMap) {
+        return `${fromMap.platform} (${fromMap.type}) — ${fromMap.name}`;
+    }
+    return String(resOrTitle);
+}
 
 // Next-role suggestions by current role level
 const NEXT_ROLES = {
@@ -155,10 +380,10 @@ const NEXT_ROLES = {
     exec: ["Board Advisor", "CTO", "Chief Architect"]
 };
 
-// Company culture optimization profiles
+// Company optimization profiles
 const COMPANY_PROFILES = {
     startup: {
-        label: "Startup",
+        label: "Startup / High-Growth",
         tone: "entrepreneurial, fast-paced",
         resumeLength: "1 page (concise & punchy)",
         focusAreas: ["Ownership mindset", "Full-stack versatility", "Speed of delivery", "Self-starter attitude"],
@@ -168,38 +393,38 @@ const COMPANY_PROFILES = {
             "Emphasize products you owned end-to-end",
             "Highlight speed: 'Shipped MVP in 3 weeks'",
             "Show startup or side project experience",
-            "Use casual but professional language",
-            "Focus on impact, not processes"
+            "Use clear, direct, outcome-focused language",
+            "Focus on impact and revenue/user metrics over process"
         ]
     },
     mnc: {
-        label: "MNC / Large Enterprise",
+        label: "Enterprise / Global MNC",
         tone: "professional, process-oriented",
         resumeLength: "1–2 pages",
         focusAreas: ["Process compliance", "Team collaboration", "Scalability", "Stakeholder management"],
         toneKeywords: ["collaborated", "led cross-functional", "implemented", "optimized", "managed stakeholders"],
         avoid: ["informal language", "vague metrics", "missing dates"],
         tips: [
-            "Align with company values (check their website)",
-            "Quantify everything: 'Reduced costs by 30%'",
-            "Show team leadership and cross-team work",
-            "Mention compliance, process improvement",
+            "Align with company values (check their mission and engineering standards)",
+            "Quantify everything: 'Reduced operational costs by 30%'",
+            "Show team leadership, peer reviews, and cross-team alignment",
+            "Mention compliance, security awareness, and process improvement",
             "Use industry-standard terminology"
         ]
     },
     product: {
-        label: "Product Company",
+        label: "Product-Led Tech Company",
         tone: "user-centric, impact-driven",
         resumeLength: "1 page (outcome-focused)",
         focusAreas: ["Product thinking", "User impact", "A/B testing", "Data-driven decisions"],
         toneKeywords: ["user engagement", "retention", "conversion", "A/B tested", "improved UX", "shipped feature"],
         avoid: ["too technical without business context", "listing tools without outcomes"],
         tips: [
-            "Frame everything in terms of user impact",
-            "Mention metrics: DAU, retention, conversion rates",
-            "Show product intuition alongside technical skill",
-            "Highlight collaboration with Product Managers",
-            "Discuss A/B tests or experiments you ran"
+            "Frame technical decisions in terms of user impact and customer value",
+            "Mention metrics: DAU, retention, latency reduction, conversion rates",
+            "Show product intuition alongside deep technical skills",
+            "Highlight close collaboration with Product Managers and Designers",
+            "Discuss A/B tests or architectural trade-offs you evaluated"
         ]
     }
 };
@@ -208,7 +433,7 @@ const COMPANY_PROFILES = {
 //  TEXT PARSING HELPERS
 // =====================
 function normalizeText(text) {
-    return text.toLowerCase().replace(/[^\w\s.+#/]/g, ' ').replace(/\s+/g, ' ').trim();
+    return (text || '').toLowerCase().replace(/[^\w\s.+#/]/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
 function extractYearsOfExperience(text) {
@@ -222,36 +447,116 @@ function extractYearsOfExperience(text) {
     for (const pattern of patterns) {
         let match;
         while ((match = pattern.exec(text)) !== null) {
-            const years = parseInt(match[1]);
+            const years = parseInt(match[1], 10);
             if (years > maxYears && years < 50) maxYears = years;
         }
     }
     return maxYears;
 }
 
+// ==============================
+// 4. LAYERED SKILL EXTRACTION
+// ==============================
 function extractSkillsFromText(text) {
+    if (!text || typeof text !== 'string') return [];
     const normalized = normalizeText(text);
     const found = new Set();
+
+    // Collect all candidate skills, ordered longest first
     const allSkills = [];
-    Object.values(SKILL_TAXONOMY).forEach(cat => cat.skills.forEach(skill => allSkills.push(skill)));
+    Object.values(SKILL_TAXONOMY).forEach(cat => {
+        cat.skills.forEach(skill => allSkills.push(skill));
+    });
     allSkills.sort((a, b) => b.length - a.length);
-    for (const skill of allSkills) {
-        const regex = new RegExp(`\\b${skill.replace(/[.+#]/g, '\\$&')}\\b`, 'i');
-        if (regex.test(normalized)) found.add(ALIASES[skill] || skill);
+
+    for (const rawSkill of allSkills) {
+        const skill = rawSkill.toLowerCase();
+
+        // Special boundary handling for skills with non-word symbols (c++, c#, c)
+        if (skill === 'c++') {
+            if (/(?:^|[^\w+#])c\+\+(?=[^\w+#]|$)/i.test(normalized)) {
+                found.add('c++');
+            }
+            continue;
+        }
+
+        if (skill === 'c#') {
+            if (/(?:^|[^\w+#])c#(?=[^\w+#]|$)/i.test(normalized)) {
+                found.add('c#');
+            }
+            continue;
+        }
+
+        if (skill === 'c') {
+            // Must NOT match inside C++ or C#
+            const withoutCppOrCsharp = normalized.replace(/c\+\+/gi, ' ').replace(/c#/gi, ' ');
+            if (/(?:^|[^\w+#])c(?=[^\w+#]|$)/i.test(withoutCppOrCsharp)) {
+                found.add('c');
+            }
+            continue;
+        }
+
+
+        if (skill === 'go') {
+            // Unconditional match for "golang"
+            if (/\bgolang\b/i.test(normalized)) {
+                found.add('go');
+            } else {
+                // For standalone "go", only match when accompanied by technical context
+                // (prevents ordinary verbs like "let's go" or "Google" from matching)
+                const goWithContext = /(?:^|[^a-zA-Z0-9])go(?=\s+(?:lang|language|programming|developer|engineer|code|backend)|[^a-zA-Z0-9]|$)/i;
+                const isGeneralVerb = /\b(let'?s\s+go|go\s+to|will\s+go|i\s+go|we\s+go)\b/i.test(normalized);
+                if (goWithContext.test(normalized) && !isGeneralVerb && /\b(tech|developer|backend|stack|skills|software)\b/i.test(normalized)) {
+                    found.add('go');
+                }
+            }
+            continue;
+        }
+
+        if (skill === 'java') {
+            // Must NOT match "javascript"
+            const javaRegex = /\bjava(?!\s*script)\b/i;
+            if (javaRegex.test(normalized)) {
+                found.add('java');
+            }
+            continue;
+        }
+
+        if (skill === 'react') {
+            // Must NOT match "react native" (unless "react" is independently mentioned)
+            const hasReactNative = /\breact\s+native\b/i.test(normalized);
+            const reactWithoutNative = /\breact(?!\s+native)\b/i.test(normalized);
+            if (reactWithoutNative) {
+                found.add('react');
+            }
+            if (hasReactNative) {
+                found.add('react native');
+            }
+            continue;
+        }
+
+        // Standard regex for other skills
+        const escaped = skill.replace(/[.+#]/g, '\\$&');
+        const regex = new RegExp(`\\b${escaped}\\b`, 'i');
+        if (regex.test(normalized)) {
+            const canonical = canonicalizeSkill(skill);
+            found.add(canonical);
+        }
     }
+
     return [...found];
 }
 
 function detectDomain(skills) {
     const domainScores = {};
     for (const [domain, { skills: domainSkills }] of Object.entries(SKILL_TAXONOMY)) {
-        domainScores[domain] = skills.filter(s => domainSkills.includes(s)).length;
+        domainScores[domain] = skills.filter(s => domainSkills.includes(s) || domainSkills.includes(canonicalizeSkill(s))).length;
     }
     return Object.entries(domainScores).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([d]) => d);
 }
 
 function detectEducation(resumeText) {
-    const text = resumeText.toLowerCase();
+    const text = (resumeText || '').toLowerCase();
     let eduScore = 50; // baseline
     if (text.match(/\b(phd|doctorate|ph\.d)\b/)) eduScore = 100;
     else if (text.match(/\b(master|mtech|msc|mba|m\.tech|m\.sc|m\.e)\b/)) eduScore = 90;
@@ -262,7 +567,6 @@ function detectEducation(resumeText) {
 }
 
 function detectProjectRelevance(resumeText, jdText) {
-    // Check if resume has project section with relevant JD keywords
     const resumeNorm = normalizeText(resumeText);
     const jdWords = normalizeText(jdText).split(/\s+/).filter(w => w.length > 4);
     const hasProjectSection = /\b(projects?|portfolio|built|developed|created|implemented)\b/i.test(resumeText);
@@ -271,9 +575,58 @@ function detectProjectRelevance(resumeText, jdText) {
     return Math.min(100, 40 + (projectMatches / Math.max(jdWords.length, 1)) * 100);
 }
 
-// ======================
-//   CORE SCORING ENGINE
-// ======================
+// ==============================
+// 5. LAYERED MATCHING ALGORITHM
+// ==============================
+function matchSkillsLayered(resumeSkills, allJdSkills) {
+    const strongMatches = [];
+    const partialMatches = [];
+    const missingSkills = [];
+
+    const canonResume = resumeSkills.map(canonicalizeSkill);
+
+    for (const rawJdSkill of allJdSkills) {
+        const jdSkill = canonicalizeSkill(rawJdSkill);
+
+        // Disallow collision items from false matching
+        const resumeHasExact = canonResume.includes(jdSkill);
+        if (resumeHasExact) {
+            // Layer 1 — Exact match
+            strongMatches.push(jdSkill);
+            continue;
+        }
+
+        // Layer 2 — Alias match
+        const aliasMatch = resumeSkills.some(rs => {
+            if (areSkillsIncompatible(rs, jdSkill)) return false;
+            return canonicalizeSkill(rs) === jdSkill;
+        });
+
+        if (aliasMatch) {
+            strongMatches.push(jdSkill);
+            continue;
+        }
+
+        // Layer 3 — Safe Related Skill Handling (explicit mapping only)
+        const allowedRelated = RELATED_SKILLS[jdSkill] || [];
+        const hasRelated = canonResume.some(rs => {
+            if (areSkillsIncompatible(rs, jdSkill)) return false;
+            return allowedRelated.includes(rs) || (RELATED_SKILLS[rs] || []).includes(jdSkill);
+        });
+
+        if (hasRelated) {
+            partialMatches.push(jdSkill);
+        } else {
+            missingSkills.push(jdSkill);
+        }
+    }
+
+    return { strongMatches, partialMatches, missingSkills };
+}
+
+// ==============================
+// 6. CORE SCORING ENGINE
+// ==============================
 function analyzeMatch(resumeText, jdText, options = {}) {
     const { roleLevel = 'mid', industry = 'tech', prioritySkills = [], targetRole = '', targetCompany = '' } = options;
 
@@ -287,31 +640,17 @@ function analyzeMatch(resumeText, jdText, options = {}) {
     const projectScore = Math.round(detectProjectRelevance(resumeText, jdText));
 
     // Merge priority skills
-    const normalizedPriority = prioritySkills.map(s => s.toLowerCase().trim()).filter(Boolean);
+    const normalizedPriority = prioritySkills.map(s => canonicalizeSkill(s)).filter(Boolean);
     const allJdSkills = [...new Set([...jdSkills, ...normalizedPriority])];
 
-    // Skill matching
-    const strongMatches = [];
-    const partialMatches = [];
-    const missingSkills = [];
+    // Layered matching
+    const { strongMatches, partialMatches, missingSkills } = matchSkillsLayered(resumeSkills, allJdSkills);
 
-    for (const jdSkill of allJdSkills) {
-        if (resumeSkills.includes(jdSkill)) {
-            strongMatches.push(jdSkill);
-        } else {
-            const aliasMatch = resumeSkills.some(rs =>
-                ALIASES[rs] === jdSkill || ALIASES[jdSkill] === rs || rs.includes(jdSkill) || jdSkill.includes(rs)
-            );
-            if (aliasMatch) partialMatches.push(jdSkill);
-            else missingSkills.push(jdSkill);
-        }
-    }
-
-    const extraSkills = resumeSkills.filter(s => !allJdSkills.includes(s)).slice(0, 8);
+    const extraSkills = resumeSkills.filter(s => !allJdSkills.includes(s) && !allJdSkills.includes(canonicalizeSkill(s))).slice(0, 8);
 
     // Score calculation
     const totalJdSkills = allJdSkills.length || 1;
-    const priorityMatched = normalizedPriority.filter(s => resumeSkills.includes(s) || partialMatches.includes(s)).length;
+    const priorityMatched = normalizedPriority.filter(s => strongMatches.includes(s) || partialMatches.includes(s)).length;
     const priorityBoost = normalizedPriority.length > 0 ? (priorityMatched / normalizedPriority.length) * 10 : 0;
     const skillScore = Math.min(100, ((strongMatches.length + partialMatches.length * 0.5) / totalJdSkills) * 100 + priorityBoost);
 
@@ -335,99 +674,102 @@ function analyzeMatch(resumeText, jdText, options = {}) {
     const keywordHits = jdWords.filter(w => resumeWords.includes(w)).length;
     const keywordScore = Math.min(100, (keywordHits / Math.max(jdWords.length, 1)) * 150);
 
-    // Final weighted score (now includes education + project)
+    // Final weighted score
     const finalScore = Math.round(
-        skillScore * 0.38 +
-        expScore * 0.18 +
+        skillScore * 0.40 +
+        expScore * 0.20 +
         domainScore * 0.15 +
         keywordScore * 0.10 +
-        educationScore * 0.10 +
-        projectScore * 0.09
+        educationScore * 0.08 +
+        projectScore * 0.07
     );
     const clampedScore = Math.min(98, Math.max(5, finalScore));
 
-    // Verdict
+    // Transparent verdict
     let verdict, verdictClass, verdictIcon, jobReady;
     if (clampedScore >= 75) {
-        verdict = "Ready to Apply! 🎉"; verdictClass = "ready"; verdictIcon = "🚀"; jobReady = "Yes";
+        verdict = "High Compatibility! 🎉"; verdictClass = "ready"; verdictIcon = "🚀"; jobReady = "Strong Alignment";
     } else if (clampedScore >= 50) {
-        verdict = "Almost There — Minor Gaps"; verdictClass = "improve"; verdictIcon = "⚡"; jobReady = "Almost";
+        verdict = "Moderate Compatibility — Minor Gaps"; verdictClass = "improve"; verdictIcon = "⚡"; jobReady = "Partial Alignment";
     } else {
-        verdict = "Keep Learning & Growing"; verdictClass = "learning"; verdictIcon = "📚"; jobReady = "Not Yet";
+        verdict = "Low Initial Match — Targeted Prep Needed"; verdictClass = "learning"; verdictIcon = "📚"; jobReady = "Gaps Identified";
     }
 
     // Strengths & Weaknesses
-    const strengthsWeaknesses = analyzeStrengthsWeaknesses(result => result, {
+    const strengthsWeaknesses = analyzeStrengthsWeaknesses({
         skillScore, expScore, domainScore, keywordScore, educationScore, projectScore,
-        strongMatches, missingSkills, resumeYears, expectedYears
+        strongMatches, partialMatches, missingSkills, resumeYears, expectedYears
     });
 
-    // Skills Gap Priority
-    const skillsGap = categorizeSkillsGap(missingSkills, partialMatches, jdText, roleLevel);
-
-    // Company Optimization
-    const companyOptimization = generateCompanyOptimization(targetCompany, targetRole, roleLevel);
-
-    // ATS Analysis
-    const atsKeywords = generateATSKeywords(jdText, resumeText);
-    const atsAnalysis = generateATSAnalysis(resumeText, atsKeywords);
+    // 9 Modules
+    const skillsGap = generateSkillsGap(missingSkills, partialMatches, jdText);
+    const atsAnalysis = analyzeATS(resumeText, jdText, allJdSkills);
+    const companyOpt = generateCompanyOptimization(targetCompany, targetRole, roleLevel, jdText, industry);
+    const tips = generateResumeTips(strongMatches, partialMatches, missingSkills, resumeText, jdText, resumeYears, expectedYears, options);
+    const roadmap = generateRoadmap(missingSkills, partialMatches, roleLevel);
+    const interviewPrep = generateInterviewPrep(strongMatches, missingSkills, targetRole, roleLevel);
+    const softSkillsTips = generateSoftSkillsTips(resumeText, roleLevel);
 
     return {
         score: clampedScore,
+        rawScore: finalScore,
         skillScore: Math.round(skillScore),
         expScore: Math.round(expScore),
         domainScore: Math.round(domainScore),
         keywordScore: Math.round(keywordScore),
         educationScore: Math.round(educationScore),
         projectScore: Math.round(projectScore),
-        strongMatches, partialMatches, missingSkills, extraSkills,
-        resumeYears, jdYears: expectedYears,
-        resumeDomains, jdDomains,
-        verdict, verdictClass, verdictIcon, jobReady,
+        verdict,
+        verdictClass,
+        verdictIcon,
+        jobReady,
+        strongMatches,
+        partialMatches,
+        missingSkills,
+        extraSkills,
+        resumeYears,
+        expectedYears,
+        resumeDomains,
+        jdDomains,
         strengthsWeaknesses,
         skillsGap,
-        companyOptimization,
-        tips: generateResumeTips(strongMatches, partialMatches, missingSkills, resumeText, jdText, resumeYears, expectedYears, options),
-        roadmap: generateCareerRoadmap(jdDomains, missingSkills, roleLevel, targetRole),
-        atsKeywords,
         atsAnalysis,
-        interviewPrep: generateInterviewPrep(jdText, resumeText, missingSkills, jdSkills, roleLevel, targetRole),
-        softSkillsTips: generateSoftSkillsTips(resumeText, roleLevel),
-        options,
-        targetRole,
-        targetCompany,
+        companyOpt,
+        tips,
+        roadmap,
+        interviewPrep,
+        softSkillsTips,
+        options
     };
 }
 
 // ==============================
-//  STRENGTHS & WEAKNESSES
+// 7. MODULE SUB-GENERATORS
 // ==============================
-function analyzeStrengthsWeaknesses(_, data) {
-    const { skillScore, expScore, domainScore, keywordScore, educationScore, projectScore,
-        strongMatches, missingSkills, resumeYears, expectedYears } = data;
+function analyzeStrengthsWeaknesses(res) {
+    const strengths = [];
+    const weaknesses = [];
 
-    const factors = [
-        { label: "Technical Skills Match", score: skillScore, detail: `${strongMatches.length} skills matched out of JD requirements` },
-        { label: "Industry Domain Alignment", score: domainScore, detail: "How well your domain expertise matches the job domain" },
-        { label: "ATS Keyword Coverage", score: keywordScore, detail: "How many JD keywords appear in your resume" },
-        { label: "Work Experience", score: expScore, detail: resumeYears > 0 ? `${resumeYears} years detected vs ${expectedYears}+ expected` : "Experience years not detected in resume" },
-        { label: "Education Background", score: educationScore, detail: "Detected education level in your resume" },
-        { label: "Project Relevance", score: projectScore, detail: "How well your projects align with job requirements" },
-    ].sort((a, b) => b.score - a.score);
+    if (res.skillScore >= 65) strengths.push({ label: `Strong Skill Overlap (${res.skillScore}%)`, score: res.skillScore, detail: `${res.strongMatches.length} required skills matched directly from the job description.` });
+    else weaknesses.push({ label: `Key Skill Gaps (${res.skillScore}%)`, score: res.skillScore, detail: `${res.missingSkills.length} required skills are missing or not explicitly stated in your resume.` });
 
-    const strengths = factors.slice(0, 3).map(f => ({ ...f, type: 'strength' }));
-    const weaknesses = factors.slice(-3).reverse().map(f => ({ ...f, type: 'weakness' }));
+    if (res.expScore >= 75) strengths.push({ label: `Experience Requirement Met (${res.expScore}%)`, score: res.expScore, detail: `Your detected ${res.resumeYears}y experience aligns with the ${res.expectedYears}y target.` });
+    else weaknesses.push({ label: `Experience Alignment (${res.expScore}%)`, score: res.expScore, detail: `Role expects ~${res.expectedYears}y, resume reflects ${res.resumeYears}y. Highlight high-impact projects to compensate.` });
 
-    return { strengths, weaknesses };
+    if (res.keywordScore >= 60) strengths.push({ label: `ATS Keyword Alignment (${res.keywordScore}%)`, score: res.keywordScore, detail: 'High keyword density found matching the core job description requirements.' });
+    else weaknesses.push({ label: `ATS Keyword Density (${res.keywordScore}%)`, score: res.keywordScore, detail: 'Resume lacks several specific terms and tool names found in the job description.' });
+
+    if (res.domainScore >= 60) strengths.push({ label: `Domain Alignment (${res.domainScore}%)`, score: res.domainScore, detail: 'Your technical focus closely matches the target domain.' });
+    else if (res.domainScore < 40) weaknesses.push({ label: `Cross-Domain Shift (${res.domainScore}%)`, score: res.domainScore, detail: 'Target role emphasizes a different technical domain. Emphasize transferable skills.' });
+
+    while (strengths.length < 3) strengths.push({ label: 'Foundational Competence', score: 60, detail: 'Core professional formatting and clear baseline skills present.' });
+    while (weaknesses.length < 3) weaknesses.push({ label: 'Tailoring Opportunity', score: 45, detail: 'Further customize your summary and bullet points for this specific role.' });
+
+    return { strengths: strengths.slice(0, 3), weaknesses: weaknesses.slice(0, 3) };
 }
 
-// ==============================
-//  SKILLS GAP & PRIORITY ANALYSIS
-// ==============================
-function categorizeSkillsGap(missingSkills, partialSkills, jdText, roleLevel) {
+function generateSkillsGap(missingSkills, partialSkills, jdText) {
     const jdNorm = normalizeText(jdText);
-
-    // Count frequency of each missing skill in JD
     const skillFreq = {};
     missingSkills.forEach(skill => {
         const count = (jdNorm.match(new RegExp(`\\b${skill.replace(/[.+#]/g, '\\$&')}\\b`, 'gi')) || []).length;
@@ -445,14 +787,15 @@ function categorizeSkillsGap(missingSkills, partialSkills, jdText, roleLevel) {
 
         let improvement = '';
         const tc = titleCase(skill);
-        if (LEARNING_RESOURCES[tc]) {
-            improvement = `Practice on ${LEARNING_RESOURCES[tc]}`;
+        const res = LEARNING_RESOURCES[tc];
+        if (res) {
+            improvement = `Explore ${formatLearningResource(res)}`;
         } else if (isCore) {
-            improvement = `Build a mini project using ${tc}. Search "${tc} crash course" on YouTube.`;
+            improvement = `Build a hands-on project demonstrating ${tc} in your portfolio.`;
         } else if (isDevops) {
-            improvement = `Complete a hands-on lab. Try "Play with ${tc}" or official sandbox environments.`;
+            improvement = `Complete a deployment lab or container setup with ${tc}.`;
         } else {
-            improvement = `Search "${tc} tutorial for beginners" and build one real-world use case.`;
+            improvement = `Review documentation for ${tc} and add a concrete usage example.`;
         }
 
         const entry = { skill: tc, freq, improvement };
@@ -461,30 +804,27 @@ function categorizeSkillsGap(missingSkills, partialSkills, jdText, roleLevel) {
         else optional.push(entry);
     });
 
-    // Partial skills also need improvement
     const partialEntries = partialSkills.map(skill => ({
         skill: titleCase(skill),
-        improvement: `Your resume has partial mention of ${titleCase(skill)}. Add concrete project examples, version numbers, or depth of usage.`,
+        improvement: `Your resume partially matches ${titleCase(skill)}. Clarify exact version, responsibilities, or project metrics.`,
     }));
 
     return { highPriority, mediumPriority, optional, partialEntries };
 }
 
-// ==============================
-//  COMPANY & ROLE OPTIMIZATION
-// ==============================
-function generateCompanyOptimization(targetCompany, targetRole, roleLevel) {
-    let companyType = 'product'; // default
+function generateCompanyOptimization(targetCompany, targetRole, roleLevel, jdText = '', industry = 'tech') {
+    let companyType = 'product';
 
     const company = (targetCompany || '').toLowerCase();
-    const startupKeywords = ['startup', 'early stage', 'seed', 'series a', 'series b', 'founding'];
-    const mncKeywords = ['google', 'microsoft', 'amazon', 'meta', 'apple', 'ibm', 'accenture', 'tcs', 'infosys', 'wipro', 'cognizant', 'capgemini', 'deloitte', 'pwc', 'kpmg'];
-    const productKeywords = ['flipkart', 'swiggy', 'zomato', 'uber', 'ola', 'meesho', 'razorpay', 'paytm', 'phonepe', 'cred', 'groww', 'zerodha', 'dream11'];
+    const jdNorm = (jdText || '').toLowerCase();
 
-    if (startupKeywords.some(k => company.includes(k))) companyType = 'startup';
-    else if (mncKeywords.some(k => company.includes(k))) companyType = 'mnc';
-    else if (productKeywords.some(k => company.includes(k))) companyType = 'product';
-    else if (company.length > 0) companyType = 'product'; // assume product for unknown named companies
+    const startupKeywords = ['startup', 'early stage', 'seed', 'series a', 'series b', 'founding', 'fast-paced', 'equity', '0 to 1', 'wear multiple hats'];
+    const mncKeywords = ['google', 'microsoft', 'amazon', 'meta', 'apple', 'ibm', 'accenture', 'tcs', 'infosys', 'wipro', 'cognizant', 'capgemini', 'deloitte', 'pwc', 'kpmg', 'fortune', 'enterprise', 'global', 'stakeholder'];
+    const productKeywords = ['flipkart', 'swiggy', 'zomato', 'uber', 'ola', 'meesho', 'razorpay', 'paytm', 'phonepe', 'cred', 'groww', 'zerodha', 'dream11', 'product-led', 'saas'];
+
+    if (startupKeywords.some(k => company.includes(k) || jdNorm.includes(k))) companyType = 'startup';
+    else if (mncKeywords.some(k => company.includes(k) || jdNorm.includes(k))) companyType = 'mnc';
+    else if (productKeywords.some(k => company.includes(k) || jdNorm.includes(k))) companyType = 'product';
 
     const profile = COMPANY_PROFILES[companyType];
     const nextRoles = NEXT_ROLES[roleLevel] || NEXT_ROLES.mid;
@@ -495,279 +835,190 @@ function generateCompanyOptimization(targetCompany, targetRole, roleLevel) {
         nextRoles,
         targetRole,
         targetCompany,
+        industry,
+        disclaimer: "Resume alignment suggestions — these represent stylistic formatting advice, not a guarantee of employer hiring outcomes.",
         structureSuggestions: [
-            `Resume Length: ${profile.resumeLength}`,
+            `Suggested Length: ${profile.resumeLength}`,
             `Tone: ${profile.tone}`,
-            `Lead with: ${profile.focusAreas[0]} and ${profile.focusAreas[1]}`,
-            `Avoid: ${profile.avoid[0]}`
+            `Emphasize: ${profile.focusAreas[0]} and ${profile.focusAreas[1]}`,
+            `Downplay: ${profile.avoid[0]}`
         ]
     };
 }
 
-// ==============================
-//  RESUME IMPROVEMENT TIPS
-// ==============================
 function generateResumeTips(strong, partial, missing, resumeText, jdText, rYears, jYears, options = {}) {
     const tips = [];
     const roleLabel = { entry: 'Entry Level', mid: 'Mid Level', senior: 'Senior', lead: 'Lead/Manager', exec: 'Executive' }[options.roleLevel || 'mid'] || 'this role';
 
-    if (missing.length > 0) tips.push({ icon: "🎯", title: "Add Missing Keywords to Resume", body: `Include these JD-required skills in your resume (only if you have some knowledge): <strong>${missing.slice(0, 5).map(s => titleCase(s)).join(', ')}</strong>. Add them to your skills section and back them up with project descriptions.` });
-    if (partial.length > 0) tips.push({ icon: "✍️", title: "Strengthen Partially Matched Skills", body: `These skills were somewhat matched but not explicitly called out: <strong>${partial.slice(0, 5).map(s => titleCase(s)).join(', ')}</strong>. Add specific versions, project names, or metrics to show depth.` });
-    if (jYears > 0 && rYears < jYears) tips.push({ icon: "📅", title: `Bridge the Experience Gap for ${roleLabel}`, body: `This ${roleLabel} role requires <strong>${jYears}+ years</strong>. Highlight freelance projects, open-source, internships, or side projects. Quality of work > years on paper.` });
-    if (!resumeText.match(/\d+%|\d+x|\$\d+|increased|reduced|improved|delivered|\d+ (users|clients|projects)/i)) tips.push({ icon: "📈", title: "Add Metrics & Numbers to Your Bullets", body: `Recruiters love numbers! Example: "Improved API response time by 40%" or "Led a team of 5 engineers" or "Reduced load time from 4s to 1.2s. Try to quantify every bullet point."` });
-    tips.push({ icon: "🤖", title: "ATS Optimization Tips", body: `Use a clean single-column format. Avoid tables, images, or text boxes. Use exact keywords from the JD. Save as .pdf with standard fonts. No headers/footers with important info.` });
-    if (!resumeText.toLowerCase().match(/summary|objective|profile|about me/)) tips.push({ icon: "📝", title: "Add a Professional Summary", body: `Start your resume with a 3-line summary tailored to this job. Example: "Full Stack Developer with 3+ years of experience in React & Node.js, passionate about building scalable web apps."` });
-    if (!resumeText.match(/\b(built|developed|designed|implemented|led|optimized|launched|created|architected|deployed)\b/i)) tips.push({ icon: "💪", title: "Use Strong Action Verbs", body: `Start each bullet with: <em>Built, Designed, Led, Implemented, Optimized, Launched, Reduced, Integrated, Architected</em>. Avoid passive phrases like "was responsible for".` });
-    tips.push({ icon: "🏷️", title: "Organize Your Skills Section", body: `Structure skills by category: <em>Languages | Frameworks | Tools | Cloud | Databases</em>. This makes it easy for both ATS and human recruiters to scan.` });
-
-    // Weak bullet point rewrite examples
-    tips.push({ icon: "✏️", title: "Rewrite Weak Bullet Points", body: `❌ Weak: "Worked on the backend of a project." <br>✅ Strong: "Developed RESTful APIs using Node.js & Express, reducing data retrieval time by 35% for 10,000+ daily users." — Use: Action verb + technology + quantified impact.` });
-
+    if (missing.length > 0) {
+        tips.push({
+            icon: "🎯",
+            title: "Incorporate Missing Requirements",
+            body: `If you have experience with these skills, explicitly add them: <strong>${missing.slice(0, 5).map(titleCase).join(', ')}</strong>. Contextualize them within real project bullets.`
+        });
+    }
+    if (partial.length > 0) {
+        tips.push({
+            icon: "✍️",
+            title: "Clarify Related Competencies",
+            body: `These skills were detected via related competencies: <strong>${partial.slice(0, 5).map(titleCase).join(', ')}</strong>. Specify exact tools and libraries used.`
+        });
+    }
+    if (jYears > 0 && rYears < jYears) {
+        tips.push({
+            icon: "📅",
+            title: `Address Experience Difference for ${roleLabel}`,
+            body: `The posting mentions <strong>${jYears}+ years</strong>. Emphasize complexity, leadership, and end-to-end deliverables to demonstrate seniority.`
+        });
+    }
+    if (!resumeText.match(/\d+%|\d+x|\$\d+|increased|reduced|improved|delivered|\d+ (users|clients|projects)/i)) {
+        tips.push({
+            icon: "📈",
+            title: "Quantify Bullet Points with Numbers",
+            body: `Recruiters and hiring managers look for measurable results. Example: 'Reduced API response times by 35%' or 'Managed a fleet of 12 microservices'.`
+        });
+    }
+    tips.push({
+        icon: "🤖",
+        title: "ATS-Friendly Document Formatting",
+        body: `Use a clean single-column structure. Avoid complex multi-column tables, graphics, or nested text boxes. Keep standard section headers.`
+    });
     return tips;
 }
 
-// ==============================
-//  CAREER ROADMAP (3 Phases)
-// ==============================
-function generateCareerRoadmap(domains, missingSkills, roleLevel = 'mid', targetRole = '') {
-    const phase1 = []; // 0-3 months
-    const phase2 = []; // 3-6 months
-    const phase3 = []; // 6-12 months
+function generateRoadmap(missingSkills, partialSkills, roleLevel) {
+    const phase1 = [];
+    const phase2 = [];
+    const phase3 = [];
 
-    // Phase 1: Immediate gaps
-    missingSkills.slice(0, 3).forEach(skill => {
-        phase1.push({
-            skill: titleCase(skill),
-            resource: LEARNING_RESOURCES[titleCase(skill)] || `Search "${titleCase(skill)} crash course" on YouTube / Udemy`,
-            action: `Learn & build a small project using ${titleCase(skill)}`
-        });
+    const topMissing = missingSkills.slice(0, 6);
+    topMissing.forEach((skill, i) => {
+        const tc = titleCase(skill);
+        const res = formatLearningResource(LEARNING_RESOURCES[tc]);
+        if (i < 2) {
+            phase1.push({ skill: tc, resource: res, action: "Hands-on foundation & starter tutorial" });
+        } else if (i < 4) {
+            phase2.push({ skill: tc, resource: res, action: "Build portfolio integration with full test coverage" });
+        } else {
+            phase3.push({ skill: tc, resource: res, action: "Advanced architecture & production patterns" });
+        }
     });
-    if (phase1.length < 2) {
-        phase1.push({ skill: "Resume & Portfolio Update", resource: "github.com (create/update profile)", action: "Add 2 new projects to GitHub + update LinkedIn" });
-        phase1.push({ skill: "Apply to 5 Relevant Jobs/Week", resource: "LinkedIn, Naukri, AngelList, Wellfound", action: "Tailor resume for each application — never send generic" });
+
+    if (phase1.length === 0) {
+        phase1.push({ skill: "System Design & Architecture", resource: "System Design Primer (GitHub)", action: "Study scalable distributed system trade-offs" });
     }
-
-    // Phase 2: Skill deepening
-    const trendingPool = [];
-    domains.forEach(d => { if (TRENDING_SKILLS[d]) trendingPool.push(...TRENDING_SKILLS[d]); });
-    const trending = [...new Set(trendingPool)].slice(0, 3);
-    trending.forEach(skill => {
-        phase2.push({ skill, resource: LEARNING_RESOURCES[skill] || `Explore ${skill} official docs`, action: `Build 1 portfolio project showcasing ${skill}` });
-    });
     if (phase2.length === 0) {
-        phase2.push({ skill: "System Design Fundamentals", resource: "Grokking System Design / ByteByteGo", action: "Study 2 system design patterns per week" });
-        phase2.push({ skill: "Open Source Contribution", resource: "goodfirstissue.dev", action: "Contribute to 2–3 open source projects" });
+        phase2.push({ skill: "Testing & CI/CD", resource: "GitHub Actions Official Docs", action: "Automate testing and deployment pipelines" });
     }
-    phase2.push({ skill: "Mock Interviews", resource: "Pramp.com / Interviewing.io", action: "Do 8–10 mock interviews (technical + behavioral)" });
 
-    // Phase 3: Career elevation
-    const roleLevelNext = NEXT_ROLES[roleLevel];
-    if (roleLevelNext && roleLevelNext.length > 0) {
-        phase3.push({ skill: `Target Role: ${roleLevelNext[0]}`, resource: "LinkedIn job search, company careers pages", action: "Research requirements for next level and map your gap" });
-    }
-    phase3.push({ skill: "Cloud Certification", resource: "AWS Skill Builder / Google Cloud free tier", action: "Complete 1 professional cloud certification" });
-    phase3.push({ skill: "Build in Public / Personal Brand", resource: "Twitter/X, LinkedIn, Dev.to, Medium", action: "Share projects, write technical articles monthly" });
-    phase3.push({ skill: "Networking & Community", resource: "Local meetups, GitHub, Discord communities", action: "Connect with 50+ professionals in your target domain" });
-
-    return { phase1, phase2, phase3, nextRoles: NEXT_ROLES[roleLevel] || [] };
+    const nextRoles = NEXT_ROLES[roleLevel] || NEXT_ROLES.mid;
+    return { phase1, phase2, phase3, nextRoles };
 }
 
-// ==============================
-//  ATS ANALYSIS
-// ==============================
-function generateATSKeywords(jdText, resumeText) {
-    const jdNorm = normalizeText(jdText);
+function analyzeATS(resumeText, jdText, allJdSkills) {
     const resumeNorm = normalizeText(resumeText);
-    const words = jdNorm.split(/\s+/).filter(w => w.length > 3);
-    const freq = {};
-    words.forEach(w => { freq[w] = (freq[w] || 0) + 1; });
-    const stopwords = new Set(["that", "this", "with", "have", "will", "from", "they", "your", "should", "about", "which", "their", "been", "into", "more", "also", "must", "would", "than", "through", "work", "role", "team", "able", "using", "like", "some", "experience", "required", "skills", "years", "strong", "looking", "understanding", "knowledge", "working"]);
-    return Object.entries(freq).filter(([w]) => !stopwords.has(w)).sort((a, b) => b[1] - a[1]).slice(0, 24).map(([word, count]) => ({ word, count, inResume: resumeNorm.includes(word) }));
-}
+    const jdNorm = normalizeText(jdText);
 
-function generateATSAnalysis(resumeText, atsKeywords) {
-    const found = atsKeywords.filter(k => k.inResume).length;
-    const total = atsKeywords.length;
-    const passProbability = Math.round((found / Math.max(total, 1)) * 100);
+    // Extract notable keywords (length > 3)
+    const jdKeywords = [...new Set(
+        jdNorm.split(/\s+/).filter(w => w.length > 3 && !['with', 'from', 'have', 'that', 'this', 'will', 'your', 'about'].includes(w))
+    )].slice(0, 40);
+
+    const keywordList = jdKeywords.map(word => ({
+        word,
+        inResume: new RegExp(`\\b${word}\\b`, 'i').test(resumeNorm)
+    }));
+
+    const found = keywordList.filter(k => k.inResume).length;
+    const total = keywordList.length || 1;
+    const passProbability = Math.round((found / total) * 100);
 
     const formatRisks = [];
-    if (/\btable\b/i.test(resumeText)) formatRisks.push("Tables detected — ATS systems often cannot parse table layouts correctly.");
-    if (/[^\x00-\x7F]/.test(resumeText) && resumeText.match(/[^\x00-\x7F]{3,}/)) formatRisks.push("Special/Unicode characters detected — use standard ASCII text only.");
-    if (resumeText.length > 5000) formatRisks.push("Resume may be too long — keep to 1–2 pages for most roles.");
-    if (!resumeText.match(/\b(experience|work history|employment)\b/i)) formatRisks.push("No 'Experience' section heading detected — ATS needs standard section headers.");
-    if (!resumeText.match(/\b(education|academic|university|college|degree)\b/i)) formatRisks.push("No 'Education' section detected — include this even if brief.");
+    if (resumeText.includes('\t\t') || resumeText.includes('    |')) formatRisks.push('Possible multi-column table detected');
+    if (resumeText.length < 300) formatRisks.push('Resume text is very short');
+    if (!resumeText.match(/@[\w.-]+\.\w+/)) formatRisks.push('No email address detected');
 
-    const missingKeywords = atsKeywords.filter(k => !k.inResume).map(k => k.word);
-    const overusedWords = detectOverusedWords(resumeText);
+    const missingKeywords = keywordList.filter(k => !k.inResume).map(k => k.word).slice(0, 8);
+    const overusedWords = ['passionate', 'synergy', 'hardworking', 'go-getter', 'detail-oriented', 'team player'].filter(w =>
+        new RegExp(`\\b${w}\\b`, 'i').test(resumeNorm)
+    );
+
+    const atsTips = [
+        "Use exact keywords from the job description where they truthfully match your experience.",
+        "Keep standard headings like 'Skills', 'Experience', and 'Education'.",
+        "Save your resume as a clean, text-selectable PDF rather than a scanned image.",
+        "Avoid icons, header tables, or unusual symbols for bullet points."
+    ];
 
     return {
         passProbability,
-        passLabel: passProbability >= 70 ? 'High (Likely to Pass)' : passProbability >= 45 ? 'Medium (Possible)' : 'Low (Likely Filtered)',
+        passLabel: passProbability >= 70 ? 'High Alignment (Estimated)' : passProbability >= 45 ? 'Moderate Alignment' : 'Low Alignment (Review Suggested)',
         passClass: passProbability >= 70 ? 'pass' : passProbability >= 45 ? 'maybe' : 'fail',
-        found, total,
         formatRisks,
-        missingKeywords: missingKeywords.slice(0, 8),
+        missingKeywords,
         overusedWords,
-        atsTips: [
-            "Use a clean single-column layout — no columns, tables, or text boxes",
-            "Save as PDF with standard fonts (Arial, Calibri, Times New Roman)",
-            "Use exact keyword phrases from the JD — ATS does literal string matching",
-            "Spell out acronyms at least once (e.g., 'Machine Learning (ML)')",
-            "Include standard section headings: Summary, Experience, Education, Skills",
-        ]
+        atsTips,
+        keywordList: keywordList.slice(0, 20)
     };
 }
 
-function detectOverusedWords(resumeText) {
-    const buzzwords = ['hardworking', 'passionate', 'team player', 'detail-oriented', 'synergy', 'guru', 'ninja', 'rockstar', 'wizard', 'dynamic', 'innovative', 'results-driven', 'proactive'];
-    return buzzwords.filter(word => resumeText.toLowerCase().includes(word));
-}
-
-// ==============================
-//  INTERVIEW PREPARATION
-// ==============================
-function generateInterviewPrep(jdText, resumeText, missingSkills, jdSkills, roleLevel, targetRole = '') {
+function generateInterviewPrep(strongSkills, missingSkills, targetRole, roleLevel) {
     const questions = [];
 
-    // Technical questions based on JD skills
-    const topJdSkills = jdSkills.slice(0, 5);
-    topJdSkills.forEach(skill => {
-        const tc = titleCase(skill);
-        questions.push({
-            category: "Technical",
-            question: `Explain ${tc} and describe a project where you used it.`,
-            tip: `Prepare a STAR story (Situation, Task, Action, Result) for your best ${tc} project. Include specific metrics.`,
-            difficulty: "Medium"
-        });
-    });
-
-    // Weakness-based questions (from missing skills)
-    missingSkills.slice(0, 2).forEach(skill => {
-        const tc = titleCase(skill);
-        questions.push({
-            category: "Gap Question",
-            question: `We see ${tc} is in our requirements. How familiar are you with it, and how would you get up to speed?`,
-            tip: `Be honest — say you have foundational understanding or are actively learning. Show eagerness: "I've been following tutorials and plan to complete a project by [date]."`,
-            difficulty: "Hard"
-        });
-    });
-
-    // Role-level behavioral questions
-    const behavioralByLevel = {
-        entry: [
-            "Tell me about a challenging coding problem you solved recently.",
-            "How do you approach learning a new technology quickly?",
-            "Describe a time you worked effectively in a team on a project.",
-        ],
-        mid: [
-            "Describe a time you improved the performance of a system. What was your approach?",
-            "Tell me about a time you disagreed with a technical decision. How did you handle it?",
-            "How do you handle technical debt in a fast-moving project?",
-        ],
-        senior: [
-            "How have you mentored junior developers? What was your approach?",
-            "Describe a system you designed from scratch. What tradeoffs did you make?",
-            "Tell me about a time you had to make a critical technical decision under pressure.",
-        ],
-        lead: [
-            "How do you balance technical work with people management?",
-            "Describe how you've built and grown an engineering team.",
-            "How do you align engineering priorities with business objectives?",
-        ],
-        exec: [
-            "How do you build an engineering culture at scale?",
-            "Describe your approach to long-term technical strategy.",
-            "How do you manage relationships between engineering and other business units?",
-        ]
+    const addQ = (category, difficulty, question, tip) => {
+        questions.push({ category, difficulty, question, tip });
     };
 
-    const behavioralQuestions = behavioralByLevel[roleLevel] || behavioralByLevel.mid;
-    behavioralQuestions.forEach(q => {
-        questions.push({
-            category: "Behavioral",
-            question: q,
-            tip: "Use the STAR method: Situation → Task → Action → Result. Keep answers to 90–120 seconds maximum.",
-            difficulty: "Medium"
-        });
-    });
+    addQ("Core Technical", "Medium", "Can you explain how you handle state management or data flow in your primary stack?", "Walk through a real problem you solved, trade-offs considered, and how you measured success.");
+    addQ("System Design", roleLevel === 'senior' ? 'Hard' : 'Medium', "How would you design a scalable service that handles sudden traffic spikes?", "Focus on caching layers, database bottlenecks, asynchronous queues, and monitoring.");
+    addQ("Behavioral", "Medium", "Tell me about a time a project ran behind schedule or faced unexpected technical blockers.", "Use the STAR method: Situation, Task, Action you took, and measurable Result.");
 
-    // System design (for senior+)
-    if (['senior', 'lead', 'exec'].includes(roleLevel)) {
-        questions.push({
-            category: "System Design",
-            question: `Design a scalable ${targetRole || 'web'} system that handles 1 million daily users.`,
-            tip: "Cover: Requirements, High-Level Architecture, Database design, Caching strategy, Load balancing, Failure handling, Trade-offs.",
-            difficulty: "Hard"
-        });
+    if (strongSkills.length > 0) {
+        const topSkill = titleCase(strongSkills[0]);
+        addQ("Skill Deep-Dive", "Medium", `What are the most common performance or debugging pitfalls you encounter when using ${topSkill}?`, `Share specific real-world experiences rather than generic textbook answers.`);
     }
 
-    // Culture fit
-    questions.push({
-        category: "Culture Fit",
-        question: "Why do you want to work here specifically? What excites you about this role?",
-        tip: "Research the company beforehand — mention specific products, missions, or engineering blog posts. Show genuine interest, not just 'good salary'.",
-        difficulty: "Easy"
-    });
-    questions.push({
-        category: "Culture Fit",
-        question: "Where do you see yourself in 3–5 years?",
-        tip: "Align your answer with the role's growth path. Show ambition, but be realistic and show you care about the company's mission too.",
-        difficulty: "Easy"
-    });
+    if (missingSkills.length > 0) {
+        const missingSkill = titleCase(missingSkills[0]);
+        addQ("Adaptability", "Medium", `This role requires ${missingSkill}. How do you approach quickly learning and becoming productive with a new technology?`, `Highlight your fundamentals, debugging discipline, and previous fast ramps.`);
+    }
 
-    return {
-        questions: questions.slice(0, 10),
-        quickTips: [
-            "Research the company: Read their engineering blog, product, and mission.",
-            "Prepare 3 strong STAR stories you can adapt for multiple behavioral questions.",
-            "Practice explaining your best project in 2 minutes — clearly and concisely.",
-            "Prepare 5 thoughtful questions to ask the interviewer.",
-            "Send a thank-you email within 24 hours after the interview.",
-        ]
-    };
+    return { questions };
 }
 
-// ==============================
-//  SOFT SKILLS & VIDEO RESUME TIPS
-// ==============================
 function generateSoftSkillsTips(resumeText, roleLevel) {
     const hasSoftSkills = /\b(communication|leadership|teamwork|collaboration|mentoring|presentation)\b/i.test(resumeText);
-
     const videoTips = [
-        "Start with a confident greeting: 'Hi, I'm [Name], a [role] with [X] years of experience in [domain]'",
-        "Mention your top 3 skills or achievements — be specific with numbers",
-        "Express why you're excited about THIS specific role and company",
-        "Keep it under 90 seconds — recruiter attention drops fast",
-        "Use good lighting, a quiet environment, and dress professionally",
-        "Slow down your speech and pause after key points for impact",
-        "Look at the camera (not the screen preview) to create eye contact",
-        "End with a clear call-to-action: 'I'd love to connect and discuss further'"
+        "State your name, core domain, and 1–2 highlighted accomplishments in under 30 seconds.",
+        "Frame achievements around business impact and customer benefits.",
+        "Maintain good lighting, clear audio, and a quiet background."
     ];
-
-    const softSkillAdvice = [
-        { skill: "Communication", tip: "Clearly articulate complex ideas using the 'So What' framework — always connect your point to the listener's concern.", icon: "🗣️" },
-        { skill: "Confidence", tip: "Prepare and rehearse. Confidence = preparation + self-awareness. Practice your intro 10+ times before interviews.", icon: "💪" },
-        { skill: "Active Listening", tip: "In interviews, pause before answering. Repeat the question back if unclear. It shows thoughtfulness, not weakness.", icon: "👂" },
-        { skill: "Storytelling", tip: "Use the STAR method for every behavioral question. Practice until your stories flow naturally under pressure.", icon: "📖" },
-        { skill: "Body Language", tip: "Sit upright, make frequent-but-not-constant eye contact, and avoid filler words like 'um', 'like', 'you know'.", icon: "🧍" },
-    ];
-
-    const commonMistakes = [
-        "Reading from a script — it sounds robotic. Use bullet notes, not a word-for-word script.",
-        "Focusing only on responsibilities, not achievements — always show impact.",
-        "Poor audio quality — use a headset or external mic if possible.",
-        "Background distractions — find a plain, clean wall or use a simple virtual background.",
-        "Forgetting to smile — warmth is a soft skill too!"
-    ];
-
-    return { videoTips, softSkillAdvice, commonMistakes, hasSoftSkills };
+    return { videoTips, hasSoftSkills };
 }
 
-// ==============================
-//  UTILITIES
-// ==============================
 function titleCase(str) {
-    return str.replace(/\b\w/g, l => l.toUpperCase());
+    return (str || '').replace(/\b\w/g, l => l.toUpperCase());
 }
 
-window.ResumeAnalyzer = { analyzeMatch, extractSkillsFromText, titleCase, COMPANY_PROFILES };
+// Global Browser Export
+const ResumeAnalyzer = {
+    SKILL_TAXONOMY,
+    ALIASES,
+    RELATED_SKILLS,
+    LEARNING_RESOURCES,
+    COMPANY_PROFILES,
+    analyzeMatch,
+    extractSkillsFromText,
+    matchSkillsLayered,
+    canonicalizeSkill,
+    formatLearningResource,
+    titleCase
+};
+
+if (typeof window !== 'undefined') {
+    window.ResumeAnalyzer = ResumeAnalyzer;
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = ResumeAnalyzer;
+}

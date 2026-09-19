@@ -6,7 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ResumeMatch AI — Smart Resume &amp; Job Description Analyzer</title>
   <meta name="description"
-    content="Analyze your resume against any job description. Get an ATS match score, skill gap analysis, resume tips, career roadmap, interview prep, and video resume support — instantly." />
+    content="Analyze your resume against any job description. Get an estimated compatibility score, skill gap analysis, resume tips, career roadmap, and interview prep — free, client-side, and private." />
+
   <link rel="stylesheet" href="styles.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
@@ -39,8 +40,9 @@
         <span data-i18n="heroTitle1">Know Your</span> <span class="grad" data-i18n="heroGrad">Match Score</span><br />
         <span data-i18n="heroTitle2">Before You Apply</span>
       </h2>
-      <p data-i18n="heroSubtitle">Paste your resume and any job description to get an instant AI-powered analysis —
-        free, private, and instant.</p>
+      <p data-i18n="heroSubtitle">Paste your resume and any job description to get an instant rule-based compatibility analysis —
+        free, private, and client-side.</p>
+
     </section>
 
     <!-- ===== TOOL TAB BAR ===== -->
@@ -55,10 +57,11 @@
       <button class="tool-tab" id="tab-btn-risk" onclick="switchTool('risk')">
         <span class="tool-tab-icon">⚠️</span>
         <div class="tool-tab-text">
-          <span class="tool-tab-title">Career Risk IQ</span>
+          <span class="tool-tab-title">Career Risk Signals</span>
           <span class="tool-tab-sub">Check long-term career health</span>
         </div>
       </button>
+
     </div>
 
     <!-- ===== MATCHER TOOL PANEL ===== -->
@@ -279,10 +282,17 @@
               <div class="card-header">
                 <div class="card-icon purple-bg">📊</div>
                 <div>
-                  <h3 data-i18n="scoreTitle">Smart Match Score Analysis</h3>
-                  <p data-i18n="scoreSubtitle">Overall compatibility with the job description</p>
+                  <h3 data-i18n="scoreTitle">Resume–JD Compatibility Score</h3>
+                  <p data-i18n="scoreSubtitle">Estimated alignment with the job description based on skills, experience, and keywords</p>
                 </div>
               </div>
+              <!-- Issue 1 — Score disclaimer -->
+              <div class="score-disclaimer" role="note" aria-label="Score disclaimer">
+                ℹ️ This is an <strong>estimated score</strong> based on keyword and skill matching between your resume and the job description.
+                It does <strong>not</strong> represent hiring probability or an employer's actual decision.
+                <span class="score-weight-info">Weights: Skills 40% · Experience 20% · Domain 15% · Soft Skills 15% · ATS Keywords 10%</span>
+              </div>
+
               <div class="score-display">
                 <div class="score-ring-wrap">
                   <svg width="140" height="140" viewBox="0 0 140 140">
@@ -719,24 +729,29 @@
 
     <!-- ===== FOOTER ===== -->
     <footer class="footer">
-      <p>Made with <span>♥</span> for job seekers everywhere · ResumeMatch AI · 100% Free · Your history is saved locally on this device</p>
+      <p>Made with <span>♥</span> for job seekers everywhere · ResumeMatch AI · Free to use · Client-Side Processing · Local Browser Storage · Privacy-Focused Architecture</p>
+      <p class="footer-privacy-note">Core analysis runs entirely in your browser — no application backend required. Resume and JD text are never sent to any server. External resources (PDF.js via CDN, Google Fonts) are loaded from third-party servers.</p>
+      <p class="footer-method-note">Resume matching uses a <strong>rule-based analysis engine</strong>. LLM-based contextual analysis is not currently implemented.</p>
     </footer>
+
 
   </div><!-- /.app-wrapper -->
 
   <!-- ===== HISTORY SIDEBAR ===== -->
-  <div id="history-sidebar" class="history-sidebar">
-    <!-- Populated by FirebaseDB (IndexedDB local storage) -->
+  <div id="history-sidebar" class="history-sidebar" role="complementary" aria-label="Analysis history">
+    <!-- Populated by LocalDB (IndexedDB local storage) -->
     <div class="history-panel-header">
       <div class="history-panel-title">📚 Your History</div>
-      <button class="history-close-btn" onclick="document.getElementById('history-sidebar').classList.remove('open');document.getElementById('history-overlay').classList.remove('open')">✕</button>
+      <button class="history-close-btn" aria-label="Close history panel"
+              onclick="document.getElementById('history-sidebar').classList.remove('open');document.getElementById('history-overlay').classList.remove('open')">✕</button>
     </div>
     <div class="history-signin-prompt">
       <div class="hsp-icon">⏳</div>
       <p>Loading your saved analyses…</p>
     </div>
   </div>
-  <div id="history-overlay" class="history-overlay" onclick="document.getElementById('history-sidebar').classList.remove('open');this.classList.remove('open')"></div>
+  <div id="history-overlay" class="history-overlay" role="presentation"
+       onclick="document.getElementById('history-sidebar').classList.remove('open');this.classList.remove('open')"></div>
 
   <!-- Scripts — order matters! -->
   <script src="i18n.js"></script>
@@ -744,7 +759,7 @@
   <script src="ui.js"></script>
   <script src="features.js"></script>
   <script src="career-risk.js"></script>
-  <script src="firebase.js"></script>
+  <script src="storage.js"></script>
   <script src="app.js"></script>
 
 </body>

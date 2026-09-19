@@ -17,8 +17,10 @@
         initCustomizePanel();
         initLangToggle();
         initCareerRisk();
-        // Initialize Firebase Auth + Firestore
-        if (window.FirebaseDB) FirebaseDB.init();
+        // Initialize local storage (IndexedDB via storage.js)
+        if (window.LocalDB) LocalDB.init();
+        else if (window.FirebaseDB) FirebaseDB.init(); // backward-compat alias
+
     });
 
     // ---- Bind Events ----
@@ -136,10 +138,10 @@
                 renderTldr(state.result);
                 Feedback.reset();
                 showToast('Analysis complete! 🎉', 'success');
-                // Auto-save to Firestore if user is signed in
-                if (window.FirebaseDB) {
-                    FirebaseDB.saveMatchAnalysis(state.result, state.resumeText, state.jdText);
-                }
+                // Auto-save to local IndexedDB storage
+                const db = window.LocalDB || window.FirebaseDB;
+                if (db) db.saveMatchAnalysis(state.result, state.resumeText, state.jdText);
+
             } catch (err) {
                 console.error('Analysis error:', err);
                 showToast('An error occurred. Please try again.', 'error');
@@ -188,24 +190,69 @@
     }
 
     function extractPdfText(file, callback) {
+        // File size validation — warn if > 10 MB
+        const MAX_PDF_MB = 10;
+        if (file.size > MAX_PDF_MB * 1024 * 1024) {
+            showToast(`PDF is too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Max allowed: ${MAX_PDF_MB} MB. Please try a smaller file.`, 'error');
+            return;
+        }
+
         const reader = new FileReader();
         reader.onload = async e => {
             try {
                 const pdfjsLib = window['pdfjs-dist/build/pdf'];
-                if (!pdfjsLib) { showToast('PDF.js not loaded. Paste text directly.', 'error'); return; }
+                if (!pdfjsLib) {
+                    showToast('PDF library (PDF.js) could not be loaded. Please paste your resume text manually.', 'error');
+                    return;
+                }
                 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-                const pdf = await pdfjsLib.getDocument(new Uint8Array(e.target.result)).promise;
+
+                let pdf;
+                try {
+                    pdf = await pdfjsLib.getDocument(new Uint8Array(e.target.result)).promise;
+                } catch (pdfErr) {
+                    // Password-protected or corrupted PDF
+                    if (pdfErr && pdfErr.name === 'PasswordException') {
+                        showToast('This PDF is password-protected. Please remove the password and try again.', 'error');
+                    } else {
+                        showToast('Could not read this PDF. It may be corrupted. Please paste your resume text directly.', 'error');
+                    }
+                    return;
+                }
+
+                // Page limit
+                const MAX_PAGES = 30;
+                const pageCount = Math.min(pdf.numPages, MAX_PAGES);
+                if (pdf.numPages > MAX_PAGES) {
+                    showToast(`PDF has ${pdf.numPages} pages — only the first ${MAX_PAGES} pages will be processed.`, 'info');
+                }
+
                 let fullText = '';
-                for (let i = 1; i <= pdf.numPages; i++) {
-                    const page = await pdf.getPage(i);
+                for (let i = 1; i <= pageCount; i++) {
+                    const page    = await pdf.getPage(i);
                     const content = await page.getTextContent();
                     fullText += content.items.map(item => item.str).join(' ') + '\n';
                 }
+
+                // Scanned / image PDF detection
+                const cleaned = fullText.trim().replace(/\s+/g, ' ');
+                if (cleaned.length < 100) {
+                    showToast('We could not extract enough text from this PDF. It may be a scanned or image-only PDF. Please paste your resume text directly.', 'error');
+                    return;
+                }
+
                 callback(fullText);
-            } catch { showToast('Could not parse PDF. Paste text directly.', 'error'); }
+            } catch (err) {
+                console.error('[PDF] Extraction error:', err);
+                showToast('Unable to process this PDF. Please try another file or paste your resume text directly.', 'error');
+            }
+        };
+        reader.onerror = () => {
+            showToast('Could not read the file. Please try again.', 'error');
         };
         reader.readAsArrayBuffer(file);
     }
+
 
     // ---- Drag & Drop ----
     function setupDragDrop(dropZoneId, textareaId, countId, statusId) {
@@ -343,7 +390,8 @@ REQUIREMENTS:
           <div class="tldr-grid">
             <div class="tldr-score-circle">
               <div class="tldr-score-num" style="color:${scoreColor}">${score}%</div>
-              <div class="tldr-score-desc">Match Score</div>
+              <div class="tldr-score-desc">Estimated Compatibility</div>
+
               <div class="tldr-verdict-badge" style="background:${scoreColor}22;color:${scoreColor};border:1px solid ${scoreColor}44">
                 ${verdictIcon} ${verdict}
               </div>
@@ -447,13 +495,12 @@ REQUIREMENTS:
                 careerGoal: goal
             });
             renderCareerRiskResult(result);
-            // Auto-save to Firestore if user is signed in
-            if (window.FirebaseDB) {
-                FirebaseDB.saveRiskAnalysis(result, {
-                    currentRole: role,
-                    yearsOfExperience: parseFloat(years) || 0
-                });
-            }
+            // Auto-save to local IndexedDB storage
+            const db = window.LocalDB || window.FirebaseDB;
+            if (db) db.saveRiskAnalysis(result, {
+                currentRole: role,
+                yearsOfExperience: parseFloat(years) || 0
+            });
             if (analyzeBtn) { 
                 analyzeBtn.disabled = false; 
                 analyzeBtn.innerHTML = `<span>⚠️</span> Analyze Career Risk`; 
@@ -461,6 +508,7 @@ REQUIREMENTS:
             if (formCard) formCard.classList.remove('active-scanning');
         }, 900);
     }
+
 
     function renderCareerRiskResult(r) {
         const container = document.getElementById('career-risk-result');
@@ -477,20 +525,27 @@ REQUIREMENTS:
         const m = r.modules;
 
         container.innerHTML = `
+        <!-- CAREER RISK DISCLAIMER -->
+        <div class="risk-disclaimer" role="note">
+          ℹ️ <strong>Career Risk Signals</strong> — This analysis is informational and based on the data you entered.
+          It is <strong>not</strong> a guaranteed prediction of future career outcomes. Individual results may vary.
+        </div>
+
         <!-- BANNER -->
         <div class="risk-score-banner" style="border-left:4px solid ${scoreColor}">
           <div class="risk-score-main">
             <div class="risk-score-num" style="color:${scoreColor}">${r.overallScore}%</div>
             <div>
-              <div class="risk-score-label">Overall Career Risk Score</div>
+              <div class="risk-score-label">Estimated Career Risk Score</div>
               <div class="risk-category-badge" style="background:${categoryColor}22;color:${categoryColor};border:1px solid ${categoryColor}44">${categoryIcon} ${r.riskCategory}</div>
             </div>
           </div>
           <div class="risk-confidence-box">
-            <span class="risk-conf-label">Prediction Confidence</span>
+            <span class="risk-conf-label">Signal Confidence</span>
             <span class="risk-conf-val" style="color:${confColor}">${r.confidence}</span>
           </div>
         </div>
+
 
         <!-- 5 MODULE CARDS -->
         <div class="risk-modules-row">
@@ -538,7 +593,8 @@ REQUIREMENTS:
         <!-- 2-YEAR PROJECTION + SALARY -->
         <div class="risk-two-col">
           <div class="risk-section-card">
-            <h4 class="risk-section-title">🔭 2-Year Career Projection</h4>
+            <h4 class="risk-section-title">🔭 Career Outlook (Estimate)</h4>
+
             <p class="risk-text">${r.projection}</p>
           </div>
           <div class="risk-section-card">

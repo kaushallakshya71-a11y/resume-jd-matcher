@@ -7,15 +7,16 @@ const TRANSLATIONS = {
         // Header
         appName: "ResumeMatch AI",
         appTagline: "Smart Career Compatibility Analyzer",
-        aiBadge: "✨ AI-Powered",
+        aiBadge: "⚡ Smart Analysis",
         langToggle: "हिंदी",
 
         // Hero
         eyebrow: "🔍 Resume Intelligence Engine",
         heroTitle1: "Know Your",
-        heroGrad: "Match Score",
+        heroGrad: "Compatibility Score",
         heroTitle2: "Before You Apply",
-        heroSubtitle: "Paste your resume and any job description to get an instant compatibility score, skill gap analysis, ATS keyword insights, and a personalized career roadmap.",
+        heroSubtitle: "Paste your resume and any job description to get an estimated compatibility score, skill gap analysis, ATS keyword insights, and a personalized career roadmap.",
+
         stat1Label: "Skills Tracked",
         stat2Label: "ATS Match Score",
         stat3Label: "Private & Offline",
@@ -74,8 +75,9 @@ const TRANSLATIONS = {
         navFeedback: "⭐ Feedback",
 
         // Results
-        scoreTitle: "Match Score Analysis",
-        scoreSubtitle: "Overall compatibility with the job description",
+        scoreTitle: "Estimated Compatibility Score",
+        scoreSubtitle: "Overall alignment with the job description based on keywords and skills",
+
         skillsTitle: "Skill Breakdown",
         skillsSubtitle: "How your skills compare with the job requirements",
         verdictTitle: "Final Verdict",
@@ -120,14 +122,15 @@ const TRANSLATIONS = {
     hi: {
         appName: "ResumeMatch AI",
         appTagline: "स्मार्ट करियर कम्पैटिबिलिटी एनालाइज़र",
-        aiBadge: "✨ AI-Powered",
+        aiBadge: "⚡ स्मार्ट एनालिसिस",
         langToggle: "English",
 
         eyebrow: "🔍 रिज्यूमे इंटेलिजेंस इंजन",
         heroTitle1: "जानो अपना",
-        heroGrad: "मैच स्कोर",
+        heroGrad: "कम्पैटिबिलिटी स्कोर",
         heroTitle2: "Apply करने से पहले",
-        heroSubtitle: "अपना रिज्यूमे और जॉब डिस्क्रिप्शन paste करो — instant compatibility score, skill gap, और career roadmap पाओ।",
+        heroSubtitle: "अपना रिज्यूमे और जॉब डिस्क्रिप्शन paste करो — अनुमानित compatibility score, skill gap, और career roadmap पाओ।",
+
         stat1Label: "Skills Track होते हैं",
         stat2Label: "ATS मैच स्कोर",
         stat3Label: "प्राइवेट & ऑफलाइन",
@@ -180,8 +183,9 @@ const TRANSLATIONS = {
         navVideo: "📹 Video रिज्यूमे",
         navFeedback: "⭐ Feedback",
 
-        scoreTitle: "मैच स्कोर एनालिसिस",
-        scoreSubtitle: "जॉब डिस्क्रिप्शन के साथ overall compatibility",
+        scoreTitle: "अनुमानित कम्पैटिबिलिटी स्कोर",
+        scoreSubtitle: "जॉब डिस्क्रिप्शन के साथ अनुमानित alignment",
+
         skillsTitle: "Skills का विवरण",
         skillsSubtitle: "आपकी skills vs job requirements",
         verdictTitle: "Final Verdict",
@@ -217,7 +221,8 @@ const TRANSLATIONS = {
         feedbackThanks: "आपके feedback के लिए धन्यवाद! 🙏",
         feedbackRatings: "ratings अब तक",
 
-        footerText: "job seekers के लिए ❤️ से बनाया · ResumeMatch AI · सारा analysis 100% local है — आपका data browser नहीं छोड़ता",
+        footerText: "job seekers के लिए ❤️ से बनाया · ResumeMatch AI · क्लाइंट-साइड एनालिसिस · लोकल स्टोरेज · प्राइवेसी-फोकस्ड आर्किटेक्चर",
+
     }
 };
 

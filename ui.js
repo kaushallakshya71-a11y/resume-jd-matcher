@@ -243,9 +243,11 @@ const UI = {
                 <div class="ats-pass-bar">
                     <div class="ats-pass-fill" style="width:${passProbability}%;background:${passColor}"></div>
                 </div>
-                <div class="ats-pass-pct" style="color:${passColor}">${passProbability}% Pass Probability</div>
-                <p class="ats-pass-desc">Based on keyword match between your resume and the job description.</p>
+                <div class="ats-pass-pct" style="color:${passColor}">${passProbability}% Estimated ATS Compatibility</div>
+                <p class="ats-pass-desc">Based on keyword and formatting alignment between your resume and the job description.</p>
+                <p class="ats-disclaimer">⚠️ ATS systems vary widely between companies and software platforms. This is an estimate — not a guarantee of passing any specific ATS.</p>
             </div>
+
 
             ${formatRisks.length > 0 ? `
             <div class="ats-risks">

@@ -10,7 +10,12 @@
     "related": [
       "TypeScript",
       "Node.js"
-    ]
+    ],
+    "relatedSkills": [
+      "TypeScript",
+      "Node.js"
+    ],
+    "parentSkill": null
   },
   {
     "name": "TypeScript",
@@ -20,7 +25,11 @@
     "category": "Programming Languages",
     "related": [
       "JavaScript"
-    ]
+    ],
+    "relatedSkills": [
+      "JavaScript"
+    ],
+    "parentSkill": null
   },
   {
     "name": "Python",
@@ -33,7 +42,13 @@
       "Django",
       "Flask",
       "FastAPI"
-    ]
+    ],
+    "relatedSkills": [
+      "Django",
+      "Flask",
+      "FastAPI"
+    ],
+    "parentSkill": null
   },
   {
     "name": "Java",
@@ -45,12 +60,16 @@
       "Java 21"
     ],
     "category": "Programming Languages",
+    "related": [
+      "Spring Boot"
+    ],
+    "relatedSkills": [
+      "Spring Boot"
+    ],
+    "parentSkill": null,
     "notMatches": [
       "JavaScript",
       "Java Android"
-    ],
-    "related": [
-      "Spring Boot"
     ]
   },
   {
@@ -62,7 +81,11 @@
     "category": "Programming Languages",
     "related": [
       "C"
-    ]
+    ],
+    "relatedSkills": [
+      "C"
+    ],
+    "parentSkill": null
   },
   {
     "name": "C",
@@ -70,11 +93,13 @@
       "C Language"
     ],
     "category": "Programming Languages",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null,
     "notMatches": [
       "C++",
       "C#"
-    ],
-    "boundaryRegex": "(?:^|[^\\w+#])c(?=[^\\w+#]|$)"
+    ]
   },
   {
     "name": "C#",
@@ -86,7 +111,12 @@
     "related": [
       ".NET",
       "ASP.NET"
-    ]
+    ],
+    "relatedSkills": [
+      ".NET",
+      "ASP.NET"
+    ],
+    "parentSkill": null
   },
   {
     "name": "Go",
@@ -94,14 +124,19 @@
       "Golang"
     ],
     "category": "Programming Languages",
-    "boundaryRegex": "\\bgolang\\b|(?:^|[^\\w])go(?=\\s+(?:lang|programming|developer|engineer|code)|[^\\w]|$)"
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Rust",
     "aliases": [
       "Rustlang"
     ],
-    "category": "Programming Languages"
+    "category": "Programming Languages",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "PHP",
@@ -112,7 +147,11 @@
     "category": "Programming Languages",
     "related": [
       "Laravel"
-    ]
+    ],
+    "relatedSkills": [
+      "Laravel"
+    ],
+    "parentSkill": null
   },
   {
     "name": "Ruby",
@@ -120,7 +159,11 @@
     "category": "Programming Languages",
     "related": [
       "Ruby on Rails"
-    ]
+    ],
+    "relatedSkills": [
+      "Ruby on Rails"
+    ],
+    "parentSkill": null
   },
   {
     "name": "Swift",
@@ -130,7 +173,11 @@
     "category": "Programming Languages",
     "related": [
       "iOS"
-    ]
+    ],
+    "relatedSkills": [
+      "iOS"
+    ],
+    "parentSkill": null
   },
   {
     "name": "Kotlin",
@@ -138,7 +185,11 @@
     "category": "Programming Languages",
     "related": [
       "Android"
-    ]
+    ],
+    "relatedSkills": [
+      "Android"
+    ],
+    "parentSkill": null
   },
   {
     "name": "Dart",
@@ -146,7 +197,11 @@
     "category": "Programming Languages",
     "related": [
       "Flutter"
-    ]
+    ],
+    "relatedSkills": [
+      "Flutter"
+    ],
+    "parentSkill": null
   },
   {
     "name": "R",
@@ -154,7 +209,9 @@
       "R Language"
     ],
     "category": "Programming Languages",
-    "boundaryRegex": "\\br\\s+(?:programming|script|package|studio|lang)\\b|(?:^|[^\\w])r(?=[^\\w]|$)"
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "SQL",
@@ -165,7 +222,12 @@
     "related": [
       "MySQL",
       "PostgreSQL"
-    ]
+    ],
+    "relatedSkills": [
+      "MySQL",
+      "PostgreSQL"
+    ],
+    "parentSkill": null
   },
   {
     "name": "Bash",
@@ -177,7 +239,11 @@
     "category": "Programming Languages",
     "related": [
       "Linux"
-    ]
+    ],
+    "relatedSkills": [
+      "Linux"
+    ],
+    "parentSkill": null
   },
   {
     "name": "React",
@@ -186,12 +252,17 @@
       "React.js"
     ],
     "category": "Frameworks",
-    "notMatches": [
-      "React Native"
-    ],
     "related": [
       "Next.js",
       "Redux"
+    ],
+    "relatedSkills": [
+      "Next.js",
+      "Redux"
+    ],
+    "parentSkill": null,
+    "notMatches": [
+      "React Native"
     ]
   },
   {
@@ -203,7 +274,12 @@
     "related": [
       "React",
       "Mobile Development"
-    ]
+    ],
+    "relatedSkills": [
+      "React",
+      "Mobile Development"
+    ],
+    "parentSkill": null
   },
   {
     "name": "Next.js",
@@ -214,7 +290,11 @@
     "category": "Frameworks",
     "related": [
       "React"
-    ]
+    ],
+    "relatedSkills": [
+      "React"
+    ],
+    "parentSkill": null
   },
   {
     "name": "Vue.js",
@@ -226,7 +306,11 @@
     "category": "Frameworks",
     "related": [
       "Nuxt"
-    ]
+    ],
+    "relatedSkills": [
+      "Nuxt"
+    ],
+    "parentSkill": null
   },
   {
     "name": "Nuxt",
@@ -237,7 +321,11 @@
     "category": "Frameworks",
     "related": [
       "Vue.js"
-    ]
+    ],
+    "relatedSkills": [
+      "Vue.js"
+    ],
+    "parentSkill": null
   },
   {
     "name": "Angular",
@@ -245,14 +333,20 @@
       "AngularJS",
       "Angular 2+"
     ],
-    "category": "Frameworks"
+    "category": "Frameworks",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Svelte",
     "aliases": [
       "SvelteKit"
     ],
-    "category": "Frameworks"
+    "category": "Frameworks",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Node.js",
@@ -261,11 +355,15 @@
       "Node js"
     ],
     "category": "Frameworks",
-    "boundaryRegex": "\\bnode(?:\\.js|js)?\\b",
     "related": [
       "Express",
       "NestJS"
-    ]
+    ],
+    "relatedSkills": [
+      "Express",
+      "NestJS"
+    ],
+    "parentSkill": null
   },
   {
     "name": "Express",
@@ -276,7 +374,11 @@
     "category": "Frameworks",
     "related": [
       "Node.js"
-    ]
+    ],
+    "relatedSkills": [
+      "Node.js"
+    ],
+    "parentSkill": null
   },
   {
     "name": "NestJS",
@@ -288,7 +390,12 @@
     "related": [
       "Node.js",
       "TypeScript"
-    ]
+    ],
+    "relatedSkills": [
+      "Node.js",
+      "TypeScript"
+    ],
+    "parentSkill": null
   },
   {
     "name": "Django",
@@ -299,7 +406,11 @@
     "category": "Frameworks",
     "related": [
       "Python"
-    ]
+    ],
+    "relatedSkills": [
+      "Python"
+    ],
+    "parentSkill": null
   },
   {
     "name": "Flask",
@@ -307,7 +418,11 @@
     "category": "Frameworks",
     "related": [
       "Python"
-    ]
+    ],
+    "relatedSkills": [
+      "Python"
+    ],
+    "parentSkill": null
   },
   {
     "name": "FastAPI",
@@ -317,7 +432,11 @@
     "category": "Frameworks",
     "related": [
       "Python"
-    ]
+    ],
+    "relatedSkills": [
+      "Python"
+    ],
+    "parentSkill": null
   },
   {
     "name": "Spring Boot",
@@ -329,7 +448,11 @@
     "category": "Frameworks",
     "related": [
       "Java"
-    ]
+    ],
+    "relatedSkills": [
+      "Java"
+    ],
+    "parentSkill": null
   },
   {
     "name": "Ruby on Rails",
@@ -340,7 +463,11 @@
     "category": "Frameworks",
     "related": [
       "Ruby"
-    ]
+    ],
+    "relatedSkills": [
+      "Ruby"
+    ],
+    "parentSkill": null
   },
   {
     "name": "Laravel",
@@ -348,7 +475,11 @@
     "category": "Frameworks",
     "related": [
       "PHP"
-    ]
+    ],
+    "relatedSkills": [
+      "PHP"
+    ],
+    "parentSkill": null
   },
   {
     "name": "ASP.NET",
@@ -361,7 +492,11 @@
     "category": "Frameworks",
     "related": [
       "C#"
-    ]
+    ],
+    "relatedSkills": [
+      "C#"
+    ],
+    "parentSkill": null
   },
   {
     "name": "Flutter",
@@ -370,7 +505,12 @@
     "related": [
       "Dart",
       "Mobile Development"
-    ]
+    ],
+    "relatedSkills": [
+      "Dart",
+      "Mobile Development"
+    ],
+    "parentSkill": null
   },
   {
     "name": "Redux",
@@ -381,7 +521,11 @@
     "category": "Libraries",
     "related": [
       "React"
-    ]
+    ],
+    "relatedSkills": [
+      "React"
+    ],
+    "parentSkill": null
   },
   {
     "name": "Tailwind CSS",
@@ -389,12 +533,18 @@
       "Tailwind",
       "TailwindCSS"
     ],
-    "category": "Libraries"
+    "category": "Libraries",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Bootstrap",
     "aliases": [],
-    "category": "Libraries"
+    "category": "Libraries",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Pandas",
@@ -403,7 +553,12 @@
     "related": [
       "Python",
       "Data Science"
-    ]
+    ],
+    "relatedSkills": [
+      "Python",
+      "Data Science"
+    ],
+    "parentSkill": null
   },
   {
     "name": "NumPy",
@@ -414,7 +569,12 @@
     "related": [
       "Python",
       "Data Science"
-    ]
+    ],
+    "relatedSkills": [
+      "Python",
+      "Data Science"
+    ],
+    "parentSkill": null
   },
   {
     "name": "SciPy",
@@ -424,7 +584,11 @@
     "category": "Libraries",
     "related": [
       "Python"
-    ]
+    ],
+    "relatedSkills": [
+      "Python"
+    ],
+    "parentSkill": null
   },
   {
     "name": "Scikit-Learn",
@@ -436,7 +600,12 @@
     "related": [
       "Machine Learning",
       "Python"
-    ]
+    ],
+    "relatedSkills": [
+      "Machine Learning",
+      "Python"
+    ],
+    "parentSkill": null
   },
   {
     "name": "TensorFlow",
@@ -447,7 +616,11 @@
     "category": "Libraries",
     "related": [
       "Deep Learning"
-    ]
+    ],
+    "relatedSkills": [
+      "Deep Learning"
+    ],
+    "parentSkill": null
   },
   {
     "name": "PyTorch",
@@ -458,7 +631,11 @@
     "category": "Libraries",
     "related": [
       "Deep Learning"
-    ]
+    ],
+    "relatedSkills": [
+      "Deep Learning"
+    ],
+    "parentSkill": null
   },
   {
     "name": "Keras",
@@ -466,7 +643,11 @@
     "category": "Libraries",
     "related": [
       "TensorFlow"
-    ]
+    ],
+    "relatedSkills": [
+      "TensorFlow"
+    ],
+    "parentSkill": null
   },
   {
     "name": "PostgreSQL",
@@ -477,17 +658,25 @@
     "category": "Databases",
     "related": [
       "SQL"
-    ]
+    ],
+    "relatedSkills": [
+      "SQL"
+    ],
+    "parentSkill": null
   },
   {
     "name": "MySQL",
     "aliases": [],
     "category": "Databases",
-    "notMatches": [
-      "PostgreSQL"
-    ],
     "related": [
       "SQL"
+    ],
+    "relatedSkills": [
+      "SQL"
+    ],
+    "parentSkill": null,
+    "notMatches": [
+      "PostgreSQL"
     ]
   },
   {
@@ -496,17 +685,26 @@
       "Mongo",
       "Mongoose"
     ],
-    "category": "Databases"
+    "category": "Databases",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Redis",
     "aliases": [],
-    "category": "Databases"
+    "category": "Databases",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "SQLite",
     "aliases": [],
-    "category": "Databases"
+    "category": "Databases",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "DynamoDB",
@@ -516,14 +714,21 @@
     "category": "Databases",
     "related": [
       "AWS"
-    ]
+    ],
+    "relatedSkills": [
+      "AWS"
+    ],
+    "parentSkill": null
   },
   {
     "name": "Cassandra",
     "aliases": [
       "Apache Cassandra"
     ],
-    "category": "Databases"
+    "category": "Databases",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Elasticsearch",
@@ -531,7 +736,10 @@
       "Elastic Search",
       "ELK"
     ],
-    "category": "Databases"
+    "category": "Databases",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Supabase",
@@ -539,7 +747,11 @@
     "category": "Databases",
     "related": [
       "PostgreSQL"
-    ]
+    ],
+    "relatedSkills": [
+      "PostgreSQL"
+    ],
+    "parentSkill": null
   },
   {
     "name": "AWS",
@@ -547,12 +759,16 @@
       "Amazon Web Services"
     ],
     "category": "Cloud",
+    "related": [
+      "Cloud Computing"
+    ],
+    "relatedSkills": [
+      "Cloud Computing"
+    ],
+    "parentSkill": null,
     "notMatches": [
       "Azure",
       "Google Cloud"
-    ],
-    "related": [
-      "Cloud Computing"
     ]
   },
   {
@@ -561,6 +777,9 @@
       "Microsoft Azure"
     ],
     "category": "Cloud",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null,
     "notMatches": [
       "AWS",
       "Google Cloud"
@@ -573,6 +792,9 @@
       "Google Cloud Platform"
     ],
     "category": "Cloud",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null,
     "notMatches": [
       "AWS",
       "Azure"
@@ -587,7 +809,11 @@
     "category": "DevOps",
     "related": [
       "Kubernetes"
-    ]
+    ],
+    "relatedSkills": [
+      "Kubernetes"
+    ],
+    "parentSkill": null
   },
   {
     "name": "Kubernetes",
@@ -597,7 +823,11 @@
     "category": "DevOps",
     "related": [
       "Docker"
-    ]
+    ],
+    "relatedSkills": [
+      "Docker"
+    ],
+    "parentSkill": null
   },
   {
     "name": "Terraform",
@@ -605,12 +835,18 @@
       "IaC",
       "Infrastructure as Code"
     ],
-    "category": "DevOps"
+    "category": "DevOps",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Ansible",
     "aliases": [],
-    "category": "DevOps"
+    "category": "DevOps",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Jenkins",
@@ -618,7 +854,11 @@
     "category": "DevOps",
     "related": [
       "CI/CD"
-    ]
+    ],
+    "relatedSkills": [
+      "CI/CD"
+    ],
+    "parentSkill": null
   },
   {
     "name": "GitHub Actions",
@@ -629,7 +869,11 @@
     "category": "DevOps",
     "related": [
       "CI/CD"
-    ]
+    ],
+    "relatedSkills": [
+      "CI/CD"
+    ],
+    "parentSkill": null
   },
   {
     "name": "CI/CD",
@@ -637,7 +881,10 @@
       "Continuous Integration",
       "Continuous Deployment"
     ],
-    "category": "DevOps"
+    "category": "DevOps",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Linux",
@@ -647,19 +894,28 @@
       "CentOS",
       "RHEL"
     ],
-    "category": "DevOps"
+    "category": "DevOps",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Nginx",
     "aliases": [],
-    "category": "DevOps"
+    "category": "DevOps",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Machine Learning",
     "aliases": [
       "ML"
     ],
-    "category": "AI/ML"
+    "category": "AI/ML",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Deep Learning",
@@ -667,14 +923,20 @@
       "DL",
       "Neural Networks"
     ],
-    "category": "AI/ML"
+    "category": "AI/ML",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Natural Language Processing",
     "aliases": [
       "NLP"
     ],
-    "category": "AI/ML"
+    "category": "AI/ML",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Large Language Models",
@@ -682,26 +944,38 @@
       "LLM",
       "LLMs"
     ],
-    "category": "AI/ML"
+    "category": "AI/ML",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Data Analysis",
     "aliases": [
       "Data Analytics"
     ],
-    "category": "Data Science"
+    "category": "Data Science",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Power BI",
     "aliases": [
       "PowerBI"
     ],
-    "category": "Data Science"
+    "category": "Data Science",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Tableau",
     "aliases": [],
-    "category": "Data Science"
+    "category": "Data Science",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Apache Spark",
@@ -709,7 +983,10 @@
       "Spark",
       "PySpark"
     ],
-    "category": "Data Science"
+    "category": "Data Science",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Jest",
@@ -717,7 +994,11 @@
     "category": "Testing",
     "related": [
       "JavaScript"
-    ]
+    ],
+    "relatedSkills": [
+      "JavaScript"
+    ],
+    "parentSkill": null
   },
   {
     "name": "PyTest",
@@ -727,22 +1008,35 @@
     "category": "Testing",
     "related": [
       "Python"
-    ]
+    ],
+    "relatedSkills": [
+      "Python"
+    ],
+    "parentSkill": null
   },
   {
     "name": "Cypress",
     "aliases": [],
-    "category": "Testing"
+    "category": "Testing",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Playwright",
     "aliases": [],
-    "category": "Testing"
+    "category": "Testing",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Selenium",
     "aliases": [],
-    "category": "Testing"
+    "category": "Testing",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Unit Testing",
@@ -751,7 +1045,10 @@
       "TDD",
       "Test Driven Development"
     ],
-    "category": "Testing"
+    "category": "Testing",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Git",
@@ -759,34 +1056,52 @@
       "Version Control",
       "VCS"
     ],
-    "category": "Tools"
+    "category": "Tools",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "GitHub",
     "aliases": [
       "Github"
     ],
-    "category": "Tools"
+    "category": "Tools",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Postman",
     "aliases": [],
-    "category": "Tools"
+    "category": "Tools",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Figma",
     "aliases": [],
-    "category": "Tools"
+    "category": "Tools",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Jira",
     "aliases": [],
-    "category": "Tools"
+    "category": "Tools",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "GraphQL",
     "aliases": [],
-    "category": "Tools"
+    "category": "Tools",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "REST API",
@@ -795,7 +1110,10 @@
       "REST APIs",
       "REST"
     ],
-    "category": "Tools"
+    "category": "Tools",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Communication",
@@ -804,7 +1122,10 @@
       "Verbal Communication",
       "Written Communication"
     ],
-    "category": "Soft Skills"
+    "category": "Soft Skills",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Teamwork",
@@ -812,7 +1133,10 @@
       "Collaboration",
       "Collaborative"
     ],
-    "category": "Soft Skills"
+    "category": "Soft Skills",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Leadership",
@@ -821,7 +1145,10 @@
       "Mentoring",
       "Mentorship"
     ],
-    "category": "Soft Skills"
+    "category": "Soft Skills",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Problem Solving",
@@ -829,7 +1156,10 @@
       "Problem-Solving",
       "Analytical Skills"
     ],
-    "category": "Soft Skills"
+    "category": "Soft Skills",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   },
   {
     "name": "Agile",
@@ -837,6 +1167,9 @@
       "Scrum",
       "Kanban"
     ],
-    "category": "Soft Skills"
+    "category": "Soft Skills",
+    "related": [],
+    "relatedSkills": [],
+    "parentSkill": null
   }
 ]

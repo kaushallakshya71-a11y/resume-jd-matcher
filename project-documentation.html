@@ -1193,12 +1193,22 @@
         <tr>
           <td><strong>matchHistory</strong></td>
           <td>id (auto-increment)</td>
-          <td>score, verdict, missingSkills[], strongMatches[], targetRole, atsPassProbability, resumeSnippet (2000 chars), jdSnippet (2000 chars), createdAt (timestamp)</td>
+          <td>score, verdict, missingSkills[], strongMatches[], targetRole, atsPassProbability, resumeSnippet (2000 chars), jdSnippet (2000 chars), breakdown, createdAt (timestamp)</td>
         </tr>
         <tr>
           <td><strong>riskHistory</strong></td>
           <td>id (auto-increment)</td>
-          <td>overallScore, riskCategory, currentRole, yearsOfExperience, salaryGrowth, automationRisk, topRiskFactors[], projection, createdAt</td>
+          <td>overallScore, riskCategory, currentRole, yearsOfExperience, salaryGrowth, automationRisk, topRiskFactors[], projection, individualSignals, createdAt</td>
+        </tr>
+        <tr>
+          <td><strong>resumeVersions</strong> <em>(v2 New)</em></td>
+          <td>id (auto-increment)</td>
+          <td>name, resumeText, targetRole, notes, createdAt, updatedAt</td>
+        </tr>
+        <tr>
+          <td><strong>jobApplications</strong> <em>(v2 New)</em></td>
+          <td>id (auto-increment)</td>
+          <td>company, role, location, salary, jobUrl, status, dateApplied, matchScore, versionUsed, notes, createdAt, updatedAt</td>
         </tr>
         <tr>
           <td><strong>stats</strong></td>
@@ -1221,22 +1231,57 @@
       <tbody>
         <tr>
           <td><code style="color:var(--gold-light);">ResumeAnalyzer.analyzeMatch()</code></td>
-          <td>Resume + JD se full analysis result object generate karta hai</td>
+          <td>Resume + JD se 5-dimension breakdown (Skills 40, Exp 20, Domain 15, Soft 15, ATS 10) generate karta hai</td>
           <td>POST /api/analyze</td>
         </tr>
         <tr>
+          <td><code style="color:var(--gold-light);">ResumeGrammar.analyzeGrammar()</code></td>
+          <td>Rule-based spelling, passive voice, weak bullet starters, aur wordiness check karta hai</td>
+          <td>POST /api/studio/grammar</td>
+        </tr>
+        <tr>
+          <td><code style="color:var(--gold-light);">AISignals.analyzeAISignals()</code></td>
+          <td>Probabilistic AI writing signals, generic clichés, buzzword density &amp; sentence uniformity evaluate karta hai</td>
+          <td>POST /api/studio/ai-signals</td>
+        </tr>
+        <tr>
+          <td><code style="color:var(--gold-light);">ResumeHumanizer.humanizeText()</code></td>
+          <td>5 modes (Simple, Professional, Natural, Concise, Impact) mein rewrite karta hai with strict fact preservation</td>
+          <td>POST /api/studio/humanize</td>
+        </tr>
+        <tr>
+          <td><code style="color:var(--gold-light);">ResumeImprover.evaluateResumeQuality()</code></td>
+          <td>Resume sections detect karta hai aur bullet points ko Action + Tech + Task + Result framework pe audit karta hai</td>
+          <td>POST /api/studio/audit</td>
+        </tr>
+        <tr>
+          <td><code style="color:var(--gold-light);">ResumeQuality.compareBeforeAfter()</code></td>
+          <td>Original vs edited resume ka live re-analysis aur delta comparison matrix generate karta hai</td>
+          <td>POST /api/studio/compare</td>
+        </tr>
+        <tr>
+          <td><code style="color:var(--gold-light);">JobTracker.saveApplication()</code></td>
+          <td>Job application status (Saved/Applied/Screen/OA/Interview/Offer/Rejected) manage karta hai</td>
+          <td>POST /api/jobs</td>
+        </tr>
+        <tr>
+          <td><code style="color:var(--gold-light);">ResumeVersions.saveVersion()</code></td>
+          <td>Tailored resume versions ko IndexedDB mein persist karta hai</td>
+          <td>POST /api/versions</td>
+        </tr>
+        <tr>
           <td><code style="color:var(--gold-light);">CareerRisk.analyze()</code></td>
-          <td>Career risk inputs se risk report generate karta hai</td>
+          <td>Career risk inputs se 5 individual risk signals evaluate karta hai</td>
           <td>POST /api/career-risk</td>
         </tr>
         <tr>
           <td><code style="color:var(--gold-light);">FirebaseDB.saveMatchAnalysis()</code></td>
-          <td>Result ko IndexedDB mein save karta hai</td>
+          <td>Result ko IndexedDB v2 mein save karta hai with backwards compatibility</td>
           <td>POST /api/history/match</td>
         </tr>
         <tr>
           <td><code style="color:var(--gold-light);">FirebaseDB.loadHistory()</code></td>
-          <td>IndexedDB se last 15 analyses fetch karta hai</td>
+          <td>IndexedDB se analyses fetch karta hai</td>
           <td>GET /api/history?limit=15</td>
         </tr>
         <tr>

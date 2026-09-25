@@ -399,6 +399,39 @@ const CareerRisk = (function () {
         const immediateActions = getImmediateActions(m1, m2, m3, m4, m5);
         const confidence = getConfidenceLevel(input);
 
+        const individualSignals = {
+            technologyRelevance: {
+                title: "Technology Relevance",
+                score: m3.relevanceRatio || 50,
+                level: m3.relevanceRatio >= 50 ? 'Strong' : m3.relevanceRatio >= 25 ? 'Moderate' : 'Needs Modernization',
+                details: `${m3.relevant.length} high-demand skills, ${m3.outdated.length} declining technologies.`
+            },
+            learningConsistency: {
+                title: "Learning Consistency",
+                score: m2.level === 'High' ? 85 : m2.level === 'Medium' ? 60 : 30,
+                level: m2.level,
+                details: m2.assessment || 'Cadence of upskilling and career investment.'
+            },
+            skillDecay: {
+                title: "Skill Decay",
+                score: m3.decayScore || 0,
+                level: m3.decayScore < 30 ? 'Low Decay' : m3.decayScore < 60 ? 'Moderate Decay' : 'High Decay',
+                details: m3.verdict || 'Evaluation of legacy or depreciated tech stack components.'
+            },
+            skillDiversification: {
+                title: "Skill Diversification",
+                score: Math.min(100, Math.round((input.skills.length / 8) * 100)),
+                level: input.skills.length >= 6 ? 'Diverse' : input.skills.length >= 3 ? 'Moderate' : 'Narrow',
+                details: `${input.skills.length} skills listed across technical domains.`
+            },
+            careerDirection: {
+                title: "Career Direction",
+                score: m5.clarity === 'Clear' ? 90 : m5.clarity === 'Partially Aligned' ? 55 : 25,
+                level: m5.clarity,
+                details: m5.assessment || 'Clarity of 2-year goal and alignment with skillset.'
+            }
+        };
+
         return {
             overallScore,
             riskCategory,
@@ -411,6 +444,8 @@ const CareerRisk = (function () {
             roadmap,
             immediateActions,
             confidence,
+            individualSignals,
+            disclaimer: "This analysis is informational and based on the provided inputs. It is not a guaranteed prediction of future career outcomes.",
             modules: {
                 learningAdaptability: m1,
                 consistencyStability: m2,

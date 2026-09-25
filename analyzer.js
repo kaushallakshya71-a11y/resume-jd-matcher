@@ -582,6 +582,10 @@ function matchSkillsLayered(resumeSkills, allJdSkills) {
     const strongMatches = [];
     const partialMatches = [];
     const missingSkills = [];
+    const exactMatches = [];
+    const aliasMatches = [];
+    const relatedMatches = [];
+    const missingDetails = [];
 
     const canonResume = resumeSkills.map(canonicalizeSkill);
 
@@ -593,35 +597,114 @@ function matchSkillsLayered(resumeSkills, allJdSkills) {
         if (resumeHasExact) {
             // Layer 1 — Exact match
             strongMatches.push(jdSkill);
+            exactMatches.push({ skill: jdSkill, layer: 'exact', label: '✓ Exact' });
             continue;
         }
 
         // Layer 2 — Alias match
+        let matchedAlias = null;
         const aliasMatch = resumeSkills.some(rs => {
             if (areSkillsIncompatible(rs, jdSkill)) return false;
-            return canonicalizeSkill(rs) === jdSkill;
+            if (canonicalizeSkill(rs) === jdSkill) {
+                matchedAlias = rs;
+                return true;
+            }
+            return false;
         });
 
         if (aliasMatch) {
             strongMatches.push(jdSkill);
+            aliasMatches.push({
+                raw: matchedAlias,
+                skill: jdSkill,
+                layer: 'alias',
+                label: `✓ Alias → ${titleCase(jdSkill)}`
+            });
             continue;
         }
 
         // Layer 3 — Safe Related Skill Handling (explicit mapping only)
         const allowedRelated = RELATED_SKILLS[jdSkill] || [];
+        let matchedRelated = null;
         const hasRelated = canonResume.some(rs => {
             if (areSkillsIncompatible(rs, jdSkill)) return false;
-            return allowedRelated.includes(rs) || (RELATED_SKILLS[rs] || []).includes(jdSkill);
+            if (allowedRelated.includes(rs) || (RELATED_SKILLS[rs] || []).includes(jdSkill)) {
+                matchedRelated = rs;
+                return true;
+            }
+            return false;
         });
 
         if (hasRelated) {
             partialMatches.push(jdSkill);
+            relatedMatches.push({
+                skill: jdSkill,
+                matchedWith: matchedRelated,
+                layer: 'related',
+                label: `◐ Related (${titleCase(matchedRelated)})`
+            });
         } else {
             missingSkills.push(jdSkill);
+            missingDetails.push({ skill: jdSkill, layer: 'missing', label: '✗ Missing' });
         }
     }
 
-    return { strongMatches, partialMatches, missingSkills };
+    return { strongMatches, partialMatches, missingSkills, exactMatches, aliasMatches, relatedMatches, missingDetails };
+}
+
+// ==============================
+// 5B. JD REQUIREMENT CLASSIFICATION
+// ==============================
+function classifyJDRequirements(jdText, allJdSkills = []) {
+    const lines = (jdText || '').split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    const mustHave = [];
+    const preferred = [];
+    const qualifications = [];
+    const responsibilities = [];
+
+    const mustKeywords = /\b(must|required|essential|minimum|mandatory|core|critical|proven experience in)\b/i;
+    const prefKeywords = /\b(preferred|plus|nice to have|bonus|advantage|good to have|desirable|optional|ideal)\b/i;
+    const qualKeywords = /\b(degree|b\.?tech|b\.?e\.?|b\.?s\.?|m\.?s\.?|m\.?tech|master|phd|bachelor|diploma|certification|certified|years of experience|yoe)\b/i;
+    const respKeywords = /\b(responsibilities|duties|what you will do|day-to-day|role overview)\b/i;
+
+    let inResp = false;
+    for (const line of lines) {
+        const lower = line.toLowerCase();
+        if (respKeywords.test(lower)) { inResp = true; continue; }
+        if (/\b(requirements|qualifications|what we are looking for|skills)\b/i.test(lower)) { inResp = false; continue; }
+
+        if (qualKeywords.test(lower)) {
+            if (line.length > 5 && line.length < 160) qualifications.push(line.replace(/^[-*•\d.]+\s*/, ''));
+        } else if (mustKeywords.test(lower)) {
+            if (line.length > 5 && line.length < 160) mustHave.push(line.replace(/^[-*•\d.]+\s*/, ''));
+        } else if (prefKeywords.test(lower)) {
+            if (line.length > 5 && line.length < 160) preferred.push(line.replace(/^[-*•\d.]+\s*/, ''));
+        } else if (inResp && /^[-*•]/.test(line)) {
+            if (line.length > 10 && line.length < 180 && responsibilities.length < 6) {
+                responsibilities.push(line.replace(/^[-*•\d.]+\s*/, ''));
+            }
+        }
+    }
+
+    const skillsByTier = {
+        mustHave: [],
+        preferred: []
+    };
+
+    allJdSkills.forEach(s => {
+        const skill = s.toLowerCase();
+        const isPref = preferred.some(p => p.toLowerCase().includes(skill));
+        if (isPref) skillsByTier.preferred.push(s);
+        else skillsByTier.mustHave.push(s);
+    });
+
+    return {
+        mustHave: mustHave.slice(0, 8),
+        preferred: preferred.slice(0, 8),
+        qualifications: qualifications.slice(0, 6),
+        responsibilities: responsibilities.slice(0, 6),
+        skillsByTier
+    };
 }
 
 // ==============================
@@ -644,7 +727,7 @@ function analyzeMatch(resumeText, jdText, options = {}) {
     const allJdSkills = [...new Set([...jdSkills, ...normalizedPriority])];
 
     // Layered matching
-    const { strongMatches, partialMatches, missingSkills } = matchSkillsLayered(resumeSkills, allJdSkills);
+    const { strongMatches, partialMatches, missingSkills, exactMatches, aliasMatches, relatedMatches, missingDetails } = matchSkillsLayered(resumeSkills, allJdSkills);
 
     const extraSkills = resumeSkills.filter(s => !allJdSkills.includes(s) && !allJdSkills.includes(canonicalizeSkill(s))).slice(0, 8);
 
@@ -673,6 +756,29 @@ function analyzeMatch(resumeText, jdText, options = {}) {
     const resumeWords = normalizeText(resumeText).split(' ');
     const keywordHits = jdWords.filter(w => resumeWords.includes(w)).length;
     const keywordScore = Math.min(100, (keywordHits / Math.max(jdWords.length, 1)) * 150);
+
+    // Soft skills detection
+    const standardSoft = ['communication', 'teamwork', 'leadership', 'problem solving', 'collaboration', 'mentoring', 'presentation', 'adaptability'];
+    const matchedSoftSkills = standardSoft.filter(s => new RegExp(`\\b${s}\\b`, 'i').test(resumeText));
+    const softSkillScore = Math.min(100, Math.round((matchedSoftSkills.length / 3) * 100));
+
+    // Transparent breakdown calculation (Requirement 4)
+    // Skills (40), Experience (20), Domain (15), Soft Skills (15), ATS Keywords (10) -> Total 100
+    const skillsPts = Math.round((skillScore / 100) * 40);
+    const expPts = Math.round((expScore / 100) * 20);
+    const domainPts = Math.round((domainScore / 100) * 15);
+    const softPts = Math.round((softSkillScore / 100) * 15);
+    const atsPts = Math.round((keywordScore / 100) * 10);
+    const totalPts = Math.min(100, skillsPts + expPts + domainPts + softPts + atsPts);
+
+    const breakdown = {
+        skills: { points: skillsPts, max: 40, label: "Skills" },
+        experience: { points: expPts, max: 20, label: "Experience" },
+        domain: { points: domainPts, max: 15, label: "Domain" },
+        softSkills: { points: softPts, max: 15, label: "Soft Skills" },
+        ats: { points: atsPts, max: 10, label: "ATS" },
+        total: { points: totalPts, max: 100, label: "Total" }
+    };
 
     // Final weighted score
     const finalScore = Math.round(
@@ -709,16 +815,27 @@ function analyzeMatch(resumeText, jdText, options = {}) {
     const roadmap = generateRoadmap(missingSkills, partialMatches, roleLevel);
     const interviewPrep = generateInterviewPrep(strongMatches, missingSkills, targetRole, roleLevel);
     const softSkillsTips = generateSoftSkillsTips(resumeText, roleLevel);
+    const jdRequirements = classifyJDRequirements(jdText, allJdSkills);
 
     return {
         score: clampedScore,
         rawScore: finalScore,
+        scoreTitle: "Estimated Resume-JD Compatibility",
+        disclaimer: "This score estimates how closely the provided resume aligns with the job description. It is not a hiring probability or guarantee of selection.",
+        atsDisclaimer: "ATS systems vary between companies and software platforms. This result is an estimate based on resume structure, keywords, formatting, and job-description alignment.",
+        breakdown,
+        exactMatches,
+        aliasMatches,
+        relatedMatches,
+        missingDetails,
+        jdRequirements,
         skillScore: Math.round(skillScore),
         expScore: Math.round(expScore),
         domainScore: Math.round(domainScore),
         keywordScore: Math.round(keywordScore),
         educationScore: Math.round(educationScore),
         projectScore: Math.round(projectScore),
+        softSkillScore: Math.round(softSkillScore),
         verdict,
         verdictClass,
         verdictIcon,
@@ -1011,6 +1128,7 @@ const ResumeAnalyzer = {
     extractSkillsFromText,
     matchSkillsLayered,
     canonicalizeSkill,
+    classifyJDRequirements,
     formatLearningResource,
     titleCase
 };

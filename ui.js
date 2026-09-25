@@ -101,14 +101,213 @@ const UI = {
 
     // ---- Skill Pills ----
     renderSkills(result) {
-        UI.renderPills('strong-skills-list', result.strongMatches, 'pill-green');
-        UI.renderPills('partial-skills-list', result.partialMatches, 'pill-yellow');
-        UI.renderPills('missing-skills-list', result.missingSkills, 'pill-red');
+        if (result.exactMatches || result.aliasMatches) {
+            const matchedContainer = document.getElementById('strong-skills-list');
+            if (matchedContainer) {
+                const exactHtml = (result.exactMatches || []).map(s =>
+                    `<span class="skill-pill pill-green" title="Direct match in resume">✓ ${UI.titleCase(s)} <span class="layer-tag">Exact</span></span>`
+                ).join('');
+                const aliasHtml = (result.aliasMatches || []).map(a =>
+                    `<span class="skill-pill pill-green pill-alias" title="Matched via alias: ${a.canonical}">✓ ${UI.titleCase(a.skill)} <span class="layer-tag">Alias → ${UI.titleCase(a.canonical)}</span></span>`
+                ).join('');
+                const combined = exactHtml + aliasHtml;
+                matchedContainer.innerHTML = combined || '<span class="no-skills">None detected</span>';
+            }
+        } else {
+            UI.renderPills('strong-skills-list', result.strongMatches, 'pill-green');
+        }
+
+        if (result.relatedMatches && result.relatedMatches.length > 0) {
+            const partialContainer = document.getElementById('partial-skills-list');
+            if (partialContainer) {
+                partialContainer.innerHTML = result.relatedMatches.map(r =>
+                    `<span class="skill-pill pill-yellow" title="Related to: ${r.matchedVia}">◐ ${UI.titleCase(r.skill)} <span class="layer-tag">Related: ${UI.titleCase(r.matchedVia)}</span></span>`
+                ).join('');
+            }
+        } else {
+            UI.renderPills('partial-skills-list', result.partialMatches, 'pill-yellow');
+        }
+
+        if (result.missingDetails && result.missingDetails.length > 0) {
+            const missingContainer = document.getElementById('missing-skills-list');
+            if (missingContainer) {
+                missingContainer.innerHTML = result.missingDetails.map(m =>
+                    `<span class="skill-pill pill-red ${m.critical ? 'pill-critical' : ''}" title="${m.critical ? 'High Priority Must-Have' : 'Missing Skill'}">✗ ${UI.titleCase(m.skill)} ${m.critical ? '<span class="layer-tag layer-critical">Must Have</span>' : ''}</span>`
+                ).join('');
+            }
+        } else {
+            UI.renderPills('missing-skills-list', result.missingSkills, 'pill-red');
+        }
+
         UI.renderPills('extra-skills-list', result.extraSkills, 'pill-blue');
 
         document.getElementById('strong-count').textContent = result.strongMatches.length;
         document.getElementById('partial-count').textContent = result.partialMatches.length;
         document.getElementById('missing-count').textContent = result.missingSkills.length;
+    },
+
+    // ---- Transparent Breakdown Table ----
+    renderBreakdownTable(breakdown, result) {
+        const container = document.getElementById('transparent-breakdown-container');
+        if (!container || !breakdown) return;
+
+        const rows = [
+            { key: 'skills', label: 'Skills Alignment', points: breakdown.skills?.points ?? 0, max: breakdown.skills?.max ?? 40, desc: 'Exact matches, aliases & related tech' },
+            { key: 'experience', label: 'Experience Level', points: breakdown.experience?.points ?? 0, max: breakdown.experience?.max ?? 20, desc: 'Years of industry tenure vs required' },
+            { key: 'domain', label: 'Domain & Industry Fit', points: breakdown.domain?.points ?? 0, max: breakdown.domain?.max ?? 15, desc: 'Field-specific terminology & context' },
+            { key: 'softSkills', label: 'Soft Skills & Leadership', points: breakdown.softSkills?.points ?? 0, max: breakdown.softSkills?.max ?? 15, desc: 'Teamwork, communication & problem solving' },
+            { key: 'ats', label: 'ATS Formatting & Keywords', points: breakdown.ats?.points ?? 0, max: breakdown.ats?.max ?? 10, desc: 'Keyword distribution & structure' },
+        ];
+
+        const totalPts = breakdown.total?.points ?? Math.min(100, rows.reduce((s, r) => s + r.points, 0));
+
+        container.innerHTML = `
+            <div class="breakdown-header">
+                <div class="breakdown-title-row">
+                    <span class="breakdown-badge">🔍 Transparent Scoring</span>
+                    <h4 class="breakdown-title">Estimated Compatibility Breakdown</h4>
+                </div>
+                <p class="breakdown-subtitle">Here is exactly how your overall score is composed across 5 distinct dimensions.</p>
+            </div>
+
+            <div class="breakdown-table-wrapper">
+                <table class="breakdown-table">
+                    <thead>
+                        <tr>
+                            <th>Dimension</th>
+                            <th>Description</th>
+                            <th>Points Earned</th>
+                            <th>Max</th>
+                            <th>Bar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows.map(r => {
+                            const pct = Math.round((r.points / r.max) * 100);
+                            const barColor = pct >= 75 ? 'var(--green)' : pct >= 50 ? 'var(--yellow)' : 'var(--red)';
+                            return `
+                                <tr>
+                                    <td><strong>${r.label}</strong></td>
+                                    <td class="breakdown-desc-cell">${r.desc}</td>
+                                    <td><span class="pts-badge">${r.points}</span></td>
+                                    <td class="dim-max">/${r.max}</td>
+                                    <td class="breakdown-bar-cell">
+                                        <div class="mini-bar-track">
+                                            <div class="mini-bar-fill" style="width:${pct}%;background:${barColor}"></div>
+                                        </div>
+                                        <span class="mini-bar-pct">${pct}%</span>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                    <tfoot>
+                        <tr class="breakdown-total-row">
+                            <td colspan="2"><strong>Total Compatibility</strong></td>
+                            <td><strong class="total-pts-badge">${totalPts}</strong></td>
+                            <td><strong>/100</strong></td>
+                            <td><span class="total-status-pill">${UI.getScoreLabel(totalPts)}</span></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="honest-disclaimer-card">
+                <span class="disclaimer-icon">ℹ️</span>
+                <div class="disclaimer-body">
+                    <strong>Honest Assessment Disclaimer:</strong>
+                    <p>${result?.disclaimer || "This score estimates how closely your resume aligns with the job description. It is not a hiring probability or guarantee of selection."}</p>
+                </div>
+            </div>
+        `;
+    },
+
+    // ---- JD Requirements Classification ----
+    renderJDRequirements(jdRequirements) {
+        const container = document.getElementById('jd-requirements-container');
+        if (!container) return;
+        if (!jdRequirements) {
+            container.innerHTML = `<p class="dim">No job description requirement tiers detected.</p>`;
+            return;
+        }
+
+        const { mustHave = [], preferred = [], qualifications = [], responsibilities = [], skillsByTier } = jdRequirements;
+
+        const renderListOrEmpty = (items, emptyMsg, pillClass = '') => {
+            if (!items || items.length === 0) return `<p class="tier-empty-note">${emptyMsg}</p>`;
+            if (pillClass) {
+                return `<div class="tier-pills-wrap">${items.map(s => `<span class="skill-pill ${pillClass}">${UI.titleCase(s)}</span>`).join('')}</div>`;
+            }
+            return `<ul class="tier-list">${items.map(it => `<li>${it}</li>`).join('')}</ul>`;
+        };
+
+        container.innerHTML = `
+            <div class="jd-tiers-grid">
+                <div class="jd-tier-box tier-must-have">
+                    <div class="jd-tier-header">
+                        <span class="tier-icon">🔴</span>
+                        <div>
+                            <h4>Must-Have Requirements</h4>
+                            <span class="tier-subtitle">Essential qualifications explicitly identified</span>
+                        </div>
+                    </div>
+                    <div class="jd-tier-content">
+                        ${renderListOrEmpty(mustHave, "No explicit must-have phrases detected. Core JD skills will be weighted evenly.")}
+                        ${skillsByTier?.mustHave?.length ? `
+                            <div class="tier-skills-subgroup">
+                                <strong>Core Skills Extracted:</strong>
+                                ${renderListOrEmpty(skillsByTier.mustHave.slice(0, 10), "", "pill-red")}
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+
+                <div class="jd-tier-box tier-preferred">
+                    <div class="jd-tier-header">
+                        <span class="tier-icon">🟡</span>
+                        <div>
+                            <h4>Preferred / Nice-to-Have</h4>
+                            <span class="tier-subtitle">Bonus strengths that make candidates stand out</span>
+                        </div>
+                    </div>
+                    <div class="jd-tier-content">
+                        ${renderListOrEmpty(preferred, "No secondary bonus criteria specified.")}
+                        ${skillsByTier?.preferred?.length ? `
+                            <div class="tier-skills-subgroup">
+                                <strong>Bonus Skills Extracted:</strong>
+                                ${renderListOrEmpty(skillsByTier.preferred.slice(0, 10), "", "pill-yellow")}
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+
+                <div class="jd-tier-box tier-qualifications">
+                    <div class="jd-tier-header">
+                        <span class="tier-icon">🎓</span>
+                        <div>
+                            <h4>Qualifications & Degrees</h4>
+                            <span class="tier-subtitle">Education, certifications and years of experience</span>
+                        </div>
+                    </div>
+                    <div class="jd-tier-content">
+                        ${renderListOrEmpty(qualifications, "No specific degree or certification restrictions detected.")}
+                    </div>
+                </div>
+
+                <div class="jd-tier-box tier-responsibilities">
+                    <div class="jd-tier-header">
+                        <span class="tier-icon">💼</span>
+                        <div>
+                            <h4>Key Responsibilities</h4>
+                            <span class="tier-subtitle">Day-to-day work and project ownership expected</span>
+                        </div>
+                    </div>
+                    <div class="jd-tier-content">
+                        ${renderListOrEmpty(responsibilities, "No structured responsibility bullet points extracted.")}
+                    </div>
+                </div>
+            </div>
+        `;
     },
 
     renderPills(containerId, skills, cls) {
@@ -470,6 +669,8 @@ const UI = {
         UI.renderStrengthsWeaknesses(result.strengthsWeaknesses);
         UI.renderSkills(result);
         UI.renderSkillsGap(result.skillsGap);
+        UI.renderJDRequirements(result.jdRequirements);
+        UI.renderBreakdownTable(result.breakdown, result);
         UI.renderVerdict(result);
         UI.renderNextActions(result);
         UI.renderExperienceInfo(result);
@@ -524,6 +725,422 @@ const UI = {
         const counter = document.getElementById(countId);
         if (el && counter) counter.textContent = el.value.length + ' characters';
     },
+
+    // ---- Dedicated Job Match Results ----
+    renderJobMatchResults(result, resumeTitle = 'Selected Resume') {
+        const container = document.getElementById('jm-results-container');
+        if (!container || !result) return;
+
+        const score = result.score || 0;
+        const color = score >= 75 ? 'var(--green)' : score >= 50 ? 'var(--yellow)' : 'var(--red)';
+        const strongMatches = result.strongMatches || [];
+        const partialMatches = result.partialMatches || [];
+        const missingSkills = result.missingSkills || [];
+
+        container.innerHTML = `
+            <div class="result-card" style="margin-top: 10px;">
+                <div class="card-header">
+                    <div class="card-icon purple-bg">🎯</div>
+                    <div>
+                        <h3>Job Match Analysis — ${resumeTitle}</h3>
+                        <p>Estimated compatibility score based on resume and job description requirements.</p>
+                    </div>
+                </div>
+
+                <div class="score-display" style="margin-bottom: 24px;">
+                    <div class="score-ring-wrap">
+                        <svg width="140" height="140" viewBox="0 0 140 140">
+                            <circle cx="70" cy="70" r="54" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="12" />
+                            <circle cx="70" cy="70" r="54" fill="none" stroke="${color}" stroke-width="12" stroke-linecap="round"
+                                style="stroke-dasharray: 339.29; stroke-dashoffset: ${339.29 - (339.29 * score / 100)};" />
+                        </svg>
+                        <div class="score-text-overlay">
+                            <span class="score-number">${score}%</span>
+                            <span style="color:${color}">${UI.getScoreLabel(score)}</span>
+                        </div>
+                    </div>
+                    <div class="score-bars">
+                        <div class="score-bar-row">
+                            <div class="bar-meta"><span>Hard Skills Match</span><span class="bar-num">${result.skillScore || 0}%</span></div>
+                            <div class="bar-track"><div class="bar-fill" style="width:${result.skillScore || 0}%;background:var(--green)"></div></div>
+                        </div>
+                        <div class="score-bar-row">
+                            <div class="bar-meta"><span>Experience Alignment</span><span class="bar-num">${result.expScore || 0}%</span></div>
+                            <div class="bar-track"><div class="bar-fill" style="width:${result.expScore || 0}%;background:var(--purple)"></div></div>
+                        </div>
+                        <div class="score-bar-row">
+                            <div class="bar-meta"><span>ATS Keyword Fit</span><span class="bar-num">${result.keywordScore || 0}%</span></div>
+                            <div class="bar-track"><div class="bar-fill" style="width:${result.keywordScore || 0}%;background:var(--cyan-light)"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Skill Matching Transparency Breakdown -->
+                <div style="margin-top: 16px;">
+                    <h4 style="font-size:14px;font-weight:700;margin-bottom:12px">🧬 Skill Breakdown & Match Reasons</h4>
+                    <div style="display:flex;flex-direction:column;gap:12px;">
+                        <div>
+                            <strong style="font-size:12.5px;color:var(--green-light)">✓ Strong / Exact Matches (${strongMatches.length}):</strong>
+                            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">
+                                ${strongMatches.map(s => `<span class="skill-pill pill-green">✓ ${s}</span>`).join('') || '<span style="color:var(--text-muted);font-size:12px">None detected</span>'}
+                            </div>
+                        </div>
+
+                        ${partialMatches.length > 0 ? `
+                        <div>
+                            <strong style="font-size:12.5px;color:var(--yellow-light)">~ Similar / Related Technology (${partialMatches.length}):</strong>
+                            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">
+                                ${partialMatches.map(s => `<span class="skill-pill pill-yellow">~ ${s}</span>`).join('')}
+                            </div>
+                        </div>` : ''}
+
+                        <div>
+                            <strong style="font-size:12.5px;color:var(--red-light)">✗ Missing Important Skills (${missingSkills.length}):</strong>
+                            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">
+                                ${missingSkills.map(s => `<span class="skill-pill pill-red">✗ ${s}</span>`).join('') || '<span style="color:var(--text-muted);font-size:12px">None! Full skill coverage.</span>'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Action to Studio -->
+                <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); display: flex; gap: 12px; flex-wrap: wrap;">
+                    <button type="button" class="btn-primary" onclick="openActiveResumeInStudio()">✨ Improve Resume in Studio</button>
+                    <button type="button" class="btn-secondary" onclick="DownloadReport.generate(window.lastMatchResult || result)">📥 Download Report</button>
+                </div>
+            </div>
+        `;
+        container.classList.remove('hidden');
+        container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    },
+
+    // ---- Empty State Helper ----
+    renderEmptyState(containerId, title, desc, btnText = '', btnAction = '') {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        container.innerHTML = `
+            <div class="empty-state-card" style="text-align:center;padding:48px 24px;color:var(--text-muted);">
+                <div style="font-size:42px;margin-bottom:12px;">📁</div>
+                <h3 style="font-size:16px;font-weight:700;color:var(--text-primary);margin-bottom:6px;">${title}</h3>
+                <p style="font-size:13px;max-width:420px;margin:0 auto 16px;">${desc}</p>
+                ${btnText ? `<button type="button" class="btn-primary" onclick="${btnAction}">${btnText}</button>` : ''}
+            </div>
+        `;
+    },
+
+    // ---- Career Alignment Engine 10-Point Report ----
+    renderCareerAlignmentReport(report) {
+        const container = document.getElementById('career-alignment-report-container');
+        if (!container || !report) return;
+
+        const { overallAlignment, skillsFound, skillsMissing, partialMatches, experienceAlignment, atsRisks, improvementOpportunities, priorityGaps } = report;
+
+        container.innerHTML = `
+            <div class="alignment-report-card">
+                <!-- 1. Overall Alignment Header -->
+                <div class="alignment-header-banner ${overallAlignment.classType}">
+                    <div class="alignment-score-badge">
+                        <span class="as-score">${overallAlignment.score}%</span>
+                        <span class="as-label">Fit Score</span>
+                    </div>
+                    <div class="alignment-header-text">
+                        <div class="as-verdict-tag">${overallAlignment.verdict}</div>
+                        <h3 class="as-title">Career Fit &amp; Readiness Assessment</h3>
+                        <p class="as-summary">${overallAlignment.summary}</p>
+                    </div>
+                    <div class="alignment-header-actions">
+                        <button type="button" class="btn-secondary btn-sm" onclick="showExplainabilityModal()">💡 Why this score?</button>
+                        <button type="button" class="btn-primary btn-sm" onclick="navigateTo('studio')">✨ Optimize in Studio</button>
+                    </div>
+                </div>
+
+                <!-- 10-Point Dimension Grid -->
+                <div class="alignment-grid">
+                    <!-- 2 & 3 & 4. Required & Preferred Skills -->
+                    <div class="alignment-card">
+                        <div class="ac-header">
+                            <span class="ac-icon">✅</span>
+                            <h4>Skills Alignment</h4>
+                            <span class="ac-count">${skillsFound.totalFound} found / ${skillsMissing.totalMissing} missing</span>
+                        </div>
+                        <div class="ac-body">
+                            <div class="skill-group">
+                                <span class="sg-title text-green">✓ Required Skills Found (${skillsFound.mustHave.length})</span>
+                                <div class="sg-pills">
+                                    ${skillsFound.mustHave.map(s => `<span class="skill-pill pill-green">✓ ${s}</span>`).join('') || '<span class="text-muted">None detected</span>'}
+                                </div>
+                            </div>
+                            ${skillsFound.preferred.length > 0 ? `
+                            <div class="skill-group" style="margin-top:10px;">
+                                <span class="sg-title text-cyan">⭐ Preferred Skills Found (${skillsFound.preferred.length})</span>
+                                <div class="sg-pills">
+                                    ${skillsFound.preferred.map(s => `<span class="skill-pill pill-cyan">★ ${s}</span>`).join('')}
+                                </div>
+                            </div>` : ''}
+                            ${partialMatches.length > 0 ? `
+                            <div class="skill-group" style="margin-top:10px;">
+                                <span class="sg-title text-yellow">~ Related Stack Match (${partialMatches.length})</span>
+                                <div class="sg-pills">
+                                    ${partialMatches.map(s => `<span class="skill-pill pill-yellow">~ ${s}</span>`).join('')}
+                                </div>
+                            </div>` : ''}
+                            <div class="skill-group" style="margin-top:10px;">
+                                <span class="sg-title text-red">✗ Missing Required Skills (${skillsMissing.mustHave.length})</span>
+                                <div class="sg-pills">
+                                    ${skillsMissing.mustHave.map(s => `<span class="skill-pill pill-red">✗ ${s}</span>`).join('') || '<span class="text-muted">None! Full required coverage</span>'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5. Experience Alignment & 6. ATS Risks -->
+                    <div class="alignment-card">
+                        <div class="ac-header">
+                            <span class="ac-icon">📊</span>
+                            <h4>Experience &amp; ATS Reliability</h4>
+                            <span class="ac-badge ${experienceAlignment.status === 'Qualified Match' ? 'badge-green' : 'badge-yellow'}">${experienceAlignment.status}</span>
+                        </div>
+                        <div class="ac-body">
+                            <div class="stat-bullet">
+                                <strong>Role Scope:</strong> ${experienceAlignment.roleLevel} ${experienceAlignment.targetRole}
+                                <p class="text-muted" style="margin-top:2px;font-size:12px">${experienceAlignment.notes}</p>
+                            </div>
+                            <div class="stat-bullet" style="margin-top:12px;">
+                                <strong>ATS Formatting Risks:</strong>
+                                ${atsRisks.length === 0 ? '<p class="text-green" style="font-size:12px;margin:2px 0 0">✓ Zero formatting risks detected. High machine readability.</p>' : `
+                                    <ul style="margin:4px 0 0 16px;padding:0;font-size:12px;color:var(--yellow-light)">
+                                        ${atsRisks.map(r => `<li>${r}</li>`).join('')}
+                                    </ul>
+                                `}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 7. Improvement Opportunities -->
+                    <div class="alignment-card">
+                        <div class="ac-header">
+                            <span class="ac-icon">✍️</span>
+                            <h4>Resume Optimization Opportunities</h4>
+                            <span class="ac-count">${improvementOpportunities.length} opportunities</span>
+                        </div>
+                        <div class="ac-body">
+                            <div class="opps-list">
+                                ${improvementOpportunities.map(opp => `
+                                    <div class="opp-item">
+                                        <span class="opp-badge">${opp.area}</span>
+                                        <p class="opp-text">${opp.recommendation}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 8. Priority Skill Gaps -->
+                    <div class="alignment-card">
+                        <div class="ac-header">
+                            <span class="ac-icon">🎯</span>
+                            <h4>Priority Skill Gaps</h4>
+                            <span class="ac-count">${priorityGaps.length} critical gaps</span>
+                        </div>
+                        <div class="ac-body">
+                            ${priorityGaps.length === 0 ? '<p class="text-green" style="font-size:12.5px;">✓ No major skill gaps detected for this position!</p>' : `
+                                <div class="priority-gap-list">
+                                    ${priorityGaps.map(g => `
+                                        <div class="priority-gap-row">
+                                            <div class="pgr-left">
+                                                <span class="pgr-skill">${g.skill}</span>
+                                                <span class="pgr-priority priority-${g.priority.toLowerCase()}">${g.priority} Priority</span>
+                                            </div>
+                                            <p class="pgr-reason">${g.reason}</p>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            `}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation CTAs to Action Plan & Interview Ready -->
+                <div class="alignment-footer-bar">
+                    <button type="button" class="btn-primary" onclick="switchResultsTab('rtab-action-plan')">📅 View Day-by-Day Learning Roadmap</button>
+                    <button type="button" class="btn-secondary" onclick="switchResultsTab('rtab-interview-ready')">🎤 Explore Interview Ready Questions</button>
+                </div>
+            </div>
+        `;
+    },
+
+    // ---- Day-by-Day Skill Action Plan ----
+    renderSkillActionPlan(actionPlans) {
+        const container = document.getElementById('action-plan-container');
+        if (!container) return;
+
+        if (!actionPlans || actionPlans.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state-card" style="text-align:center;padding:36px;">
+                    <div style="font-size:36px;margin-bottom:8px">🎉</div>
+                    <h4>No Skill Gaps Detected</h4>
+                    <p style="font-size:13px;color:var(--text-muted)">Your resume demonstrates coverage for all primary required skills in this job description.</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = `
+            <div class="action-plan-wrapper">
+                <div class="action-plan-intro">
+                    <h3>📅 Personalized Skill Gap Roadmaps</h3>
+                    <p>Realistic, practical 5-day action plans to bridge missing technologies before your interview. Follow one topic per day with hands-on exercises.</p>
+                </div>
+                <div class="skill-roadmaps-list">
+                    ${actionPlans.map(plan => `
+                        <div class="roadmap-accordion-card">
+                            <div class="rac-header">
+                                <div class="rac-title-group">
+                                    <span class="rac-badge priority-${plan.priority.toLowerCase()}">${plan.priority} Priority</span>
+                                    <h4>${plan.skill}</h4>
+                                    <span class="rac-hours">⏱️ ${plan.estimatedHours || '10 hours'}</span>
+                                </div>
+                                <p class="rac-reason">${plan.reason}</p>
+                            </div>
+                            <div class="rac-timeline">
+                                ${plan.days.map(d => `
+                                    <div class="rac-day-card">
+                                        <div class="rdc-day-tag">${d.day}</div>
+                                        <div class="rdc-content">
+                                            <div class="rdc-topic">${d.topic}</div>
+                                            <div class="rdc-details">${d.details}</div>
+                                            <div class="rdc-exercise"><strong>💡 Practical Exercise:</strong> ${d.exercise}</div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="rac-footer">
+                                <span><strong>Recommended Resource:</strong> ${plan.resource}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    },
+
+    // ---- Interview Ready (Tailored Questions) ----
+    renderInterviewReady(interviewReady) {
+        const container = document.getElementById('interview-ready-container');
+        if (!container || !interviewReady) return;
+
+        const { technicalTopics, likelyQuestions, projectQuestions, resumeQuestions, missingSkillQuestions, behavioralQuestions, totalQuestions } = interviewReady;
+
+        container.innerHTML = `
+            <div class="interview-ready-wrapper">
+                <div class="interview-ready-header">
+                    <div>
+                        <h3>🎤 Interview Ready Preparation</h3>
+                        <p>Questions tailored directly to your resume, detected skill gaps, and the target role requirements.</p>
+                    </div>
+                    <span class="ir-badge-total">${totalQuestions} Curated Questions</span>
+                </div>
+
+                <!-- Technical Focus Areas -->
+                <div class="ir-section">
+                    <h4 class="ir-sec-title">🛠️ Core Technical Topics to Revise</h4>
+                    <div class="ir-topics-grid">
+                        ${technicalTopics.map(t => `
+                            <div class="ir-topic-card">
+                                <h5>${t.topic}</h5>
+                                <ul>${t.focusAreas.map(f => `<li>${f}</li>`).join('')}</ul>
+                                <span class="ir-importance">${t.importance}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <!-- Questions by Category -->
+                <div class="ir-section">
+                    <h4 class="ir-sec-title">❓ Likely Interview Questions &amp; How to Answer</h4>
+                    <div class="ir-questions-list">
+                        ${[...likelyQuestions, ...projectQuestions, ...resumeQuestions, ...missingSkillQuestions, ...behavioralQuestions].map((q, idx) => `
+                            <div class="ir-q-card">
+                                <div class="ir-q-header">
+                                    <span class="ir-cat-tag">${q.category}</span>
+                                    <span class="ir-q-num">Q${idx + 1}</span>
+                                </div>
+                                <div class="ir-question">${q.question}</div>
+                                <div class="ir-why-box">
+                                    <strong>Why the interviewer asks this:</strong> ${q.whyAsked}
+                                </div>
+                                <div class="ir-strategy-box">
+                                    <strong>Recommended Answer Strategy:</strong> ${q.answerStrategy}
+                                </div>
+                                <div class="ir-outline-box">
+                                    <strong>Outline:</strong> ${q.outline}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+
+    // ---- Explainability "Why this score?" ----
+    renderExplainability(explainability) {
+        const container = document.getElementById('explainability-container');
+        if (!container || !explainability) return;
+
+        const { categories, compositeScore, verdict, verdictDisclaimer } = explainability;
+
+        container.innerHTML = `
+            <div class="explainability-sheet">
+                <div class="exp-sheet-header">
+                    <div class="exp-score-callout">
+                        <span class="esc-score">${compositeScore}%</span>
+                        <div>
+                            <h4>${verdict}</h4>
+                            <p>${verdictDisclaimer}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="exp-categories-list">
+                    ${categories.map(cat => `
+                        <div class="exp-category-card">
+                            <div class="ecc-header">
+                                <div class="ecc-title-group">
+                                    <h5>${cat.name}</h5>
+                                    <span class="ecc-status status-${cat.statusClass}">${cat.status}</span>
+                                </div>
+                                <span class="ecc-pts">${cat.points} / ${cat.maxPoints} pts</span>
+                            </div>
+                            <p class="ecc-explanation">${cat.explanation}</p>
+                            <div class="ecc-items-grid">
+                                ${cat.matched.length > 0 ? `
+                                <div class="ecc-col col-matched">
+                                    <h6>✓ Matched</h6>
+                                    <ul>${cat.matched.map(m => `<li><strong>${m.item}:</strong> ${m.reason}</li>`).join('')}</ul>
+                                </div>` : ''}
+                                ${cat.partiallyMatched.length > 0 ? `
+                                <div class="ecc-col col-partial">
+                                    <h6>~ Partially Matched</h6>
+                                    <ul>${cat.partiallyMatched.map(m => `<li><strong>${m.item}:</strong> ${m.reason}</li>`).join('')}</ul>
+                                </div>` : ''}
+                                ${cat.missing.length > 0 ? `
+                                <div class="ecc-col col-missing">
+                                    <h6>✗ Missing Gap</h6>
+                                    <ul>${cat.missing.map(m => `<li><strong>${m.item}:</strong> ${m.reason}</li>`).join('')}</ul>
+                                </div>` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
 };
 
-window.UI = UI;
+if (typeof window !== 'undefined') {
+    window.UI = UI;
+}
+if (typeof module !== 'undefined') {
+    module.exports = UI;
+}
+

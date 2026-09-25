@@ -7,12 +7,154 @@
 const LocalDB = (function () {
 
     const DB_NAME    = 'resumematch_ai';
-    const DB_VERSION = 1;
-    const STORES     = { match: 'matchHistory', risk: 'riskHistory', stats: 'stats' };
+    const DB_VERSION = 3;
+    const STORES     = {
+        match: 'matchHistory',
+        risk: 'riskHistory',
+        stats: 'stats',
+        versions: 'resumeVersions',
+        jobs: 'jobApplications',
+        users: 'users'
+    };
     const MAX_ITEMS  = 50;
     const MAX_IMPORT_BYTES = 5 * 1024 * 1024; // 5 MB import limit
 
     let _db = null;
+    let _currentUserId = null;
+
+    function setCurrentUserId(uid) {
+        _currentUserId = uid || null;
+    }
+
+    function getCurrentUserId() {
+        return _currentUserId;
+    }
+
+    const _inMemoryStores = {
+        users: new Map(),
+        matchHistory: [],
+        riskHistory: [],
+        stats: new Map(),
+        resumeVersions: [],
+        jobApplications: []
+    };
+
+    function _createInMemoryDB() {
+        return {
+            transaction(storeName, mode) {
+                return {
+                    objectStore(name) {
+                        return {
+                            indexNames: { contains: (idx) => idx === 'email' || idx === 'phone' || idx === 'userId' },
+                            index(idxName) {
+                                return {
+                                    get(val) {
+                                        const req = { onsuccess: null, onerror: null, result: null };
+                                        setTimeout(() => {
+                                            if (name === STORES.users && idxName === 'email') {
+                                                for (const u of _inMemoryStores.users.values()) {
+                                                    if (u.email === val) { req.result = u; break; }
+                                                }
+                                            }
+                                            if (req.onsuccess) req.onsuccess();
+                                        }, 0);
+                                        return req;
+                                    }
+                                };
+                            },
+                            add(data) {
+                                const req = { onsuccess: null, onerror: null, result: null };
+                                setTimeout(() => {
+                                    if (name === STORES.users) {
+                                        _inMemoryStores.users.set(data.userId, data);
+                                        req.result = data.userId;
+                                    } else {
+                                        const item = { ...data, id: data.id || Date.now() + Math.random() };
+                                        _inMemoryStores[name].push(item);
+                                        req.result = item.id;
+                                    }
+                                    if (req.onsuccess) req.onsuccess();
+                                }, 0);
+                                return req;
+                            },
+                            put(data) {
+                                const req = { onsuccess: null, onerror: null, result: null };
+                                setTimeout(() => {
+                                    if (name === STORES.users) {
+                                        _inMemoryStores.users.set(data.userId, data);
+                                        req.result = data.userId;
+                                    } else if (name === STORES.stats) {
+                                        _inMemoryStores.stats.set(data.key, data);
+                                        req.result = data.key;
+                                    } else {
+                                        const list = _inMemoryStores[name];
+                                        const idx = list.findIndex(x => x.id === data.id);
+                                        if (idx >= 0) list[idx] = data;
+                                        else list.push(data);
+                                        req.result = data.id;
+                                    }
+                                    if (req.onsuccess) req.onsuccess();
+                                }, 0);
+                                return req;
+                            },
+                            get(id) {
+                                const req = { onsuccess: null, onerror: null, result: null };
+                                setTimeout(() => {
+                                    if (name === STORES.users) {
+                                        req.result = _inMemoryStores.users.get(id) || null;
+                                    } else if (name === STORES.stats) {
+                                        req.result = _inMemoryStores.stats.get(id) || null;
+                                    } else {
+                                        req.result = _inMemoryStores[name].find(x => x.id === id) || null;
+                                    }
+                                    if (req.onsuccess) req.onsuccess();
+                                }, 0);
+                                return req;
+                            },
+                            getAll() {
+                                const req = { onsuccess: null, onerror: null, result: null };
+                                setTimeout(() => {
+                                    if (name === STORES.users) {
+                                        req.result = Array.from(_inMemoryStores.users.values());
+                                    } else if (name === STORES.stats) {
+                                        req.result = Array.from(_inMemoryStores.stats.values());
+                                    } else {
+                                        req.result = [..._inMemoryStores[name]];
+                                    }
+                                    if (req.onsuccess) req.onsuccess();
+                                }, 0);
+                                return req;
+                            },
+                            delete(id) {
+                                const req = { onsuccess: null, onerror: null };
+                                setTimeout(() => {
+                                    if (name === STORES.users) {
+                                        _inMemoryStores.users.delete(id);
+                                    } else if (name === STORES.stats) {
+                                        _inMemoryStores.stats.delete(id);
+                                    } else {
+                                        _inMemoryStores[name] = _inMemoryStores[name].filter(x => x.id !== id);
+                                    }
+                                    if (req.onsuccess) req.onsuccess();
+                                }, 0);
+                                return req;
+                            },
+                            clear() {
+                                const req = { onsuccess: null, onerror: null };
+                                setTimeout(() => {
+                                    if (name === STORES.users) _inMemoryStores.users.clear();
+                                    else if (name === STORES.stats) _inMemoryStores.stats.clear();
+                                    else _inMemoryStores[name] = [];
+                                    if (req.onsuccess) req.onsuccess();
+                                }, 0);
+                                return req;
+                            }
+                        };
+                    }
+                };
+            }
+        };
+    }
 
     // =========================================================
     // OPEN IndexedDB
@@ -20,23 +162,62 @@ const LocalDB = (function () {
     function _openDB() {
         return new Promise((resolve, reject) => {
             if (_db) { resolve(_db); return; }
-            if (!window.indexedDB) {
-                reject(new Error('IndexedDB is not supported in this browser.'));
+            if (typeof window === 'undefined' || !window.indexedDB) {
+                _db = _createInMemoryDB();
+                resolve(_db);
                 return;
             }
             const req = indexedDB.open(DB_NAME, DB_VERSION);
             req.onupgradeneeded = e => {
                 const db = e.target.result;
+                if (!db.objectStoreNames.contains(STORES.users)) {
+                    const us = db.createObjectStore(STORES.users, { keyPath: 'userId' });
+                    us.createIndex('email', 'email', { unique: true });
+                    us.createIndex('phone', 'phone', { unique: true });
+                }
                 if (!db.objectStoreNames.contains(STORES.match)) {
                     const ms = db.createObjectStore(STORES.match, { keyPath: 'id', autoIncrement: true });
                     ms.createIndex('createdAt', 'createdAt', { unique: false });
+                    ms.createIndex('userId', 'userId', { unique: false });
+                } else {
+                    const ms = req.transaction.objectStore(STORES.match);
+                    if (!ms.indexNames.contains('userId')) {
+                        ms.createIndex('userId', 'userId', { unique: false });
+                    }
                 }
                 if (!db.objectStoreNames.contains(STORES.risk)) {
                     const rs = db.createObjectStore(STORES.risk, { keyPath: 'id', autoIncrement: true });
                     rs.createIndex('createdAt', 'createdAt', { unique: false });
+                    rs.createIndex('userId', 'userId', { unique: false });
+                } else {
+                    const rs = req.transaction.objectStore(STORES.risk);
+                    if (!rs.indexNames.contains('userId')) {
+                        rs.createIndex('userId', 'userId', { unique: false });
+                    }
                 }
                 if (!db.objectStoreNames.contains(STORES.stats)) {
                     db.createObjectStore(STORES.stats, { keyPath: 'key' });
+                }
+                if (!db.objectStoreNames.contains(STORES.versions)) {
+                    const vs = db.createObjectStore(STORES.versions, { keyPath: 'id', autoIncrement: true });
+                    vs.createIndex('updatedAt', 'updatedAt', { unique: false });
+                    vs.createIndex('userId', 'userId', { unique: false });
+                } else {
+                    const vs = req.transaction.objectStore(STORES.versions);
+                    if (!vs.indexNames.contains('userId')) {
+                        vs.createIndex('userId', 'userId', { unique: false });
+                    }
+                }
+                if (!db.objectStoreNames.contains(STORES.jobs)) {
+                    const js = db.createObjectStore(STORES.jobs, { keyPath: 'id', autoIncrement: true });
+                    js.createIndex('updatedAt', 'updatedAt', { unique: false });
+                    js.createIndex('status', 'status', { unique: false });
+                    js.createIndex('userId', 'userId', { unique: false });
+                } else {
+                    const js = req.transaction.objectStore(STORES.jobs);
+                    if (!js.indexNames.contains('userId')) {
+                        js.createIndex('userId', 'userId', { unique: false });
+                    }
                 }
             };
             req.onsuccess = e => { _db = e.target.result; resolve(_db); };
@@ -49,6 +230,11 @@ const LocalDB = (function () {
     // =========================================================
     async function _add(storeName, data) {
         const db = await _openDB();
+        if (storeName !== STORES.users && storeName !== STORES.stats) {
+            if (!data.userId) {
+                data.userId = _currentUserId || 'legacy';
+            }
+        }
         return new Promise((resolve, reject) => {
             const tx  = db.transaction(storeName, 'readwrite');
             const req = tx.objectStore(storeName).add(data);
@@ -62,7 +248,39 @@ const LocalDB = (function () {
         return new Promise((resolve, reject) => {
             const tx  = db.transaction(storeName, 'readonly');
             const req = tx.objectStore(storeName).getAll();
-            req.onsuccess = () => resolve(req.result || []);
+            req.onsuccess = () => {
+                const all = req.result || [];
+                if (_currentUserId && storeName !== STORES.users && storeName !== STORES.stats) {
+                    resolve(all.filter(item => item.userId === _currentUserId));
+                } else {
+                    resolve(all);
+                }
+            };
+            req.onerror   = e => reject(e.target.error);
+        });
+    }
+
+    async function _get(storeName, id) {
+        const db = await _openDB();
+        return new Promise((resolve, reject) => {
+            const tx  = db.transaction(storeName, 'readonly');
+            const req = tx.objectStore(storeName).get(id);
+            req.onsuccess = () => resolve(req.result || null);
+            req.onerror   = e => reject(e.target.error);
+        });
+    }
+
+    async function _put(storeName, data) {
+        const db = await _openDB();
+        if (storeName !== STORES.users && storeName !== STORES.stats) {
+            if (!data.userId) {
+                data.userId = _currentUserId || 'legacy';
+            }
+        }
+        return new Promise((resolve, reject) => {
+            const tx  = db.transaction(storeName, 'readwrite');
+            const req = tx.objectStore(storeName).put(data);
+            req.onsuccess = () => resolve(req.result);
             req.onerror   = e => reject(e.target.error);
         });
     }
@@ -89,22 +307,111 @@ const LocalDB = (function () {
 
     async function _getStats() {
         const db = await _openDB();
+        const key = _currentUserId ? `stats_${_currentUserId}` : 'main';
         return new Promise((resolve, reject) => {
             const tx  = db.transaction(STORES.stats, 'readonly');
-            const req = tx.objectStore(STORES.stats).get('main');
-            req.onsuccess = () => resolve(req.result || { key: 'main' });
+            const req = tx.objectStore(STORES.stats).get(key);
+            req.onsuccess = () => resolve(req.result || { key });
             req.onerror   = e => reject(e.target.error);
         });
     }
 
     async function _putStats(data) {
         const db = await _openDB();
+        const key = _currentUserId ? `stats_${_currentUserId}` : 'main';
         return new Promise((resolve, reject) => {
             const tx  = db.transaction(STORES.stats, 'readwrite');
-            const req = tx.objectStore(STORES.stats).put({ key: 'main', ...data });
+            const req = tx.objectStore(STORES.stats).put({ key, ...data });
             req.onsuccess = () => resolve();
             req.onerror   = e => reject(e.target.error);
         });
+    }
+
+    // =========================================================
+    // USER REPOSITORY (MULTI-USER ISOLATION)
+    // =========================================================
+    async function saveUser(user) {
+        return await _put(STORES.users, user);
+    }
+
+    async function getUserById(userId) {
+        return await _get(STORES.users, userId);
+    }
+
+    async function getUserByEmail(email) {
+        const clean = (email || '').toLowerCase().trim();
+        const db = await _openDB();
+        return new Promise((resolve) => {
+            try {
+                const tx = db.transaction(STORES.users, 'readonly');
+                const store = tx.objectStore(STORES.users);
+                if (!store.indexNames.contains('email')) {
+                    resolve(null);
+                    return;
+                }
+                const req = store.index('email').get(clean);
+                req.onsuccess = () => resolve(req.result || null);
+                req.onerror = () => resolve(null);
+            } catch {
+                resolve(null);
+            }
+        });
+    }
+
+    async function getUserByPhone(phone) {
+        const cleanPhone = (phone || '').replace(/\s+/g, '');
+        const all = await _getAll(STORES.users);
+        return all.find(u => u.phone && u.phone.replace(/\s+/g, '') === cleanPhone) || null;
+    }
+
+    async function updateUser(userId, updates) {
+        const existing = await getUserById(userId);
+        if (!existing) throw new Error('User not found');
+        const updated = { ...existing, ...updates, userId, updatedAt: Date.now() };
+        await _put(STORES.users, updated);
+        return updated;
+    }
+
+    async function getAllUsers() {
+        return await _getAll(STORES.users);
+    }
+
+    async function clearUserData(userId) {
+        const target = userId || _currentUserId;
+        if (!target) return;
+        const db = await _openDB();
+        const promises = [STORES.match, STORES.risk, STORES.versions, STORES.jobs].map(s => {
+            return new Promise((resolve) => {
+                try {
+                    const tx = db.transaction(s, 'readwrite');
+                    const store = tx.objectStore(s);
+                    const req = store.getAll();
+                    req.onsuccess = () => {
+                        const items = req.result || [];
+                        const delPromises = [];
+                        for (const item of items) {
+                            if (item.userId === target) {
+                                delPromises.push(new Promise(resDel => {
+                                    const dReq = store.delete(item.id);
+                                    if (dReq && typeof dReq.onsuccess !== 'undefined') {
+                                        dReq.onsuccess = resDel;
+                                        dReq.onerror = resDel;
+                                    } else {
+                                        resDel();
+                                    }
+                                }));
+                            }
+                        }
+                        Promise.all(delPromises).then(resolve);
+                    };
+                    req.onerror = () => resolve();
+                } catch (e) {
+                    console.warn('[LocalDB] clearUserData error:', e);
+                    resolve();
+                }
+            });
+        });
+        await Promise.all(promises);
     }
 
     // Trim oldest records to stay within MAX_ITEMS
@@ -254,17 +561,21 @@ const LocalDB = (function () {
     // =========================================================
     async function exportHistory() {
         try {
-            const [matchHistory, riskHistory, stats] = await Promise.all([
+            const [matchHistory, riskHistory, stats, resumeVersions, jobApplications] = await Promise.all([
                 _getAll(STORES.match),
                 _getAll(STORES.risk),
-                _getStats()
+                _getStats(),
+                _getAll(STORES.versions),
+                _getAll(STORES.jobs)
             ]);
             const payload = {
                 exportedAt: new Date().toISOString(),
-                appVersion: '3.0',
+                appVersion: '3.1',
                 schema: 'resumematch-history-v1',
                 matchHistory,
                 riskHistory,
+                resumeVersions: resumeVersions || [],
+                jobApplications: jobApplications || [],
                 stats
             };
             const json = JSON.stringify(payload, null, 2);
@@ -312,7 +623,7 @@ const LocalDB = (function () {
                     if (window.showToast) window.showToast('Invalid import file structure.', 'error');
                     return;
                 }
-                if (parsed.schema !== 'resumematch-history-v1') {
+                if (parsed.schema !== 'resumematch-history-v1' && parsed.schema !== 'resumematch-history-v2') {
                     if (window.showToast) window.showToast('Unrecognised import format. Only ResumeMatch AI exports are supported.', 'error');
                     return;
                 }
@@ -360,6 +671,41 @@ const LocalDB = (function () {
                     };
                     await _add(STORES.risk, safe);
                 }
+
+                // Import resume versions if provided
+                if (Array.isArray(parsed.resumeVersions)) {
+                    for (const v of parsed.resumeVersions.slice(0, MAX_ITEMS)) {
+                        if (!v || typeof v !== 'object') continue;
+                        await _add(STORES.versions, {
+                            name: String(v.name || 'Imported Version').slice(0, 80),
+                            content: String(v.content || '').slice(0, 50000),
+                            targetDomain: String(v.targetDomain || 'General').slice(0, 50),
+                            createdAt: Number(v.createdAt) || Date.now(),
+                            updatedAt: Number(v.updatedAt) || Date.now()
+                        });
+                    }
+                }
+
+                // Import job applications if provided
+                if (Array.isArray(parsed.jobApplications)) {
+                    for (const j of parsed.jobApplications.slice(0, MAX_ITEMS)) {
+                        if (!j || typeof j !== 'object') continue;
+                        await _add(STORES.jobs, {
+                            company: String(j.company || 'Unknown').slice(0, 100),
+                            role: String(j.role || 'Unknown').slice(0, 100),
+                            jdSnippet: String(j.jdSnippet || '').slice(0, 2000),
+                            resumeVersion: String(j.resumeVersion || 'Default').slice(0, 80),
+                            matchScore: Math.min(100, Math.max(0, Number(j.matchScore) || 0)),
+                            status: String(j.status || 'Saved').slice(0, 50),
+                            appliedDate: String(j.appliedDate || ''),
+                            interviewDate: String(j.interviewDate || ''),
+                            notes: String(j.notes || '').slice(0, 1000),
+                            createdAt: Number(j.createdAt) || Date.now(),
+                            updatedAt: Number(j.updatedAt) || Date.now()
+                        });
+                    }
+                }
+
                 await loadHistory();
                 if (window.showToast) window.showToast(`Imported ${importedCount} match records successfully! ✅`, 'success');
             } catch (err) {
@@ -372,6 +718,36 @@ const LocalDB = (function () {
         };
         reader.readAsText(file);
     }
+
+    // =========================================================
+    // RESUME VERSIONS CRUD
+    // =========================================================
+    async function addResumeVersion(record) { return await _add(STORES.versions, record); }
+    async function getAllResumeVersions() {
+        const all = await _getAll(STORES.versions);
+        return all.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+    }
+    async function updateResumeVersion(id, updates) {
+        const existing = await _get(STORES.versions, id);
+        if (!existing) throw new Error('Resume version not found');
+        return await _put(STORES.versions, { ...existing, ...updates, id });
+    }
+    async function deleteResumeVersion(id) { return await _delete(STORES.versions, id); }
+
+    // =========================================================
+    // JOB APPLICATIONS CRUD
+    // =========================================================
+    async function addJobApplication(record) { return await _add(STORES.jobs, record); }
+    async function getAllJobApplications() {
+        const all = await _getAll(STORES.jobs);
+        return all.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+    }
+    async function updateJobApplication(id, updates) {
+        const existing = await _get(STORES.jobs, id);
+        if (!existing) throw new Error('Job application not found');
+        return await _put(STORES.jobs, { ...existing, ...updates, id });
+    }
+    async function deleteJobApplication(id) { return await _delete(STORES.jobs, id); }
 
     // =========================================================
     // RENDER — Header widget
@@ -599,17 +975,40 @@ const LocalDB = (function () {
     // =========================================================
     return {
         init,
+        setCurrentUserId,
+        getCurrentUserId,
+        saveUser,
+        getUserById,
+        getUserByEmail,
+        getUserByPhone,
+        updateUser,
+        getAllUsers,
+        clearUserData,
         saveMatchAnalysis,
         saveRiskAnalysis,
         loadHistory,
         exportHistory,
         importHistory,
         switchHistoryTab,
-        restoreMatchInputs
+        restoreMatchInputs,
+        addResumeVersion,
+        getAllResumeVersions,
+        updateResumeVersion,
+        deleteResumeVersion,
+        addJobApplication,
+        getAllJobApplications,
+        updateJobApplication,
+        deleteJobApplication
     };
 
 })();
 
 // Expose under LocalDB name; also keep FirebaseDB as alias for backward compat
-window.LocalDB   = LocalDB;
-window.FirebaseDB = LocalDB; // backward-compat alias — will be removed in future version
+if (typeof window !== 'undefined') {
+    window.LocalDB   = LocalDB;
+    window.FirebaseDB = LocalDB; // backward-compat alias — will be removed in future version
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = LocalDB;
+}

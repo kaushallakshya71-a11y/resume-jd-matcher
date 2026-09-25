@@ -4,9 +4,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ResumeMatch AI — Smart Resume &amp; Job Description Analyzer</title>
+  <title>HireLens — Align your skills. Match your career.</title>
   <meta name="description"
-    content="Analyze your resume against any job description. Get an estimated compatibility score, skill gap analysis, resume tips, career roadmap, and interview prep — free, client-side, and private." />
+    content="HireLens is an AI-powered career alignment and job-readiness platform with 100% client-side privacy, explainable matching, skill gap roadmaps, and tailored interview prep." />
 
   <link rel="stylesheet" href="styles.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -14,650 +14,1082 @@
 
 <body>
 
-  <div class="app-wrapper">
+  <!-- ===== APPLICATION SHELL ===== -->
+  <div class="app-layout">
 
-    <!-- ===== HEADER ===== -->
-    <header class="header">
-      <div class="logo">
-        <div class="logo-icon">🎯</div>
-        <div class="logo-text">
-          <h1 data-i18n="appName">ResumeMatch AI</h1>
-          <span data-i18n="appTagline">Smart Career Compatibility Analyzer</span>
+    <!-- ===== DESKTOP SIDEBAR ===== -->
+    <aside class="app-sidebar" id="app-sidebar" aria-label="Main Navigation">
+      <div class="sidebar-brand">
+        <div class="brand-icon">🎯</div>
+        <div class="brand-text">
+          <span class="brand-title" data-i18n="appName">HireLens</span>
+          <span class="brand-tagline" data-i18n="appTagline">Align your skills. Match your career.</span>
         </div>
       </div>
-      <div class="header-right">
-        <div id="auth-widget" class="auth-widget"></div>
-        <button class="theme-toggle-btn" id="theme-toggle-btn" aria-label="Toggle Theme">🌙</button>
-        <button class="lang-toggle-btn" id="lang-toggle-btn">हिंदी</button>
-        <div class="header-badge" data-i18n="aiBadge">✨ AI-Powered</div>
+
+      <nav class="sidebar-nav">
+        <!-- MAIN SECTION -->
+        <div class="nav-group-label" data-i18n="navMain">MAIN</div>
+        <ul class="nav-list">
+          <li>
+            <button type="button" class="nav-item active" data-nav="dashboard" id="nav-dashboard">
+              <span class="nav-icon">🏠</span>
+              <span class="nav-label" data-i18n="navDashboard">Dashboard</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="nav-item" data-nav="analyze" id="nav-analyze">
+              <span class="nav-icon">📄</span>
+              <span class="nav-label" data-i18n="navAnalyze">Analyze Resume</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="nav-item" data-nav="job-match" id="nav-job-match">
+              <span class="nav-icon">🎯</span>
+              <span class="nav-label" data-i18n="navJobMatch">Job Match</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="nav-item" data-nav="studio" id="nav-studio">
+              <span class="nav-icon">✨</span>
+              <span class="nav-label" data-i18n="navStudio">Resume Studio</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="nav-item" data-nav="career-insights" id="nav-career-insights">
+              <span class="nav-icon">📊</span>
+              <span class="nav-label" data-i18n="navInsights">Career Insights</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="nav-item" data-nav="applications" id="nav-applications">
+              <span class="nav-icon">💼</span>
+              <span class="nav-label" data-i18n="navApplications">Applications</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="nav-item" data-nav="versions" id="nav-versions">
+              <span class="nav-icon">📚</span>
+              <span class="nav-label" data-i18n="navVersions">Resume Versions</span>
+            </button>
+          </li>
+        </ul>
+
+        <!-- SYSTEM SECTION -->
+        <div class="nav-group-label" data-i18n="navSystem">SYSTEM</div>
+        <ul class="nav-list">
+          <li>
+            <button type="button" class="nav-item" data-nav="settings" id="nav-settings">
+              <span class="nav-icon">⚙</span>
+              <span class="nav-label" data-i18n="navSettings">Settings</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="nav-item" data-nav="help" id="nav-help">
+              <span class="nav-icon">❓</span>
+              <span class="nav-label" data-i18n="navHelp">Help &amp; Guide</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="nav-item" data-nav="account" id="nav-account">
+              <span class="nav-icon">👤</span>
+              <span class="nav-label" data-i18n="navAccount">Account &amp; Profile</span>
+            </button>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- ACTIVE RESUME MINI-CARD IN SIDEBAR -->
+      <div class="sidebar-resume-widget" id="sidebar-resume-widget">
+        <div class="srw-header">
+          <span class="srw-label" data-i18n="activeResumeLabel">Active Resume</span>
+          <span class="srw-dot" id="srw-dot"></span>
+        </div>
+        <div class="srw-name" id="srw-name" data-i18n="noActiveResume">No resume loaded</div>
+        <div class="srw-meta" id="srw-meta">0 characters</div>
+        <div class="srw-actions">
+          <button type="button" class="btn-srw" onclick="navigateTo('analyze')" data-i18n="dashBtnReplace">Upload</button>
+          <button type="button" class="btn-srw" onclick="navigateTo('studio')" data-i18n="dashBtnImprove">Improve</button>
+        </div>
+      </div>
+
+      <!-- AUTHENTICATED USER MINI-CARD IN SIDEBAR -->
+      <div class="sidebar-user-widget" id="sidebar-user-widget">
+        <div class="suw-profile" onclick="navigateTo('account')" role="button" tabindex="0" title="Manage your account profile">
+          <div class="suw-avatar" id="suw-avatar">👤</div>
+          <div class="suw-details">
+            <span class="suw-name" id="suw-name">Signed In</span>
+            <span class="suw-email" id="suw-email">Private Session</span>
+          </div>
+        </div>
+        <button type="button" class="btn-suw-logout" id="btn-sidebar-logout" title="Log Out" aria-label="Log Out" onclick="handleLogoutClick()">
+          🚪
+        </button>
+      </div>
+    </aside>
+
+    <!-- ===== MOBILE TOP BAR ===== -->
+    <header class="mobile-top-bar">
+      <button type="button" class="mobile-menu-btn" id="btn-mobile-menu" aria-label="Open Navigation Menu">☰</button>
+      <div class="mobile-brand">
+        <span class="mobile-brand-icon">🎯</span>
+        <span class="mobile-view-title" id="mobile-view-title" data-i18n="navDashboard">Dashboard</span>
+      </div>
+      <div class="mobile-top-actions">
+        <button type="button" class="mobile-user-btn" id="btn-mobile-user" aria-label="User Account" onclick="navigateTo('account')" title="Account">
+          <span id="mobile-user-avatar">👤</span>
+        </button>
+        <button type="button" class="theme-toggle-btn" id="theme-toggle-btn" aria-label="Toggle Theme">🌙</button>
+        <button type="button" class="lang-toggle-btn" id="lang-toggle-btn">हिंदी</button>
       </div>
     </header>
 
-    <!-- ===== HERO ===== -->
-    <section class="hero">
-      <div class="hero-eyebrow" data-i18n="eyebrow">🔍 Resume Intelligence Engine</div>
-      <h2>
-        <span data-i18n="heroTitle1">Know Your</span> <span class="grad" data-i18n="heroGrad">Match Score</span><br />
-        <span data-i18n="heroTitle2">Before You Apply</span>
-      </h2>
-      <p data-i18n="heroSubtitle">Paste your resume and any job description to get an instant rule-based compatibility analysis —
-        free, private, and client-side.</p>
-
-    </section>
-
-    <!-- ===== TOOL TAB BAR ===== -->
-    <div class="tool-tabs-bar">
-      <button class="tool-tab active" id="tab-btn-matcher" onclick="switchTool('matcher')">
-        <span class="tool-tab-icon">📄</span>
-        <div class="tool-tab-text">
-          <span class="tool-tab-title">Resume Matcher</span>
-          <span class="tool-tab-sub">Match your resume to a job</span>
+    <!-- ===== MOBILE SLIDE-OUT DRAWER OVERLAY ===== -->
+    <div class="mobile-drawer-overlay" id="mobile-drawer-overlay" onclick="closeMobileDrawer()"></div>
+    <div class="mobile-drawer" id="mobile-drawer">
+      <div class="drawer-header">
+        <div class="drawer-brand">
+          <span>🎯</span> HireLens
         </div>
-      </button>
-      <button class="tool-tab" id="tab-btn-risk" onclick="switchTool('risk')">
-        <span class="tool-tab-icon">⚠️</span>
-        <div class="tool-tab-text">
-          <span class="tool-tab-title">Career Risk Signals</span>
-          <span class="tool-tab-sub">Check long-term career health</span>
-        </div>
-      </button>
-
+        <button type="button" class="drawer-close-btn" onclick="closeMobileDrawer()">✕</button>
+      </div>
+      <div class="drawer-content">
+        <ul class="drawer-nav-list" id="drawer-nav-list">
+          <!-- Populated from desktop nav items -->
+        </ul>
+      </div>
     </div>
 
-    <!-- ===== MATCHER TOOL PANEL ===== -->
-    <div id="matcher-tool-panel">
+    <!-- ===== MAIN CONTENT CONTAINER ===== -->
+    <main class="app-main-content" id="app-main-content">
 
-      <!-- ===== HOW IT WORKS ===== -->
-      <div class="how-it-works">
-        <div class="hiw-step">
-          <div class="hiw-num">①</div>
-          <div class="hiw-icon">📄</div>
-          <div class="hiw-text">
-            <strong>Paste Your Resume</strong>
-            <span>Copy-paste plain text or upload a .txt/.pdf file</span>
-          </div>
-        </div>
-        <div class="hiw-arrow">→</div>
-        <div class="hiw-step">
-          <div class="hiw-num">②</div>
-          <div class="hiw-icon">💼</div>
-          <div class="hiw-text">
-            <strong>Add Job Description</strong>
-            <span>Paste from LinkedIn, Indeed, or any job posting</span>
-          </div>
-        </div>
-        <div class="hiw-arrow">→</div>
-        <div class="hiw-step">
-          <div class="hiw-num">③</div>
-          <div class="hiw-icon">🔍</div>
-          <div class="hiw-text">
-            <strong>Get Your Score</strong>
-            <span>Instant match score, skill gaps &amp; roadmap</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- ===== INPUT SECTION ===== -->
-      <section class="input-section">
-        <!-- Resume Panel -->
-        <div class="input-panel">
-          <div class="panel-header">
-            <div class="panel-label">
-              <div class="step-badge">①</div>
-              <div class="panel-icon purple">📄</div>
-              <span data-i18n="resumeLabel">Your Resume</span>
+      <!-- ========================================================= -->
+      <!-- VIEW 1: DASHBOARD -->
+      <!-- ========================================================= -->
+      <section class="page-view" id="view-dashboard">
+        <!-- Welcome Hero Banner -->
+        <div class="dashboard-hero-banner">
+          <div class="dash-hero-content">
+            <h1 class="dash-hero-title" data-i18n="dashWelcomeTitle">Welcome to ResumeMatch AI 👋</h1>
+            <p class="dash-hero-sub" data-i18n="dashWelcomeSub">Let's make your resume stronger, clearer, and tailored for your next opportunity.</p>
+            <div class="dash-hero-actions">
+              <button type="button" class="btn-primary btn-hero-cta" onclick="navigateTo('analyze')">
+                <span>🔍</span> <span data-i18n="dashPrimaryCTA">Start Resume Analysis</span>
+              </button>
+              <button type="button" class="btn-secondary" onclick="navigateTo('studio')" data-i18n="dashSecImprove">✨ Improve Resume</button>
+              <button type="button" class="btn-secondary" onclick="navigateTo('job-match')" data-i18n="dashSecMatch">🎯 Match With a Job</button>
+              <button type="button" class="btn-secondary" onclick="navigateTo('versions')" data-i18n="dashSecVersions">📚 View My Resumes</button>
             </div>
-            <label class="file-upload-btn">
-              <span data-i18n="uploadBtn">⬆ Upload File</span>
-              <input type="file" id="resume-file" accept=".txt,.pdf" />
-            </label>
           </div>
-          <div class="drop-zone" id="resume-drop">
-            <textarea id="resume-input" data-i18n="resumePlaceholder"
-              placeholder="Paste your resume here — Skills, Experience, Projects, Education...&#10;&#10;(Or drag &amp; drop a .txt or .pdf file)"
-              spellcheck="false"></textarea>
-          </div>
-          <div class="input-footer">
-            <span class="char-count" id="resume-char-count">0 characters</span>
-            <span class="input-status" id="resume-status"></span>
-          </div>
-          <div class="input-tip">💡 Copy-paste from Word, Google Docs, or upload a PDF</div>
         </div>
 
-        <!-- JD Panel -->
-        <div class="input-panel">
-          <div class="panel-header">
-            <div class="panel-label">
-              <div class="step-badge step-badge-cyan">②</div>
-              <div class="panel-icon cyan">💼</div>
-              <span data-i18n="jdLabel">Job Description</span>
+        <!-- "Where am I in my job search?" 7-Indicator Status Board -->
+        <div class="job-search-status-board">
+          <div class="jssb-header">
+            <div class="jssb-title-wrap">
+              <span class="jssb-icon">🧭</span>
+              <div>
+                <h2 class="jssb-title" data-i18n="dashStatusAnswer">Where am I in my job search?</h2>
+                <p class="jssb-subtitle">Your real-time career alignment &amp; job-readiness board across active resume, target role, and interview preparation.</p>
+              </div>
             </div>
-            <label class="file-upload-btn">
-              <span data-i18n="uploadBtn">⬆ Upload File</span>
-              <input type="file" id="jd-file" accept=".txt,.pdf" />
-            </label>
+            <div class="jssb-action">
+              <button type="button" class="btn-primary btn-sm" onclick="executeSmartNextAction()">
+                <span id="dash-next-action-summary">Run Career Alignment →</span>
+              </button>
+            </div>
           </div>
-          <div class="drop-zone" id="jd-drop">
-            <textarea id="jd-input" data-i18n="jdPlaceholder"
-              placeholder="Paste the job description here — Requirements, Skills, Responsibilities...&#10;&#10;(Or drag &amp; drop a .txt or .pdf file)"
-              spellcheck="false"></textarea>
+          <div class="jssb-grid">
+            <div class="jssb-col">
+              <span class="jssb-col-label" data-i18n="cardTargetRole">Target Role</span>
+              <strong class="jssb-col-val" id="dash-status-role-val">Senior Full Stack Developer</strong>
+              <span class="jssb-col-hint" id="dash-status-company-val">TechCorp (Sample Target)</span>
+            </div>
+            <div class="jssb-col">
+              <span class="jssb-col-label" data-i18n="cardAlignmentStatus">Alignment Status</span>
+              <strong class="jssb-col-val text-green" id="dash-status-fit-val">72% Strong Match</strong>
+              <span class="jssb-col-hint" id="dash-status-fit-hint">Estimated Role Fit</span>
+            </div>
+            <div class="jssb-col">
+              <span class="jssb-col-label" data-i18n="cardTopSkillGap">Top Skill Gap</span>
+              <strong class="jssb-col-val text-red" id="dash-status-topgap-val">TypeScript (High)</strong>
+              <span class="jssb-col-hint">5-Day Roadmap Available</span>
+            </div>
+            <div class="jssb-col">
+              <span class="jssb-col-label" data-i18n="cardResumeHealth">Resume Health</span>
+              <strong class="jssb-col-val text-cyan" id="dash-status-health-val">78 / 100</strong>
+              <span class="jssb-col-hint">ATS &amp; Writing Quality</span>
+            </div>
+            <div class="jssb-col">
+              <span class="jssb-col-label" data-i18n="cardInterviewReady">Interview Readiness</span>
+              <strong class="jssb-col-val text-purple" id="dash-status-interview-val">Questions Ready</strong>
+              <span class="jssb-col-hint">STAR &amp; Technical Prep</span>
+            </div>
           </div>
-          <div class="input-footer">
-            <span class="char-count" id="jd-char-count">0 characters</span>
-            <span class="input-status" id="jd-status"></span>
+        </div>
+
+        <!-- Dashboard Grid Layout -->
+        <div class="dashboard-grid">
+
+          <!-- Card A: Resume Status -->
+          <div class="dash-card dash-status-card">
+            <div class="dash-card-header">
+              <div class="dash-card-icon purple-bg">📄</div>
+              <div>
+                <h2 class="dash-card-title" data-i18n="dashStatusTitle">Resume Status</h2>
+                <p class="dash-card-sub" id="dash-status-sub">Checking local profile...</p>
+              </div>
+            </div>
+            <div class="dash-status-body">
+              <div class="status-indicator-badge" id="dash-status-badge">
+                <span class="status-dot"></span>
+                <span id="dash-status-text" data-i18n="dashStatusEmpty">No Resume Yet</span>
+              </div>
+              <div class="status-meta-grid">
+                <div class="status-meta-item">
+                  <span class="smi-label" data-i18n="dashLastAnalyzed">Last Analyzed</span>
+                  <strong class="smi-val" id="dash-last-analyzed" data-i18n="dashNever">Never</strong>
+                </div>
+                <div class="status-meta-item">
+                  <span class="smi-label" data-i18n="dashSkillsFound">Skills Detected</span>
+                  <strong class="smi-val" id="dash-skills-count">0</strong>
+                </div>
+                <div class="status-meta-item">
+                  <span class="smi-label" data-i18n="dashIssuesFound">Issues Found</span>
+                  <strong class="smi-val" id="dash-issues-count">0</strong>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="input-tip">💡 Paste directly from LinkedIn, Indeed, or any job board</div>
+
+          <!-- Card B: Current Resume Actions -->
+          <div class="dash-card dash-current-card">
+            <div class="dash-card-header">
+              <div class="dash-card-icon blue-bg">📑</div>
+              <div>
+                <h2 class="dash-card-title" id="dash-resume-name">Software Developer Resume</h2>
+                <p class="dash-card-sub" id="dash-resume-length">0 characters loaded</p>
+              </div>
+            </div>
+            <div class="dash-resume-actions">
+              <button type="button" class="btn-outline-action" onclick="showActiveResumeModal()" data-i18n="dashBtnView">👁 View</button>
+              <button type="button" class="btn-outline-action" onclick="navigateTo('analyze')" data-i18n="dashBtnAnalyze">🔍 Analyze</button>
+              <button type="button" class="btn-outline-action" onclick="navigateTo('studio')" data-i18n="dashBtnImprove">✨ Improve</button>
+              <button type="button" class="btn-outline-action" onclick="exportActiveResumeText()" data-i18n="dashBtnExport">📥 Export</button>
+              <button type="button" class="btn-outline-action btn-replace" onclick="navigateTo('analyze')" data-i18n="dashBtnReplace">🔄 Replace</button>
+            </div>
+          </div>
+
+          <!-- Card C: Recent Analysis Summary -->
+          <div class="dash-card dash-scores-card">
+            <div class="dash-card-header">
+              <div class="dash-card-icon green-bg">📊</div>
+              <div>
+                <h2 class="dash-card-title" data-i18n="dashScoresTitle">Recent Analysis Summary</h2>
+                <p class="dash-card-sub">Key compatibility metrics at a glance</p>
+              </div>
+            </div>
+            <div class="score-cards-row">
+              <div class="score-metric-tile">
+                <span class="smt-label" data-i18n="dashCardQuality">Resume Quality</span>
+                <span class="smt-number" id="dash-score-quality">78/100</span>
+                <div class="smt-bar"><div class="smt-fill" id="dash-bar-quality" style="width:78%"></div></div>
+              </div>
+              <div class="score-metric-tile">
+                <span class="smt-label" data-i18n="dashCardMatch">Job Match</span>
+                <span class="smt-number" id="dash-score-match">72%</span>
+                <div class="smt-bar"><div class="smt-fill" id="dash-bar-match" style="width:72%"></div></div>
+              </div>
+              <div class="score-metric-tile">
+                <span class="smt-label" data-i18n="dashCardMissing">Missing Skills</span>
+                <span class="smt-number red-text" id="dash-score-missing">5</span>
+                <span class="smt-hint">Important skills</span>
+              </div>
+              <div class="score-metric-tile">
+                <span class="smt-label" data-i18n="dashCardIssues">Writing Issues</span>
+                <span class="smt-number yellow-text" id="dash-score-issues">8</span>
+                <span class="smt-hint">Grammar &amp; style</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card D: Recommended Next Step -->
+          <div class="dash-card dash-next-step-card" id="dash-next-step-card">
+            <div class="next-step-badge">💡 GUIDED NEXT ACTION</div>
+            <h2 class="next-step-title" id="dash-next-step-title">Your resume is missing 5 important skills from the selected job</h2>
+            <p class="next-step-desc" id="dash-next-step-desc">Adding or highlighting these keywords can increase your compatibility score significantly.</p>
+            <div class="next-step-action">
+              <button type="button" class="btn-primary" id="dash-next-action-btn" onclick="executeSmartNextAction()">
+                <span id="dash-next-btn-text" data-i18n="dashNextActionBtn">View Missing Skills</span> →
+              </button>
+            </div>
+          </div>
+
         </div>
       </section>
 
-      <!-- ===== AI CUSTOMIZATION PANEL ===== -->
-      <div class="customize-wrap">
-        <button class="customize-toggle-btn" id="customize-toggle">🎛 Fine-tune Analysis <span
-            class="optional-badge">Optional</span> <span class="chevron-toggle">▼</span></button>
-        <div class="customize-panel" id="customize-panel">
-          <div class="customize-grid">
-            <!-- Role Level -->
-            <div class="customize-field">
-              <label data-i18n="roleLevelLabel">Target Role Level</label>
-              <div class="role-radio-group">
-                <input type="radio" name="role-level" id="role-entry" class="role-radio" value="entry">
-                <label for="role-entry" class="role-label" data-i18n="roleEntry">Entry</label>
-                <input type="radio" name="role-level" id="role-mid" class="role-radio" value="mid" checked>
-                <label for="role-mid" class="role-label" data-i18n="roleMid">Mid</label>
-                <input type="radio" name="role-level" id="role-senior" class="role-radio" value="senior">
-                <label for="role-senior" class="role-label" data-i18n="roleSenior">Senior</label>
-                <input type="radio" name="role-level" id="role-lead" class="role-radio" value="lead">
-                <label for="role-lead" class="role-label" data-i18n="roleLead">Lead</label>
-                <input type="radio" name="role-level" id="role-exec" class="role-radio" value="exec">
-                <label for="role-exec" class="role-label" data-i18n="roleExec">C-Suite</label>
-              </div>
-            </div>
-
-            <!-- Industry -->
-            <div class="customize-field">
-              <label data-i18n="industryLabel">Industry Focus</label>
-              <select id="industry-select">
-                <option value="tech" data-i18n="industryTech">Technology</option>
-                <option value="finance" data-i18n="industryFinance">Finance</option>
-                <option value="health" data-i18n="industryHealth">Healthcare</option>
-                <option value="marketing" data-i18n="industryMarketing">Marketing</option>
-                <option value="education" data-i18n="industryEducation">Education</option>
-                <option value="design" data-i18n="industryDesign">Design / Creative</option>
-                <option value="data" data-i18n="industryData">Data Science / AI</option>
-                <option value="other" data-i18n="industryOther">Other</option>
-              </select>
-            </div>
-
-            <!-- Priority Skills -->
-            <div class="customize-field">
-              <label data-i18n="prioritySkillsLabel">Priority Skills</label>
-              <input type="text" id="priority-skills-input" data-i18n="prioritySkillsPlaceholder"
-                placeholder="e.g. React, Docker, Python" />
-            </div>
-
-            <!-- Target Role -->
-            <div class="customize-field">
-              <label>Target Role (Optional)</label>
-              <input type="text" id="target-role-input" placeholder="e.g. Senior Full Stack Developer" />
-            </div>
-
-            <!-- Target Company -->
-            <div class="customize-field">
-              <label>Target Company (Optional)</label>
-              <input type="text" id="target-company-input" placeholder="e.g. Google, Swiggy, Startup" />
-            </div>
-          </div>
+      <!-- ========================================================= -->
+      <!-- VIEW 2: ANALYZE RESUME (3-STEP WIZARD) -->
+      <!-- ========================================================= -->
+      <section class="page-view hidden" id="view-analyze">
+        <div class="view-header">
+          <h1 class="view-title" data-i18n="wizTitle">Analyze Your Resume</h1>
+          <p class="view-subtitle" data-i18n="wizSubtitle">A 3-step guided check to uncover your resume's strengths, structure, and job readiness.</p>
         </div>
-      </div>
 
-      <!-- ===== ACTION BAR ===== -->
-      <div class="action-bar">
-        <button class="btn-primary" id="analyze-btn">
-          <span>🔍</span> <span data-i18n="analyzeBtn">Analyze Match</span>
-        </button>
-        <button class="btn-sample" id="load-sample-btn">
-          <span>🧪 Try Sample Data</span>
-          <span class="sample-hint">— no data needed!</span>
-        </button>
-        <button class="btn-secondary" id="clear-btn">
-          <span data-i18n="clearBtn">🗑 Clear</span>
-        </button>
-      </div>
-
-      <!-- Sticky mobile analyze bar -->
-      <div class="sticky-analyze-bar" id="sticky-analyze-bar">
-        <button class="btn-primary" onclick="document.getElementById('analyze-btn').click()">
-          🔍 Analyze Match
-        </button>
-      </div>
-
-      <!-- ===== RESULTS SECTION ===== -->
-      <section id="results-section" class="hidden">
-
-        <!-- Results Header with Download -->
-        <div class="results-header">
-          <div>
-            <h2>📋 Your Analysis Results</h2>
-            <p class="results-subtitle">Scroll through the sections below, or click any item in the left nav to jump
-              there.</p>
-          </div>
-          <button class="btn-download" id="download-btn">
-            📥 <span data-i18n="downloadBtn">Download Report</span>
+        <!-- 3-Step Wizard Navigation Stepper -->
+        <div class="wizard-stepper">
+          <button type="button" class="wiz-step-btn active" id="wiz-step-1-btn" onclick="goToWizardStep(1)">
+            <span class="ws-num">1</span>
+            <span class="ws-label" data-i18n="wizStep1">1. Resume</span>
+          </button>
+          <div class="ws-divider"></div>
+          <button type="button" class="wiz-step-btn" id="wiz-step-2-btn" onclick="goToWizardStep(2)">
+            <span class="ws-num">2</span>
+            <span class="ws-label" data-i18n="wizStep2">2. Job Description</span>
+          </button>
+          <div class="ws-divider"></div>
+          <button type="button" class="wiz-step-btn" id="wiz-step-3-btn" onclick="goToWizardStep(3)">
+            <span class="ws-num">3</span>
+            <span class="ws-label" data-i18n="wizStep3">3. Analysis</span>
           </button>
         </div>
 
-        <div class="main-content">
-
-          <!-- Side Nav -->
-          <nav class="side-nav">
-            <h4>Jump To</h4>
-            <a href="#quick-summary" class="active">⚡ Quick Summary</a>
-            <a href="#match-score">📊 Match Score</a>
-            <a href="#skills">🧬 Skills</a>
-            <a href="#verdict">✅ Verdict</a>
-            <a href="#resume-tips">🛠 Tips</a>
-            <a href="#career-roadmap">🚀 Roadmap</a>
-            <a href="#ats-analysis">🤖 ATS</a>
-            <a href="#interview-section">💬 Interview</a>
-            <a href="#feedback-section">⭐ Feedback</a>
-          </nav>
-
-          <!-- Results Grid -->
-          <div class="results-grid">
-
-            <!-- ===== TL;DR QUICK SUMMARY CARD ===== -->
-            <div class="result-card tldr-card" id="quick-summary">
-              <div class="card-header">
-                <div class="card-icon" style="background:rgba(16,185,129,0.15)">⚡</div>
-                <div>
-                  <h3>Quick Summary</h3>
-                  <p>Your analysis at a glance — scroll down for full details</p>
-                </div>
+        <!-- WIZARD STEP 1: UPLOAD RESUME -->
+        <div class="wizard-panel active" id="wiz-panel-1">
+          <div class="wizard-card">
+            <div class="wizard-card-header">
+              <div class="step-badge">①</div>
+              <div>
+                <h2 data-i18n="wizUploadHeader">Step 1: Upload or Paste Your Resume</h2>
+                <p data-i18n="wizUploadSub">Drop a PDF or plain text resume below, or paste your text directly.</p>
               </div>
-              <div id="tldr-container"></div>
             </div>
 
-            <!-- ===== MODULE 1: MATCH SCORE CARD ===== -->
-            <div class="result-card" id="match-score">
-              <div class="card-header">
-                <div class="card-icon purple-bg">📊</div>
-                <div>
-                  <h3 data-i18n="scoreTitle">Resume–JD Compatibility Score</h3>
-                  <p data-i18n="scoreSubtitle">Estimated alignment with the job description based on skills, experience, and keywords</p>
-                </div>
-              </div>
-              <!-- Issue 1 — Score disclaimer -->
-              <div class="score-disclaimer" role="note" aria-label="Score disclaimer">
-                ℹ️ This is an <strong>estimated score</strong> based on keyword and skill matching between your resume and the job description.
-                It does <strong>not</strong> represent hiring probability or an employer's actual decision.
-                <span class="score-weight-info">Weights: Skills 40% · Experience 20% · Domain 15% · Soft Skills 15% · ATS Keywords 10%</span>
+            <div class="upload-container">
+              <!-- Drag & Drop Zone -->
+              <div class="drop-zone" id="resume-drop">
+                <div class="drop-zone-icon">📄</div>
+                <div class="drop-zone-text" data-i18n="uploadDropText">Drag &amp; drop your resume PDF or TXT here, or click to browse</div>
+                <label class="file-browse-btn">
+                  <span data-i18n="uploadFileBtn">Browse File</span>
+                  <input type="file" id="resume-file" accept=".txt,.pdf" />
+                </label>
+                <div class="drop-zone-notice" data-i18n="uploadMaxNotice">Supports .pdf and .txt files up to 10 MB. 100% processed in your browser.</div>
               </div>
 
-              <div class="score-display">
-                <div class="score-ring-wrap">
-                  <svg width="140" height="140" viewBox="0 0 140 140">
-                    <circle cx="70" cy="70" r="54" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="12" />
-                    <circle cx="70" cy="70" r="54" fill="none" stroke="#8b5cf6" stroke-width="12" stroke-linecap="round"
-                      id="score-ring-circle" style="stroke-dasharray:339.29;stroke-dashoffset:339.29;" />
-                  </svg>
-                  <div class="score-text-overlay">
-                    <span class="score-number" id="score-number">0%</span>
-                    <span id="score-label">Analyzing...</span>
-                  </div>
+              <!-- Upload Progress Feedback -->
+              <div class="upload-progress-box hidden" id="resume-upload-progress">
+                <div class="upload-progress-bar"><div class="upload-progress-fill" id="resume-progress-fill"></div></div>
+                <div class="upload-progress-meta">
+                  <span class="upload-progress-text" id="resume-progress-text">Reading resume file...</span>
+                  <button type="button" class="upload-cancel-btn" id="resume-upload-cancel" onclick="cancelPdfExtraction('resume')">✕ Cancel</button>
                 </div>
-                <div class="score-bars">
-                  <div class="score-bar-row" id="bar-skills">
-                    <div class="bar-meta"><span data-i18n="barSkills">Skills Match</span><span class="bar-num">—</span>
+              </div>
+
+              <!-- Direct Paste Area -->
+              <div class="paste-area-wrap">
+                <label for="resume-input" class="textarea-label">Or paste resume text:</label>
+                <textarea id="resume-input" class="styled-textarea" data-i18n="resumePlaceholder"
+                  placeholder="Paste your resume text here (Skills, Experience, Education, Projects)..."
+                  spellcheck="false"></textarea>
+                <div class="input-footer">
+                  <span class="char-count" id="resume-char-count">0 characters</span>
+                  <span class="input-status" id="resume-status"></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="wizard-actions">
+              <button type="button" class="btn-sample" id="load-sample-btn">
+                <span>🧪 Try Sample Resume</span>
+              </button>
+              <button type="button" class="btn-primary" onclick="proceedFromStep1()">
+                <span data-i18n="btnNextStep2">Next: Choose Job Description →</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- WIZARD STEP 2: JOB DESCRIPTION (OPTIONAL) -->
+        <div class="wizard-panel hidden" id="wiz-panel-2">
+          <div class="wizard-card">
+            <div class="wizard-card-header">
+              <div class="step-badge step-badge-cyan">②</div>
+              <div>
+                <h2 data-i18n="wizJDHeader">Step 2: Add Job Description (Optional)</h2>
+                <p data-i18n="wizJDSub">Compare against a target role, or skip to analyze your resume's standalone quality.</p>
+              </div>
+            </div>
+
+            <div class="upload-container">
+              <div class="drop-zone" id="jd-drop">
+                <div class="drop-zone-icon">💼</div>
+                <div class="drop-zone-text">Drag &amp; drop a JD file (.txt or .pdf), or paste text below</div>
+                <label class="file-browse-btn">
+                  <span>Browse JD File</span>
+                  <input type="file" id="jd-file" accept=".txt,.pdf" />
+                </label>
+              </div>
+
+              <!-- JD Upload Progress -->
+              <div class="upload-progress-box hidden" id="jd-upload-progress">
+                <div class="upload-progress-bar"><div class="upload-progress-fill" id="jd-progress-fill"></div></div>
+                <div class="upload-progress-meta">
+                  <span class="upload-progress-text" id="jd-progress-text">Extracting JD...</span>
+                  <button type="button" class="upload-cancel-btn" id="jd-upload-cancel" onclick="cancelPdfExtraction('jd')">✕ Cancel</button>
+                </div>
+              </div>
+
+              <div class="paste-area-wrap">
+                <label for="jd-input" class="textarea-label">Job Description text:</label>
+                <textarea id="jd-input" class="styled-textarea" data-i18n="jdPlaceholder"
+                  placeholder="Paste job description from LinkedIn, Indeed, or company careers page..."
+                  spellcheck="false"></textarea>
+                <div class="input-footer">
+                  <span class="char-count" id="jd-char-count">0 characters</span>
+                  <span class="input-status" id="jd-status"></span>
+                </div>
+              </div>
+
+              <!-- Optional Fine-Tuning Settings Accordion -->
+              <div class="customize-wrap">
+                <button type="button" class="customize-toggle-btn" id="customize-toggle">
+                  🎛 Fine-tune Analysis (Optional) <span class="chevron-toggle">▼</span>
+                </button>
+                <div class="customize-panel" id="customize-panel">
+                  <div class="customize-grid">
+                    <div class="customize-field">
+                      <label data-i18n="roleLevelLabel">Target Role Level</label>
+                      <div class="role-radio-group">
+                        <input type="radio" name="role-level" id="role-entry" class="role-radio" value="entry">
+                        <label for="role-entry" class="role-label" data-i18n="roleEntry">Entry</label>
+                        <input type="radio" name="role-level" id="role-mid" class="role-radio" value="mid" checked>
+                        <label for="role-mid" class="role-label" data-i18n="roleMid">Mid</label>
+                        <input type="radio" name="role-level" id="role-senior" class="role-radio" value="senior">
+                        <label for="role-senior" class="role-label" data-i18n="roleSenior">Senior</label>
+                        <input type="radio" name="role-level" id="role-lead" class="role-radio" value="lead">
+                        <label for="role-lead" class="role-label" data-i18n="roleLead">Lead</label>
+                        <input type="radio" name="role-level" id="role-exec" class="role-radio" value="exec">
+                        <label for="role-exec" class="role-label" data-i18n="roleExec">C-Suite</label>
+                      </div>
                     </div>
-                    <div class="bar-track">
-                      <div class="bar-fill"></div>
+                    <div class="customize-field">
+                      <label data-i18n="industryLabel">Industry Focus</label>
+                      <select id="industry-select">
+                        <option value="tech" data-i18n="industryTech">Technology</option>
+                        <option value="finance" data-i18n="industryFinance">Finance</option>
+                        <option value="health" data-i18n="industryHealth">Healthcare</option>
+                        <option value="marketing" data-i18n="industryMarketing">Marketing</option>
+                        <option value="education" data-i18n="industryEducation">Education</option>
+                        <option value="design" data-i18n="industryDesign">Design / Creative</option>
+                        <option value="data" data-i18n="industryData">Data Science / AI</option>
+                        <option value="other" data-i18n="industryOther">Other</option>
+                      </select>
                     </div>
-                  </div>
-                  <div class="score-bar-row" id="bar-exp">
-                    <div class="bar-meta"><span data-i18n="barExp">Experience Fit</span><span class="bar-num">—</span>
+                    <div class="customize-field">
+                      <label data-i18n="prioritySkillsLabel">Priority Skills</label>
+                      <input type="text" id="priority-skills-input" data-i18n="prioritySkillsPlaceholder" placeholder="e.g. React, Docker, Python" />
                     </div>
-                    <div class="bar-track">
-                      <div class="bar-fill"></div>
+                    <div class="customize-field">
+                      <label>Target Role (Optional)</label>
+                      <input type="text" id="target-role-input" placeholder="e.g. Senior Frontend Engineer" />
                     </div>
-                  </div>
-                  <div class="score-bar-row" id="bar-edu">
-                    <div class="bar-meta"><span>Education Fit</span><span class="bar-num">—</span></div>
-                    <div class="bar-track">
-                      <div class="bar-fill"></div>
-                    </div>
-                  </div>
-                  <div class="score-bar-row" id="bar-project">
-                    <div class="bar-meta"><span>Project Relevance</span><span class="bar-num">—</span></div>
-                    <div class="bar-track">
-                      <div class="bar-fill"></div>
-                    </div>
-                  </div>
-                  <div class="score-bar-row" id="bar-domain">
-                    <div class="bar-meta"><span data-i18n="barDomain">Domain Alignment</span><span
-                        class="bar-num">—</span></div>
-                    <div class="bar-track">
-                      <div class="bar-fill"></div>
-                    </div>
-                  </div>
-                  <div class="score-bar-row" id="bar-ats">
-                    <div class="bar-meta"><span data-i18n="barATS">ATS Keywords</span><span class="bar-num">—</span>
-                    </div>
-                    <div class="bar-track">
-                      <div class="bar-fill"></div>
+                    <div class="customize-field">
+                      <label>Target Company (Optional)</label>
+                      <input type="text" id="target-company-input" placeholder="e.g. Google, Swiggy, Startup" />
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="exp-info-box" id="exp-info"></div>
             </div>
 
-            <!-- ===== MODULE 2 (PART A): SKILLS BREAKDOWN CARD ===== -->
-            <div class="result-card" id="skills">
-              <div class="card-header">
-                <div class="card-icon green-bg">🧬</div>
-                <div>
-                  <h3 data-i18n="skillsTitle">Skill Breakdown</h3>
-                  <p data-i18n="skillsSubtitle">How your skills compare with the job requirements</p>
-                </div>
+            <div class="wizard-actions">
+              <button type="button" class="btn-secondary" onclick="goToWizardStep(1)">← Back to Resume</button>
+              <button type="button" class="btn-secondary" onclick="skipJdAndAnalyze()" data-i18n="btnSkipJD">Skip &amp; Analyze Resume Only</button>
+              <button type="button" class="btn-primary" onclick="proceedFromStep2()">
+                <span data-i18n="btnNextStep3">Next: Run Analysis →</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- WIZARD STEP 3: ANALYZE & RESULTS -->
+        <div class="wizard-panel hidden" id="wiz-panel-3">
+          <!-- Action Bar -->
+          <div class="action-bar-card">
+            <div class="abc-info">
+              <div class="abc-icon">🔍</div>
+              <div>
+                <h3 data-i18n="wizStep3Header">Step 3: Ready to Analyze</h3>
+                <p data-i18n="wizStep3Sub">Our deterministic engine will scan your resume for skills, formatting, and clarity.</p>
               </div>
-              <div class="skill-summary-row">
-                <div class="skill-stat green"><strong id="strong-count">—</strong><span>✅ <span
-                      data-i18n="strongCount">Matched</span></span></div>
-                <div class="skill-stat yellow"><strong id="partial-count">—</strong><span>⚠️ <span
-                      data-i18n="partialCount">Partial</span></span></div>
-                <div class="skill-stat red"><strong id="missing-count">—</strong><span>❌ <span
-                      data-i18n="missingCount">Missing</span></span></div>
+            </div>
+            <div class="abc-buttons">
+              <button type="button" class="btn-primary" id="analyze-btn">
+                <span>🔍</span> <span data-i18n="btnRunAnalysis">Run Resume Analysis</span>
+              </button>
+              <button type="button" class="btn-secondary" id="clear-btn" data-i18n="btnClearAll">🗑 Clear</button>
+              <button type="button" class="btn-secondary" onclick="goToWizardStep(1)">✎ Edit Inputs</button>
+            </div>
+          </div>
+
+          <!-- RESULTS DASHBOARD -->
+          <section id="results-section" class="results-dashboard-container hidden">
+            <!-- Results Header -->
+            <div class="results-header-banner">
+              <div>
+                <h2 class="results-title" data-i18n="resultsHeaderTitle">Resume Analysis Results</h2>
+                <p class="results-sub" data-i18n="resultsHeaderSub">Transparent, rule-based compatibility evaluation for your resume.</p>
               </div>
-              <div class="tabs-container">
-                <div class="tabs">
-                  <button class="tab-btn active" data-tab="tab-matched" data-i18n="tabMatched">✅ Matched</button>
-                  <button class="tab-btn" data-tab="tab-partial" data-i18n="tabPartial">⚠️ Partial</button>
-                  <button class="tab-btn" data-tab="tab-missing" data-i18n="tabMissing">❌ Missing</button>
-                  <button class="tab-btn" data-tab="tab-extra" data-i18n="tabBonus">⭐ Bonus</button>
-                </div>
-                <div class="tab-panel active" id="tab-matched">
-                  <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px">Skills found in both your resume
-                    and the job description:</p>
-                  <div class="pills-grid" id="strong-skills-list"></div>
-                </div>
-                <div class="tab-panel" id="tab-partial">
-                  <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px">Related skills that partially
-                    match
-                    — highlight these better:</p>
-                  <div class="pills-grid" id="partial-skills-list"></div>
-                </div>
-                <div class="tab-panel" id="tab-missing">
-                  <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px">JD skills not found in your
-                    resume
-                    — learn or add them:</p>
-                  <div class="pills-grid" id="missing-skills-list"></div>
-                </div>
-                <div class="tab-panel" id="tab-extra">
-                  <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px">Extra skills that can
-                    differentiate
-                    you from other candidates:</p>
-                  <div class="pills-grid" id="extra-skills-list"></div>
-                </div>
+              <div class="results-top-actions">
+                <button type="button" class="btn-download" id="download-btn">
+                  📥 <span data-i18n="btnDownloadReport">Download Report</span>
+                </button>
+                <button type="button" class="btn-primary" onclick="openActiveResumeInStudio()" data-i18n="btnOpenStudio">
+                  ✨ Improve in Studio →
+                </button>
               </div>
             </div>
 
-            <!-- ===== MODULE 1 (PART B): STRENGTHS & WEAKNESSES ===== -->
-            <div class="result-card" id="strengths-section">
-              <div class="card-header">
-                <div class="card-icon yellow-bg">🏆</div>
-                <div>
-                  <h3>Strengths &amp; Improvement Areas</h3>
-                  <p>Your top 3 strengths and 3 areas needing work</p>
-                </div>
-              </div>
-              <div id="strengths-weaknesses"></div>
-            </div>
-
-            <!-- ===== MODULE 2 (PART B): SKILLS GAP & PRIORITY ===== -->
-            <div class="result-card" id="skills-gap-section">
-              <div class="card-header">
-                <div class="card-icon red-bg">🎯</div>
-                <div>
-                  <h3>Skills Gap &amp; Priority Analysis</h3>
-                  <p>Missing skills ranked by importance to this job</p>
-                </div>
-              </div>
-              <div id="skills-gap-container"></div>
-            </div>
-
-            <!-- ===== MODULE 9: VERDICT CARD ===== -->
-            <div class="result-card" id="verdict">
-              <div class="card-header">
-                <div class="card-icon green-bg">✅</div>
-                <div>
-                  <h3 data-i18n="verdictTitle">Final Verdict</h3>
-                  <p data-i18n="verdictSubtitle">Your overall readiness for this role</p>
-                </div>
-              </div>
-              <div id="verdict-badge" class="verdict-badge verdict-improve">
-                <span class="verdict-icon">⏳</span>
-                <div>
-                  <div class="verdict-title">Analyzing...</div>
-                  <div class="verdict-sub">Results will appear here.</div>
-                </div>
-              </div>
-              <!-- Immediate Next Actions -->
-              <div style="margin-top:24px">
-                <h4 style="font-size:14px;font-weight:700;margin-bottom:14px;color:var(--cyan-light)">⚡ Immediate Next
-                  Actions</h4>
-                <div id="next-actions-container"></div>
+            <!-- Honest Score Disclaimer Notice -->
+            <div class="score-disclaimer-card" role="note">
+              <span class="sd-icon">ℹ️</span>
+              <div class="sd-body">
+                <strong>Estimated Compatibility Indicator:</strong>
+                <p data-i18n="scoreDisclaimer">This score is an estimated resume compatibility and quality indicator based on keyword, skill, and structure rules. It does not represent hiring probability or guarantee an employer's decision.</p>
+                <span class="score-weights-text">Rule Breakdown: Skills 40% · Experience 20% · Domain 15% · Soft Skills 15% · ATS Keywords 10%</span>
               </div>
             </div>
 
-            <!-- ===== MODULE 5: RESUME IMPROVEMENT TIPS ===== -->
-            <div class="result-card" id="resume-tips">
-              <div class="card-header">
-                <div class="card-icon cyan-bg">🛠</div>
-                <div>
-                  <h3 data-i18n="tipsTitle">Resume Improvement Tips</h3>
-                  <p data-i18n="tipsSubtitle">Personalized suggestions to increase your match score</p>
-                </div>
-              </div>
-              <div id="tips-container"></div>
+            <!-- Central 10-Point Career Alignment Engine Report Container -->
+            <div id="career-alignment-report-container" style="margin-bottom:24px;"></div>
+
+            <!-- Results Sub-Navigation Tabs -->
+            <div class="results-tabs-nav">
+              <button type="button" class="rtab-btn active" data-rtab="rtab-overview" data-i18n="tabOverview">⚡ Overview</button>
+              <button type="button" class="rtab-btn" data-rtab="rtab-skills" data-i18n="tabSkills">🧬 Skills Found</button>
+              <button type="button" class="rtab-btn" data-rtab="rtab-action-plan" data-i18n="tabActionPlan">📅 Skill Gap Roadmap</button>
+              <button type="button" class="rtab-btn" data-rtab="rtab-interview-ready" data-i18n="tabInterviewReady">🎤 Interview Ready</button>
+              <button type="button" class="rtab-btn" data-rtab="rtab-ats" data-i18n="tabATS">🤖 ATS Compatibility</button>
+              <button type="button" class="rtab-btn" data-rtab="rtab-structure" data-i18n="tabStructure">📋 Resume Structure</button>
+              <button type="button" class="rtab-btn" data-rtab="rtab-roadmap" data-i18n="tabRoadmap">🚀 Growth &amp; Career</button>
             </div>
 
-            <!-- ===== MODULE 4: COMPANY & ROLE OPTIMIZATION ===== -->
-            <div class="result-card" id="company-opt-section">
-              <div class="card-header">
-                <div class="card-icon pink-bg">🏢</div>
-                <div>
-                  <h3>Company &amp; Role-Specific Optimization</h3>
-                  <p>Resume tone, structure, and content aligned to your target company</p>
-                </div>
-              </div>
-              <div id="company-opt-container"></div>
-            </div>
-
-            <!-- ===== MODULE 6: CAREER ROADMAP (3 PHASES) ===== -->
-            <div class="result-card" id="career-roadmap">
-              <div class="card-header">
-                <div class="card-icon pink-bg">🚀</div>
-                <div>
-                  <h3 data-i18n="roadmapTitle">Career Growth Roadmap</h3>
-                  <p data-i18n="roadmapSubtitle">Your 12-month plan to reach the next level</p>
-                </div>
-              </div>
-
-              <!-- Next Roles -->
-              <div style="margin-bottom:24px">
-                <h4
-                  style="font-size:13px;font-weight:700;color:var(--text-muted);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:12px">
-                  🚀 Possible Next Roles for You</h4>
-                <div id="next-roles-list" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
-              </div>
-
-              <!-- 3-Phase Roadmap Tabs -->
-              <div class="tabs-container">
-                <div class="tabs">
-                  <button class="tab-btn active" data-tab="roadmap-tab-1">⚡ 0–3 Months</button>
-                  <button class="tab-btn" data-tab="roadmap-tab-2">🌱 3–6 Months</button>
-                  <button class="tab-btn" data-tab="roadmap-tab-3">🌟 6–12 Months</button>
-                </div>
-                <div class="tab-panel active" id="roadmap-tab-1">
-                  <div id="phase1-list"></div>
-                </div>
-                <div class="tab-panel" id="roadmap-tab-2">
-                  <div id="phase2-list"></div>
-                </div>
-                <div class="tab-panel" id="roadmap-tab-3">
-                  <div id="phase3-list"></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- ===== MODULE 3: ATS ANALYSIS ===== -->
-            <div class="result-card" id="ats-analysis">
-              <div class="card-header">
-                <div class="card-icon red-bg">🤖</div>
-                <div>
-                  <h3 data-i18n="atsTitle">ATS Compatibility &amp; Keyword Analysis</h3>
-                  <p data-i18n="atsSubtitle">Simulated ATS scan · Green = found · Red = missing</p>
-                </div>
-              </div>
-              <!-- ATS Pass/Fail + Format risks + Tips -->
-              <div id="ats-analysis-container"></div>
-              <!-- Keyword Pills -->
-              <div style="margin-top:20px">
-                <h4
-                  style="font-size:13px;font-weight:700;color:var(--text-muted);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:12px">
-                  📋 Top JD Keywords</h4>
-                <div class="ats-legend">
-                  <div class="legend-item">
-                    <div class="legend-dot found"></div><span data-i18n="atsLegendFound">Found in your resume</span>
+            <!-- TAB 1: OVERVIEW -->
+            <div class="rtab-panel active" id="rtab-overview">
+              <div class="overview-grid">
+                <!-- TL;DR Summary Card -->
+                <div class="result-card tldr-card">
+                  <div class="card-header">
+                    <div class="card-icon green-bg">⚡</div>
+                    <div>
+                      <h3>Quick Summary</h3>
+                      <p>Your analysis at a glance</p>
+                    </div>
                   </div>
-                  <div class="legend-item">
-                    <div class="legend-dot missing"></div><span data-i18n="atsLegendMissing">Missing — add these!</span>
+                  <div id="tldr-container"></div>
+                </div>
+
+                <!-- Primary Score Ring & 6 Breakdown Bars -->
+                <div class="result-card" id="match-score">
+                  <div class="card-header">
+                    <div class="card-icon purple-bg">📊</div>
+                    <div>
+                      <h3 data-i18n="scoreTitle">Resume Compatibility Score</h3>
+                      <p data-i18n="scoreSubtitle">Estimated alignment based on skills, experience, and keywords</p>
+                    </div>
+                  </div>
+                  <div class="score-display">
+                    <div class="score-ring-wrap">
+                      <svg width="140" height="140" viewBox="0 0 140 140" aria-label="Score ring">
+                        <circle cx="70" cy="70" r="54" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="12" />
+                        <circle cx="70" cy="70" r="54" fill="none" stroke="#d97706" stroke-width="12" stroke-linecap="round"
+                          id="score-ring-circle" style="stroke-dasharray:339.29;stroke-dashoffset:339.29;" />
+                      </svg>
+                      <div class="score-text-overlay">
+                        <span class="score-number" id="score-number">0%</span>
+                        <span id="score-label">Analyzing...</span>
+                      </div>
+                    </div>
+                    <div class="score-bars">
+                      <div class="score-bar-row" id="bar-skills">
+                        <div class="bar-meta"><span data-i18n="barSkills">Skills Match</span><span class="bar-num">—</span></div>
+                        <div class="bar-track"><div class="bar-fill"></div></div>
+                      </div>
+                      <div class="score-bar-row" id="bar-exp">
+                        <div class="bar-meta"><span data-i18n="barExp">Experience Fit</span><span class="bar-num">—</span></div>
+                        <div class="bar-track"><div class="bar-fill"></div></div>
+                      </div>
+                      <div class="score-bar-row" id="bar-edu">
+                        <div class="bar-meta"><span>Education Fit</span><span class="bar-num">—</span></div>
+                        <div class="bar-track"><div class="bar-fill"></div></div>
+                      </div>
+                      <div class="score-bar-row" id="bar-project">
+                        <div class="bar-meta"><span>Project Relevance</span><span class="bar-num">—</span></div>
+                        <div class="bar-track"><div class="bar-fill"></div></div>
+                      </div>
+                      <div class="score-bar-row" id="bar-domain">
+                        <div class="bar-meta"><span data-i18n="barDomain">Domain Alignment</span><span class="bar-num">—</span></div>
+                        <div class="bar-track"><div class="bar-fill"></div></div>
+                      </div>
+                      <div class="score-bar-row" id="bar-ats">
+                        <div class="bar-meta"><span data-i18n="barATS">ATS Keywords</span><span class="bar-num">—</span></div>
+                        <div class="bar-track"><div class="bar-fill"></div></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="exp-info-box" id="exp-info"></div>
+                  <div id="transparent-breakdown-container" class="transparent-breakdown-card"></div>
+                </div>
+
+                <!-- Final Verdict & Immediate Next Actions -->
+                <div class="result-card" id="verdict">
+                  <div class="card-header">
+                    <div class="card-icon green-bg">✅</div>
+                    <div>
+                      <h3 data-i18n="verdictTitle">Final Verdict</h3>
+                      <p data-i18n="verdictSubtitle">Your overall readiness for this role</p>
+                    </div>
+                  </div>
+                  <div id="verdict-badge" class="verdict-badge verdict-improve">
+                    <span class="verdict-icon">⏳</span>
+                    <div>
+                      <div class="verdict-title">Ready</div>
+                      <div class="verdict-sub">Review details below.</div>
+                    </div>
+                  </div>
+                  <div style="margin-top:20px">
+                    <h4 style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--cyan-light)">⚡ Recommended Next Actions</h4>
+                    <div id="next-actions-container"></div>
                   </div>
                 </div>
-                <div id="ats-keywords"></div>
-              </div>
-            </div>
 
-            <!-- ===== MODULE 7: INTERVIEW PREPARATION ===== -->
-            <div class="result-card" id="interview-section">
-              <div class="card-header">
-                <div class="card-icon purple-bg">💬</div>
-                <div>
-                  <h3>Interview Preparation Insights</h3>
-                  <p>Role-specific questions predicted from your resume &amp; JD</p>
-                </div>
-              </div>
-              <div id="interview-container"></div>
-            </div>
-
-            <!-- ===== MODULE 8: VIDEO RESUME & SOFT SKILLS ===== -->
-            <div class="result-card" id="video-resume">
-              <div class="card-header">
-                <div class="card-icon purple-bg">📹</div>
-                <div>
-                  <h3 data-i18n="videoTitle">Video Resume &amp; Soft Skills</h3>
-                  <p data-i18n="videoSubtitle">How to present yourself + soft skills coaching</p>
-                </div>
-              </div>
-              <!-- Soft Skills Tips (rendered by JS) -->
-              <div id="soft-skills-container"></div>
-              <!-- Video Recording Section -->
-              <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
-                <h4 style="font-size:14px;font-weight:700;margin-bottom:16px;color:var(--cyan-light)">🎬 Record Your
-                  60-Second Video Resume</h4>
-                <video id="video-player" controls></video>
-                <div class="video-upload-zone">
-                  <div id="video-placeholder">
-                    <div class="video-emoji">🎬</div>
-                    <p>Upload a video or record directly from your webcam</p>
+                <!-- Top Strengths & Top Weaknesses -->
+                <div class="result-card" id="strengths-section">
+                  <div class="card-header">
+                    <div class="card-icon yellow-bg">🏆</div>
+                    <div>
+                      <h3>Top Strengths &amp; Improvement Areas</h3>
+                      <p>Key highlights and what needs immediate attention</p>
+                    </div>
                   </div>
-                  <div class="video-actions">
-                    <label class="btn-video btn-video-upload">
-                      <span data-i18n="videoUploadBtn">📂 Upload Video</span>
-                      <input type="file" id="video-upload-input" accept="video/*" style="display:none" />
-                    </label>
-                    <button class="btn-video btn-video-record" id="video-record-btn" data-i18n="videoRecordBtn">🔴
-                      Record
-                      Now</button>
+                  <div id="strengths-weaknesses"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB 2: SKILLS FOUND -->
+            <div class="rtab-panel hidden" id="rtab-skills">
+              <div class="result-card" id="skills">
+                <div class="card-header">
+                  <div class="card-icon green-bg">🧬</div>
+                  <div>
+                    <h3 data-i18n="skillsTitle">Skill Breakdown</h3>
+                    <p data-i18n="skillsSubtitle">How your skills compare with the job requirements</p>
                   </div>
                 </div>
-                <div id="video-info"></div>
-                <div class="video-tip" data-i18n="videoTip">
-                  💡 Tip: Introduce yourself, mention your top 3 skills, and why you're excited about this role!
+                <div class="skill-summary-row">
+                  <div class="skill-stat green"><strong id="strong-count">—</strong><span>✅ <span data-i18n="strongCount">Matched</span></span></div>
+                  <div class="skill-stat yellow"><strong id="partial-count">—</strong><span>⚠️ <span data-i18n="partialCount">Partial</span></span></div>
+                  <div class="skill-stat red"><strong id="missing-count">—</strong><span>❌ <span data-i18n="missingCount">Missing</span></span></div>
+                </div>
+                <div class="tabs-container">
+                  <div class="tabs">
+                    <button type="button" class="tab-btn active" data-tab="tab-matched" data-i18n="tabMatched">✅ Matched</button>
+                    <button type="button" class="tab-btn" data-tab="tab-partial" data-i18n="tabPartial">⚠️ Partial / Related</button>
+                    <button type="button" class="tab-btn" data-tab="tab-missing" data-i18n="tabMissing">❌ Missing</button>
+                    <button type="button" class="tab-btn" data-tab="tab-extra" data-i18n="tabBonus">⭐ Bonus</button>
+                  </div>
+                  <div class="tab-panel active" id="tab-matched">
+                    <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px">Skills found in your resume that match the job description (Exact &amp; Similar Names):</p>
+                    <div class="pills-grid" id="strong-skills-list"></div>
+                  </div>
+                  <div class="tab-panel" id="tab-partial">
+                    <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px">Related ecosystem skills that provide partial alignment:</p>
+                    <div class="pills-grid" id="partial-skills-list"></div>
+                  </div>
+                  <div class="tab-panel" id="tab-missing">
+                    <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px">Job skills not detected in your resume:</p>
+                    <div class="pills-grid" id="missing-skills-list"></div>
+                  </div>
+                  <div class="tab-panel" id="tab-extra">
+                    <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px">Extra skills on your resume that differentiate you:</p>
+                    <div class="pills-grid" id="extra-skills-list"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Skills Gap & Priority Ranking -->
+              <div class="result-card" id="skills-gap-section">
+                <div class="card-header">
+                  <div class="card-icon red-bg">🎯</div>
+                  <div>
+                    <h3>Skills Gap &amp; Priority Ranking</h3>
+                    <p>Missing skills ranked by relevance and importance</p>
+                  </div>
+                </div>
+                <div id="skills-gap-container"></div>
+              </div>
+            </div>
+
+            <!-- TAB: SKILL GAP ACTION PLAN -->
+            <div class="rtab-panel hidden" id="rtab-action-plan">
+              <div class="result-card" id="action-plan-card">
+                <div class="card-header">
+                  <div class="card-icon cyan-bg">📅</div>
+                  <div>
+                    <h3>Personalized Skill Gap Roadmaps</h3>
+                    <p>Practical, day-by-day 5-day learning plans with exercises and starter resources to bridge your missing skills.</p>
+                  </div>
+                </div>
+                <div id="action-plan-container"></div>
+              </div>
+            </div>
+
+            <!-- TAB: INTERVIEW READY PREPARATION -->
+            <div class="rtab-panel hidden" id="rtab-interview-ready">
+              <div class="result-card" id="interview-ready-card">
+                <div class="card-header">
+                  <div class="card-icon purple-bg">🎤</div>
+                  <div>
+                    <h3>Interview Ready Preparation</h3>
+                    <p>Tailored technical, project-based, resume ownership, and STAR behavioral questions for your target role.</p>
+                  </div>
+                </div>
+                <div id="interview-ready-container"></div>
+              </div>
+            </div>
+
+            <!-- TAB 3: ATS COMPATIBILITY -->
+            <div class="rtab-panel hidden" id="rtab-ats">
+              <div class="result-card" id="ats-analysis">
+                <div class="card-header">
+                  <div class="card-icon red-bg">🤖</div>
+                  <div>
+                    <h3 data-i18n="atsTitle">Estimated ATS Compatibility</h3>
+                    <p data-i18n="atsExplain">Simulated ATS scan based on structure, formatting, and keyword density.</p>
+                  </div>
+                </div>
+                <div id="ats-analysis-container"></div>
+                <div style="margin-top:24px">
+                  <h4 style="font-size:13px;font-weight:700;color:var(--text-muted);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:12px">
+                    📋 Top Target Keywords
+                  </h4>
+                  <div class="ats-legend">
+                    <div class="legend-item"><div class="legend-dot found"></div><span>Found in resume</span></div>
+                    <div class="legend-item"><div class="legend-dot missing"></div><span>Missing — consider adding</span></div>
+                  </div>
+                  <div id="ats-keywords"></div>
                 </div>
               </div>
             </div>
 
-            <!-- ===== FEEDBACK & RATING CARD ===== -->
-            <div class="result-card" id="feedback-section">
-              <div class="card-header">
-                <div class="card-icon yellow-bg">⭐</div>
-                <div>
-                  <h3 data-i18n="feedbackTitle">Rate This Analysis</h3>
-                  <p data-i18n="feedbackSubtitle">Help us improve! How accurate was this analysis?</p>
+            <!-- TAB 4: RESUME STRUCTURE -->
+            <div class="rtab-panel hidden" id="rtab-structure">
+              <!-- JD Requirement Tiers -->
+              <div class="result-card" id="jd-requirements-card">
+                <div class="card-header">
+                  <div class="card-icon blue-bg">📋</div>
+                  <div>
+                    <h3>Job Description Requirement Tiers</h3>
+                    <p>Categorized into Must-Have, Preferred, Qualifications &amp; Responsibilities</p>
+                  </div>
                 </div>
-              </div>
-              <div class="feedback-stats">
-                <span id="feedback-count">0 ratings so far</span>
-                <span id="feedback-avg"></span>
+                <div id="jd-requirements-container"></div>
               </div>
 
-              <div id="feedback-form">
-                <div class="star-row">
-                  <button class="star-btn" data-value="1">⭐</button>
-                  <button class="star-btn" data-value="2">⭐</button>
-                  <button class="star-btn" data-value="3">⭐</button>
-                  <button class="star-btn" data-value="4">⭐</button>
-                  <button class="star-btn" data-value="5">⭐</button>
+              <!-- Resume Tips -->
+              <div class="result-card" id="resume-tips">
+                <div class="card-header">
+                  <div class="card-icon cyan-bg">🛠</div>
+                  <div>
+                    <h3 data-i18n="tipsTitle">Resume Improvement Tips</h3>
+                    <p data-i18n="tipsSubtitle">Personalized suggestions to increase your match score</p>
+                  </div>
                 </div>
-                <textarea class="feedback-textarea" id="feedback-text" data-i18n="feedbackPlaceholder"
-                  placeholder="Any comments or suggestions? (optional)"></textarea>
-                <button class="btn-feedback-submit" id="feedback-submit-btn" data-i18n="feedbackSubmit">Submit
-                  Feedback</button>
+                <div id="tips-container"></div>
               </div>
 
-              <div id="feedback-thanks">
-                <div class="thanks-icon">🙏</div>
-                <p data-i18n="feedbackThanks">Thanks for your feedback!</p>
+              <!-- Company & Role Optimization -->
+              <div class="result-card" id="company-opt-section">
+                <div class="card-header">
+                  <div class="card-icon pink-bg">🏢</div>
+                  <div>
+                    <h3>Company &amp; Role-Specific Optimization</h3>
+                    <p>Resume tone, structure, and content aligned to your target company</p>
+                  </div>
+                </div>
+                <div id="company-opt-container"></div>
               </div>
             </div>
 
-          </div><!-- /.results-grid -->
-        </div><!-- /.main-content -->
+            <!-- TAB 5: GROWTH & INTERVIEW -->
+            <div class="rtab-panel hidden" id="rtab-roadmap">
+              <!-- Career Growth Roadmap -->
+              <div class="result-card" id="career-roadmap">
+                <div class="card-header">
+                  <div class="card-icon pink-bg">🚀</div>
+                  <div>
+                    <h3 data-i18n="roadmapTitle">Career Growth Roadmap</h3>
+                    <p data-i18n="roadmapSubtitle">Your 12-month action plan to reach the next tier</p>
+                  </div>
+                </div>
+                <div style="margin-bottom:20px">
+                  <h4 style="font-size:13px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px">🚀 Target Trajectory Roles</h4>
+                  <div id="next-roles-list" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+                </div>
+                <div class="tabs-container">
+                  <div class="tabs">
+                    <button type="button" class="tab-btn active" data-tab="roadmap-tab-1">⚡ 0–3 Months</button>
+                    <button type="button" class="tab-btn" data-tab="roadmap-tab-2">🌱 3–6 Months</button>
+                    <button type="button" class="tab-btn" data-tab="roadmap-tab-3">🌟 6–12 Months</button>
+                  </div>
+                  <div class="tab-panel active" id="roadmap-tab-1"><div id="phase1-list"></div></div>
+                  <div class="tab-panel" id="roadmap-tab-2"><div id="phase2-list"></div></div>
+                  <div class="tab-panel" id="roadmap-tab-3"><div id="phase3-list"></div></div>
+                </div>
+              </div>
+
+              <!-- Interview Preparation Questions -->
+              <div class="result-card" id="interview-section">
+                <div class="card-header">
+                  <div class="card-icon purple-bg">💬</div>
+                  <div>
+                    <h3>Interview Preparation Questions</h3>
+                    <p>Predicted technical and scenario questions based on your resume and target JD</p>
+                  </div>
+                </div>
+                <div id="interview-container"></div>
+              </div>
+
+              <!-- Video Resume & Soft Skills Coaching -->
+              <div class="result-card" id="video-resume">
+                <div class="card-header">
+                  <div class="card-icon purple-bg">📹</div>
+                  <div>
+                    <h3 data-i18n="videoTitle">Video Pitch &amp; Soft Skills</h3>
+                    <p data-i18n="videoSubtitle">Practice your 60-second introduction pitch</p>
+                  </div>
+                </div>
+                <div id="soft-skills-container"></div>
+                <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+                  <h4 style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--cyan-light)">🎬 Practice Your Pitch via Webcam</h4>
+                  <video id="video-player" controls style="display:none;width:100%;max-height:280px;border-radius:12px;margin-bottom:12px;background:#000"></video>
+                  <div class="video-upload-zone">
+                    <div id="video-placeholder">
+                      <div class="video-emoji">🎬</div>
+                      <p>Record a video introduction directly in your browser</p>
+                    </div>
+                    <div class="video-actions">
+                      <label class="btn-video btn-video-upload">
+                        <span data-i18n="videoUploadBtn">📂 Upload Video</span>
+                        <input type="file" id="video-upload-input" accept="video/*" style="display:none" />
+                      </label>
+                      <button type="button" class="btn-video btn-video-record" id="video-record-btn" data-i18n="videoRecordBtn">🔴 Record Now</button>
+                    </div>
+                  </div>
+                  <div id="video-info"></div>
+                  <div class="video-tip" data-i18n="videoTip">💡 Tip: Introduce yourself, mention your top 3 skills, and why you're excited about this role!</div>
+                </div>
+              </div>
+
+              <!-- Rating / Feedback Card -->
+              <div class="result-card" id="feedback-section">
+                <div class="card-header">
+                  <div class="card-icon yellow-bg">⭐</div>
+                  <div>
+                    <h3 data-i18n="feedbackTitle">Rate This Analysis</h3>
+                    <p data-i18n="feedbackSubtitle">Help us improve! How accurate was this analysis?</p>
+                  </div>
+                </div>
+                <div class="feedback-stats">
+                  <span id="feedback-count">0 ratings so far</span>
+                  <span id="feedback-avg"></span>
+                </div>
+                <div id="feedback-form">
+                  <div class="star-row">
+                    <button type="button" class="star-btn" data-value="1">⭐</button>
+                    <button type="button" class="star-btn" data-value="2">⭐</button>
+                    <button type="button" class="star-btn" data-value="3">⭐</button>
+                    <button type="button" class="star-btn" data-value="4">⭐</button>
+                    <button type="button" class="star-btn" data-value="5">⭐</button>
+                  </div>
+                  <textarea class="feedback-textarea" id="feedback-text" data-i18n="feedbackPlaceholder"
+                    placeholder="Any comments or suggestions? (optional)"></textarea>
+                  <button type="button" class="btn-feedback-submit" id="feedback-submit-btn" data-i18n="feedbackSubmit">Submit Feedback</button>
+                </div>
+                <div id="feedback-thanks" style="display:none">
+                  <div class="thanks-icon">🙏</div>
+                  <p data-i18n="feedbackThanks">Thanks for your feedback!</p>
+                </div>
+              </div>
+            </div>
+
+          </section>
+        </div>
       </section>
 
-    </div><!-- /#matcher-tool-panel -->
+      <!-- ========================================================= -->
+      <!-- VIEW 3: JOB MATCH -->
+      <!-- ========================================================= -->
+      <section class="page-view hidden" id="view-job-match">
+        <div class="view-header">
+          <h1 class="view-title" data-i18n="jmTitle">Match Resume With a Job</h1>
+          <p class="view-subtitle" data-i18n="jmSubtitle">See exactly how well your resume matches any specific job posting with transparent match reasons.</p>
+        </div>
 
-    <!-- ===== CAREER RISK TOOL PANEL ===== -->
-    <div id="risk-tool-panel" class="hidden">
+        <div class="job-match-layout">
+          <div class="jm-input-card">
+            <div class="jm-field">
+              <label for="jm-resume-select" class="textarea-label" data-i18n="jmSelectResume">Select Resume:</label>
+              <select id="jm-resume-select" class="styled-select" onchange="handleJobMatchResumeSelect(this.value)">
+                <option value="active">Active Resume (Current Session)</option>
+                <!-- Filled dynamically from Resume Versions -->
+              </select>
+            </div>
 
-      <!-- ===== CAREER RISK INTELLIGENCE SECTION ===== -->
-      <section id="career-risk-section" class="career-risk-section">
-        <div class="career-risk-header">
-          <div class="career-risk-eyebrow">🛡 NEW MODULE</div>
-          <h2>⚠️ AI Career Risk <span class="grad">Intelligence System</span></h2>
-          <p>Predict long-term career stagnation risk based on skill trends, learning patterns, and market alignment.
-            Get
-            early warning signals and actionable recovery strategies.</p>
+            <div class="jm-field">
+              <label for="jm-jd-input" class="textarea-label" data-i18n="jmPasteJD">Paste Job Description:</label>
+              <textarea id="jm-jd-input" class="styled-textarea" rows="8" placeholder="Paste requirements and responsibilities from LinkedIn, Indeed, or company job post..."></textarea>
+            </div>
+
+            <div class="jm-actions">
+              <button type="button" class="btn-primary" onclick="runJobMatchFromDedicatedPage()">
+                <span>🎯</span> <span data-i18n="jmBtnAnalyze">Analyze Job Match</span>
+              </button>
+              <button type="button" class="btn-secondary" onclick="loadSampleJdIntoJobMatch()">🧪 Load Sample JD</button>
+            </div>
+          </div>
+
+          <!-- Job Match Results Container -->
+          <div id="jm-results-container" class="jm-results-container hidden">
+            <!-- Rendered by UI.renderJobMatchResults -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================= -->
+      <!-- VIEW 4: RESUME STUDIO -->
+      <!-- ========================================================= -->
+      <section class="page-view hidden" id="view-studio">
+        <div class="view-header">
+          <h1 class="view-title" data-i18n="studioTitle">Resume Quality Studio</h1>
+          <p class="view-subtitle" data-i18n="studioSubtitle">Refine bullet points, check grammar, review AI writing signals, and humanize phrasing with strict fact preservation.</p>
+        </div>
+
+        <!-- Privacy Callout -->
+        <div class="privacy-callout-box">
+          🛡️ <strong>100% Client-Side Studio:</strong> All grammar checks, stylistic heuristics, and sentence humanization algorithms execute inside your browser. No resume text is uploaded to any external server.
+        </div>
+
+        <div class="studio-workspace-card">
+          <!-- Studio Sub-Navigation Tabs -->
+          <div class="studio-subtabs-nav">
+            <button type="button" class="sstab-btn active" data-action="improve" id="sstab-improve" data-i18n="subtabImprove">✨ Improve Resume</button>
+            <button type="button" class="sstab-btn" data-action="grammar" id="sstab-grammar" data-i18n="subtabGrammar">📝 Grammar Check</button>
+            <button type="button" class="sstab-btn" data-action="ai" id="sstab-ai" data-i18n="subtabAISignals">🤖 AI Writing Signals</button>
+            <button type="button" class="sstab-btn" data-action="humanize" id="sstab-humanize" data-i18n="subtabHumanize">👤 Humanize Resume</button>
+            <button type="button" class="sstab-btn" data-action="compare" id="sstab-compare" data-i18n="subtabCompare">↔ Before &amp; After</button>
+          </div>
+
+          <!-- Studio Toolbar Controls -->
+          <div class="studio-toolbar">
+            <div class="studio-mode-group">
+              <span class="mode-label" data-i18n="humanizeModeLabel">Humanize Tone:</span>
+              <div class="mode-pills" id="humanize-mode-pills">
+                <button type="button" class="mode-pill active" data-mode="professional" data-i18n="modeProfessional">Professional</button>
+                <button type="button" class="mode-pill" data-mode="simple" data-i18n="modeSimple">Simple</button>
+                <button type="button" class="mode-pill" data-mode="natural" data-i18n="modeNatural">Natural</button>
+                <button type="button" class="mode-pill" data-mode="concise" data-i18n="modeConcise">Concise</button>
+                <button type="button" class="mode-pill" data-mode="impact" data-i18n="modeImpact">Impact-Focused</button>
+              </div>
+            </div>
+            <div class="fact-preservation-toggle">
+              <label class="checkbox-label" title="Ensures companies, dates, numbers, and technologies are strictly locked and never modified">
+                <input type="checkbox" id="chk-preserve-facts" checked />
+                <span class="chk-custom"></span>
+                <span data-i18n="preserveFactsNotice">🔒 Strict Fact Lock Active (Zero fabricated numbers)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Side-by-Side Studio IO Grid -->
+          <div class="studio-io-grid">
+            <div class="studio-pane">
+              <div class="studio-pane-header">
+                <span class="pane-title">📄 Active Resume Text</span>
+                <span class="pane-char" id="studio-resume-char-count">0 characters</span>
+              </div>
+              <textarea id="studio-resume-input" class="studio-textarea"
+                placeholder="Paste or edit resume text here to analyze grammar, check AI writing signals, and humanize bullet points..."
+                spellcheck="false"></textarea>
+            </div>
+
+            <div class="studio-pane">
+              <div class="studio-pane-header">
+                <span class="pane-title">💡 Analysis &amp; Suggested Improvements</span>
+                <span class="pane-status" id="studio-output-status">Ready</span>
+              </div>
+              <div id="studio-output-content" class="studio-output-pane">
+                <div class="studio-empty-prompt">
+                  <div class="sep-icon">✨</div>
+                  <p>Choose an action below to check grammar, view AI writing signals, or humanize bullet points sentence-by-sentence.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Studio Actions Bar -->
+          <div class="studio-actions-bar">
+            <button type="button" class="btn-studio-action btn-improve" id="studio-btn-improve">
+              <span>🚀</span> <span data-i18n="subtabQuality">Section &amp; Bullet Review</span>
+            </button>
+            <button type="button" class="btn-studio-action btn-grammar" id="studio-btn-grammar">
+              <span>📝</span> <span data-i18n="subtabGrammar">Check Grammar</span>
+            </button>
+            <button type="button" class="btn-studio-action btn-ai" id="studio-btn-ai">
+              <span>🤖</span> <span data-i18n="subtabAISignals">AI Writing Signals</span>
+            </button>
+            <button type="button" class="btn-studio-action btn-humanize" id="studio-btn-humanize">
+              <span>✨</span> <span data-i18n="subtabHumanize">Humanize Resume</span>
+            </button>
+            <button type="button" class="btn-studio-action btn-reanalyze" id="studio-btn-reanalyze">
+              <span>🔄</span> <span data-i18n="btnReanalyzeAfterEdit">Re-Analyze with Changes</span>
+            </button>
+            <button type="button" class="btn-studio-clear" id="studio-btn-clear">🗑 Clear</button>
+          </div>
+
+          <!-- Before / After Comparison Matrix -->
+          <div id="studio-comparison-container" class="studio-comparison-container hidden"></div>
+        </div>
+      </section>
+
+      <!-- ========================================================= -->
+      <!-- VIEW 5: CAREER INSIGHTS -->
+      <!-- ========================================================= -->
+      <section class="page-view hidden" id="view-career-insights">
+        <div class="view-header">
+          <h1 class="view-title" data-i18n="ciTitle">Career Insights &amp; Growth Signals</h1>
+          <p class="view-subtitle" data-i18n="ciSubtitle">Constructive signals to understand skill freshness, learning consistency, and career trajectory. These are informative indicators, not predictions of future outcomes.</p>
+        </div>
+
+        <div class="career-risk-disclaimer-card">
+          ℹ️ <strong>Career Risk Signals Disclaimer:</strong>
+          <span data-i18n="ciDisclaimer">These are signals based on the information available in your resume. They are not predictions of your future career outcome.</span>
         </div>
 
         <!-- Input Form -->
         <div class="career-risk-form-card">
           <div class="risk-form-grid">
-
-            <!-- Current Role -->
             <div class="risk-field">
               <label for="cri-role">🏷 Current Role / Job Title</label>
               <input type="text" id="cri-role" placeholder="e.g. Frontend Developer, Data Analyst" />
             </div>
-
-            <!-- Years of Experience -->
             <div class="risk-field">
               <label for="cri-years">📅 Years of Experience</label>
               <input type="number" id="cri-years" placeholder="e.g. 3" min="0" max="40" />
             </div>
-
-            <!-- Experience Level -->
             <div class="risk-field">
               <label for="cri-exp-level">📊 Experience Level</label>
               <select id="cri-exp-level">
@@ -668,8 +1100,6 @@
                 <option value="exec">Executive / C-Suite</option>
               </select>
             </div>
-
-            <!-- Industry -->
             <div class="risk-field">
               <label for="cri-industry">🏭 Industry</label>
               <select id="cri-industry">
@@ -683,14 +1113,10 @@
                 <option value="other">Other</option>
               </select>
             </div>
-
-            <!-- Skills -->
             <div class="risk-field risk-field-wide">
               <label for="cri-skills">🧬 Current Skills (comma-separated)</label>
               <input type="text" id="cri-skills" placeholder="e.g. React, JavaScript, Node.js, Docker, Python" />
             </div>
-
-            <!-- Learning Activity -->
             <div class="risk-field risk-field-wide">
               <label for="cri-learning">📚 Learning Activity Frequency</label>
               <select id="cri-learning">
@@ -702,66 +1128,843 @@
                 <option value="never">Never / Almost Never</option>
               </select>
             </div>
-
-            <!-- Career Goal -->
             <div class="risk-field risk-field-wide">
               <label for="cri-goal">🎯 Career Goal (Optional)</label>
-              <input type="text" id="cri-goal"
-                placeholder="e.g. Become a Senior Full Stack Engineer at a product company" />
+              <input type="text" id="cri-goal" placeholder="e.g. Become a Senior Full Stack Engineer at a product company" />
             </div>
-
           </div>
 
           <div class="risk-action-bar">
-            <button class="btn-analyze-risk" id="analyze-risk-btn">
-              <span>⚠️</span> Analyze Career Risk
+            <button type="button" class="btn-analyze-risk" id="analyze-risk-btn">
+              <span>⚠️</span> Analyze Career Signals
             </button>
-            <button class="btn-risk-clear" id="risk-clear-btn">🗑 Clear</button>
+            <button type="button" class="btn-risk-clear" id="risk-clear-btn">🗑 Clear</button>
           </div>
         </div>
 
         <!-- Results Output -->
         <div id="career-risk-result" class="career-risk-result hidden"></div>
-
       </section>
 
-    </div><!-- /#risk-tool-panel -->
+      <!-- ========================================================= -->
+      <!-- VIEW 6: APPLICATIONS -->
+      <!-- ========================================================= -->
+      <section class="page-view hidden" id="view-applications">
+        <div class="view-header">
+          <h1 class="view-title" data-i18n="appTrackerTitle">Job Application Tracker</h1>
+          <p class="view-subtitle" data-i18n="appTrackerSubtitle">Track applications across each pipeline stage from saved to offer, stored privately in your browser.</p>
+        </div>
 
-    <!-- ===== FOOTER ===== -->
-    <footer class="footer">
-      <p>Made with <span>♥</span> for job seekers everywhere · ResumeMatch AI · Free to use · Client-Side Processing · Local Browser Storage · Privacy-Focused Architecture</p>
-      <p class="footer-privacy-note">Core analysis runs entirely in your browser — no application backend required. Resume and JD text are never sent to any server. External resources (PDF.js via CDN, Google Fonts) are loaded from third-party servers.</p>
-      <p class="footer-method-note">Resume matching uses a <strong>rule-based analysis engine</strong>. LLM-based contextual analysis is not currently implemented.</p>
-    </footer>
+        <div class="tracker-top-bar">
+          <button type="button" class="tracker-primary-btn" id="btn-show-add-job" data-i18n="btnAddApplication">+ Add Application</button>
+          <div class="tracker-filters" id="job-status-filters">
+            <button type="button" class="filter-chip active" data-filter="all" data-i18n="filterAll">All</button>
+            <button type="button" class="filter-chip" data-filter="Saved" data-i18n="filterSaved">Saved</button>
+            <button type="button" class="filter-chip" data-filter="Applied" data-i18n="filterApplied">Applied</button>
+            <button type="button" class="filter-chip" data-filter="Online Assessment" data-i18n="filterOA">OA</button>
+            <button type="button" class="filter-chip" data-filter="Interview" data-i18n="filterInterview">Interview</button>
+            <button type="button" class="filter-chip" data-filter="Selected" data-i18n="filterSelected">Selected</button>
+            <button type="button" class="filter-chip" data-filter="Rejected" data-i18n="filterRejected">Rejected</button>
+          </div>
+        </div>
 
+        <div id="job-applications-list" class="job-applications-grid"></div>
+      </section>
 
-  </div><!-- /.app-wrapper -->
+      <!-- ========================================================= -->
+      <!-- VIEW 7: RESUME VERSIONS -->
+      <!-- ========================================================= -->
+      <section class="page-view hidden" id="view-versions">
+        <div class="view-header">
+          <h1 class="view-title" data-i18n="versionsTitle">Resume Versions</h1>
+          <p class="view-subtitle" data-i18n="versionsSubtitle">Create and manage tailored resume variations for different roles (e.g., Frontend, Full Stack, Data).</p>
+        </div>
 
-  <!-- ===== HISTORY SIDEBAR ===== -->
-  <div id="history-sidebar" class="history-sidebar" role="complementary" aria-label="Analysis history">
-    <!-- Populated by LocalDB (IndexedDB local storage) -->
-    <div class="history-panel-header">
-      <div class="history-panel-title">📚 Your History</div>
-      <button class="history-close-btn" aria-label="Close history panel"
-              onclick="document.getElementById('history-sidebar').classList.remove('open');document.getElementById('history-overlay').classList.remove('open')">✕</button>
-    </div>
-    <div class="history-signin-prompt">
-      <div class="hsp-icon">⏳</div>
-      <p>Loading your saved analyses…</p>
+        <div class="tracker-top-bar">
+          <button type="button" class="tracker-primary-btn" id="btn-save-current-version" data-i18n="btnSaveNewVersion">+ Save Active Resume as Version</button>
+        </div>
+
+        <div id="resume-versions-list" class="resume-versions-grid"></div>
+      </section>
+
+      <!-- ========================================================= -->
+      <!-- VIEW 8: SETTINGS -->
+      <!-- ========================================================= -->
+      <section class="page-view hidden" id="view-settings">
+        <div class="view-header">
+          <h1 class="view-title" data-i18n="settingsTitle">Settings &amp; Privacy</h1>
+          <p class="view-subtitle" data-i18n="settingsSubtitle">Customize your visual appearance, language, local data backup, and privacy preferences.</p>
+        </div>
+
+        <div class="settings-grid">
+          <!-- Appearance Card -->
+          <div class="settings-card">
+            <h2 class="settings-card-title" data-i18n="secAppearance">Appearance</h2>
+            <p class="settings-card-desc">Choose between warm dark charcoal or crisp light mode.</p>
+            <div class="theme-picker-group">
+              <button type="button" class="theme-pick-btn" id="btn-theme-dark" onclick="applyTheme('dark')">
+                <span>🌙</span> <span data-i18n="themeModeDark">Dark Charcoal</span>
+              </button>
+              <button type="button" class="theme-pick-btn" id="btn-theme-light" onclick="applyTheme('light')">
+                <span>☀️</span> <span data-i18n="themeModeLight">Crisp Light</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Language Card -->
+          <div class="settings-card">
+            <h2 class="settings-card-title" data-i18n="secLanguage">Language / भाषा</h2>
+            <p class="settings-card-desc">Switch the complete user interface between English and Hindi.</p>
+            <div class="lang-picker-group">
+              <button type="button" class="lang-pick-btn" id="btn-lang-en" onclick="I18N.setLang('en')">English</button>
+              <button type="button" class="lang-pick-btn" id="btn-lang-hi" onclick="I18N.setLang('hi')">हिंदी (Hindi)</button>
+            </div>
+          </div>
+
+          <!-- Data Management Card -->
+          <div class="settings-card settings-card-wide">
+            <h2 class="settings-card-title" data-i18n="secDataManagement">Data Management (IndexedDB)</h2>
+            <p class="settings-card-desc" data-i18n="dataDesc">All your resumes, job descriptions, analysis history, and tracked applications are stored locally in your browser's IndexedDB.</p>
+            <div class="data-actions-row">
+              <button type="button" class="btn-secondary" onclick="exportDataBackup()" data-i18n="btnExportBackup">📥 Export Data Backup (JSON)</button>
+              <label class="btn-secondary file-upload-wrapper">
+                <span data-i18n="btnImportBackup">📤 Import Data Backup</span>
+                <input type="file" id="import-backup-file" accept=".json" style="display:none" onchange="importDataBackup(event)" />
+              </label>
+              <button type="button" class="btn-danger" onclick="confirmClearAllData()" data-i18n="btnClearData">🗑 Clear All Local Data</button>
+            </div>
+            <p class="data-warning-text" data-i18n="clearDataWarning">Warning: This permanently deletes all saved resumes, applications, and analyses from this browser.</p>
+          </div>
+
+          <!-- Privacy Architecture Card -->
+          <div class="settings-card settings-card-wide">
+            <h2 class="settings-card-title" data-i18n="secPrivacy">Privacy &amp; Architecture Transparency</h2>
+            <p class="settings-card-desc" data-i18n="privacyDetails">ResumeMatch AI operates 100% in your browser. No resume text, job posting, or personal notes are uploaded to any server. PDF parsing, grammar analysis, keyword matching, and calculations run strictly client-side.</p>
+            <div class="privacy-badges-row">
+              <span class="p-badge">🛡️ Zero Cloud Telemetry</span>
+              <span class="p-badge">💾 Local IndexedDB Storage</span>
+              <span class="p-badge">⚡ Deterministic Rule Engine</span>
+              <span class="p-badge">🔒 Strict Fact-Locking</span>
+            </div>
+          </div>
+
+          <!-- About Card -->
+          <div class="settings-card settings-card-wide">
+            <h2 class="settings-card-title" data-i18n="secAbout">About ResumeMatch AI</h2>
+            <p class="settings-card-desc" data-i18n="aboutVersion">Version 4.0.0 · Production Career Engine</p>
+            <p style="font-size:13px;color:var(--text-muted);margin-top:6px">Built with ❤️ for job seekers everywhere. Pure Vanilla JavaScript &amp; CSS architecture.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================= -->
+      <!-- VIEW 9: HELP & GUIDE -->
+      <!-- ========================================================= -->
+      <section class="page-view hidden" id="view-help">
+        <div class="view-header">
+          <h1 class="view-title" data-i18n="helpTitle">Help Center &amp; User Guide</h1>
+          <p class="view-subtitle" data-i18n="helpSubtitle">Clear, beginner-friendly explanations of every feature, score, and recommendation in ResumeMatch AI.</p>
+          <button type="button" class="btn-primary" style="margin-top:12px" onclick="openOnboardingModal()" data-i18n="btnRestartTour">▶ Restart First-Time Tour</button>
+        </div>
+
+        <div class="help-accordion-list">
+          <div class="help-item">
+            <h2 class="help-q" data-i18n="helpTopic1">Getting Started with Resume Analysis</h2>
+            <div class="help-a" data-i18n="helpTopic1Body">Start by uploading your resume in PDF or plain text format on the Analyze Resume page. Our system extracts your skills, work history, and formatting structure client-side, showing your strengths and areas to polish.</div>
+          </div>
+          <div class="help-item">
+            <h2 class="help-q" data-i18n="helpTopic2">How the Match Score Works</h2>
+            <div class="help-a" data-i18n="helpTopic2Body">The match score evaluates hard skills (40%), experience level (20%), domain relevance (15%), soft skills (15%), and ATS keywords (10%). It is an estimated compatibility indicator, not a hiring prediction.</div>
+          </div>
+          <div class="help-item">
+            <h2 class="help-q" data-i18n="helpTopic3">Understanding ATS Compatibility</h2>
+            <div class="help-a" data-i18n="helpTopic3Body">Applicant Tracking Systems (ATS) scan for plain text, clear section headers, standard dates, and relevant keywords. We simulate these checks and flag formatting risks like missing headers or short descriptions.</div>
+          </div>
+          <div class="help-item">
+            <h2 class="help-q" data-i18n="helpTopic4">Understanding AI Writing Signals</h2>
+            <div class="help-a" data-i18n="helpTopic4Body">We identify corporate clichés, buzzwords, and robotic sentence patterns. We do not claim 100% AI detection; instead, we point out generic phrasing that recruiters might find unconvincing.</div>
+          </div>
+          <div class="help-item">
+            <h2 class="help-q" data-i18n="helpTopic5">How Humanize Works &amp; Strict Fact Lock</h2>
+            <div class="help-a" data-i18n="helpTopic5Body">Our Humanizer transforms overly formal or passive sentences into natural, conversational, or impact-driven English. Crucially, it NEVER invents numbers, percentages, companies, or accomplishments.</div>
+          </div>
+          <div class="help-item">
+            <h2 class="help-q" data-i18n="helpTopic6">Privacy &amp; Security Guarantee</h2>
+            <div class="help-a" data-i18n="helpTopic6Body">Your data stays on your device. We do not store your resumes in the cloud. You can export a full JSON backup of your data anytime from the Settings page.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================= -->
+      <!-- VIEW 10: LOGIN / SIGN IN -->
+      <!-- ========================================================= -->
+      <section class="page-view hidden" id="view-login" aria-label="Sign In">
+        <div class="auth-page-container">
+          <div class="auth-brand-hero">
+            <div class="auth-hero-badge">
+              <span class="auth-badge-dot"></span>
+              <span data-i18n="authSecurityBadge">Client-Side Cryptographic Security Active</span>
+            </div>
+            <h1 class="auth-hero-title">Welcome to HireLens</h1>
+            <p class="auth-hero-sub">Privacy-first career alignment and job readiness platform. 100% in-browser cryptographic session architecture.</p>
+            
+            <div class="auth-features-list">
+              <div class="auth-feature-pill"><span>🔒</span> Zero Plaintext Credentials Saved</div>
+              <div class="auth-feature-pill"><span>⚡</span> Salted PBKDF2 Password Hashing</div>
+              <div class="auth-feature-pill"><span>🛡️</span> Multi-Tenant Data Isolation</div>
+              <div class="auth-feature-pill"><span>📱</span> Responsive Across All Devices</div>
+            </div>
+          </div>
+
+          <div class="auth-card-wrapper">
+            <div class="auth-card">
+              <div class="auth-card-header">
+                <div class="auth-logo-icon">🎯</div>
+                <h2 class="auth-card-title" data-i18n="authSignInTitle">Sign in to HireLens</h2>
+                <p class="auth-card-subtitle" data-i18n="authSignInSub">Access your private, in-browser career workspace</p>
+              </div>
+
+              <!-- Mode Toggle: Email (Gmail) vs Mobile (+91) -->
+              <div class="auth-tab-pills" role="tablist">
+                <button type="button" class="auth-tab-pill active" id="login-tab-email" role="tab" aria-selected="true" onclick="switchLoginMode('email')">
+                  ✉️ Gmail
+                </button>
+                <button type="button" class="auth-tab-pill" id="login-tab-mobile" role="tab" aria-selected="false" onclick="switchLoginMode('mobile')">
+                  📱 Mobile (+91)
+                </button>
+              </div>
+
+              <form id="login-form" class="auth-form" novalidate>
+                <div class="auth-alert hidden" id="login-alert" role="alert"></div>
+
+                <!-- Credential Field (Email or Phone) -->
+                <div class="form-group" id="login-email-group">
+                  <label for="login-email-input" class="form-label" data-i18n="authEmailLabel">Gmail Address</label>
+                  <div class="input-with-icon">
+                    <span class="input-icon">✉️</span>
+                    <input type="email" id="login-email-input" class="form-input" placeholder="you@gmail.com" autocomplete="email" required />
+                  </div>
+                  <span class="field-hint">Accepts valid Gmail addresses only (e.g., name@gmail.com)</span>
+                </div>
+
+                <div class="form-group hidden" id="login-phone-group">
+                  <label for="login-phone-input" class="form-label" data-i18n="authPhoneLabel">Mobile Number (+91)</label>
+                  <div class="input-with-icon">
+                    <span class="input-icon">🇮🇳</span>
+                    <input type="tel" id="login-phone-input" class="form-input" placeholder="+91 9876543210" autocomplete="tel" />
+                  </div>
+                  <span class="field-hint">10-digit Indian mobile number with +91 country code</span>
+                </div>
+
+                <!-- Password Field -->
+                <div class="form-group">
+                  <div class="label-with-action">
+                    <label for="login-password-input" class="form-label" data-i18n="authPasswordLabel">Password</label>
+                    <button type="button" class="link-btn" onclick="navigateTo('forgot-password')" data-i18n="authForgotPassword">Forgot Password?</button>
+                  </div>
+                  <div class="input-with-icon input-with-toggle">
+                    <span class="input-icon">🔑</span>
+                    <input type="password" id="login-password-input" class="form-input" placeholder="••••••••" autocomplete="current-password" required />
+                    <button type="button" class="btn-toggle-password" id="login-password-toggle" aria-label="Show password" onclick="togglePasswordVisibility('login-password-input', this)">
+                      👁️
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Session persistence checkbox -->
+                <div class="form-checkbox-row">
+                  <label class="custom-checkbox">
+                    <input type="checkbox" id="login-remember-me" checked />
+                    <span class="checkbox-indicator"></span>
+                    <span class="checkbox-label" data-i18n="authRememberMe">Keep me signed in on this device</span>
+                  </label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn-primary btn-auth-submit" id="login-submit-btn">
+                  <span class="btn-spinner hidden" id="login-spinner">⏳</span>
+                  <span class="btn-text" data-i18n="authBtnSignIn">Sign In</span>
+                </button>
+              </form>
+
+              <!-- OAuth / Google State (Honest & Explicit) -->
+              <div class="auth-oauth-divider">
+                <span>Enterprise &amp; SSO Options</span>
+              </div>
+              <div class="oauth-setup-notice">
+                <div class="osn-header">
+                  <span class="osn-icon">🌐</span>
+                  <div class="osn-text">
+                    <strong>Google Sign-In &amp; Custom IdP</strong>
+                    <p>Ready for OAuth 2.0 / OIDC integration via pluggable AuthProvider.</p>
+                  </div>
+                </div>
+                <button type="button" class="btn-secondary btn-sm" onclick="openOAuthSetupModal()">
+                  View SSO Config Guide →
+                </button>
+              </div>
+
+              <div class="auth-card-footer">
+                <span data-i18n="authDontHaveAccount">Don't have an account?</span>
+                <button type="button" class="auth-switch-link" onclick="navigateTo('signup')" data-i18n="navSignup">Create Account</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================= -->
+      <!-- VIEW 11: SIGN UP / REGISTRATION -->
+      <!-- ========================================================= -->
+      <section class="page-view hidden" id="view-signup" aria-label="Sign Up">
+        <div class="auth-page-container">
+          <div class="auth-brand-hero">
+            <div class="auth-hero-badge">
+              <span class="auth-badge-dot"></span>
+              <span data-i18n="authSecurityBadge">Client-Side Cryptographic Security Active</span>
+            </div>
+            <h1 class="auth-hero-title">Create Your HireLens Account</h1>
+            <p class="auth-hero-sub">Experience private, in-browser resume optimization, ATS scoring, and interview roadmaps.</p>
+            
+            <div class="auth-guidelines-box">
+              <h4 class="agb-title">Registration Guidelines</h4>
+              <ul class="agb-list">
+                <li><strong>Gmail Only:</strong> We accept valid <code>@gmail.com</code> addresses.</li>
+                <li><strong>Indian Mobile:</strong> Must begin with <code>+91</code> followed by 10 valid digits.</li>
+                <li><strong>Strong Password:</strong> 8+ characters with uppercase, lowercase, number, and special character.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="auth-card-wrapper">
+            <div class="auth-card">
+              <div class="auth-card-header">
+                <div class="auth-logo-icon">✨</div>
+                <h2 class="auth-card-title" data-i18n="authSignUpTitle">Create your HireLens Account</h2>
+                <p class="auth-card-subtitle" data-i18n="authSignUpSub">100% private, client-side encrypted career intelligence</p>
+              </div>
+
+              <form id="signup-form" class="auth-form" novalidate>
+                <div class="auth-alert hidden" id="signup-alert" role="alert"></div>
+
+                <!-- Full Name -->
+                <div class="form-group">
+                  <label for="signup-name-input" class="form-label" data-i18n="authFullNameLabel">Full Name</label>
+                  <div class="input-with-icon">
+                    <span class="input-icon">👤</span>
+                    <input type="text" id="signup-name-input" class="form-input" placeholder="e.g. Lakshya Kaushal" autocomplete="name" required />
+                  </div>
+                </div>
+
+                <!-- Email (Strict Gmail) -->
+                <div class="form-group">
+                  <label for="signup-email-input" class="form-label" data-i18n="authEmailLabel">Gmail Address</label>
+                  <div class="input-with-icon">
+                    <span class="input-icon">✉️</span>
+                    <input type="email" id="signup-email-input" class="form-input" placeholder="yourname@gmail.com" autocomplete="email" required />
+                  </div>
+                  <span class="field-feedback" id="signup-email-feedback"></span>
+                </div>
+
+                <!-- Mobile Number (+91 Indian Mobile) -->
+                <div class="form-group">
+                  <label for="signup-phone-input" class="form-label" data-i18n="authPhoneLabel">Mobile Number (+91)</label>
+                  <div class="input-with-icon">
+                    <span class="input-icon">🇮🇳</span>
+                    <input type="tel" id="signup-phone-input" class="form-input" placeholder="+91 9876543210" autocomplete="tel" required />
+                  </div>
+                  <span class="field-feedback" id="signup-phone-feedback"></span>
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+                  <label for="signup-password-input" class="form-label" data-i18n="authPasswordLabel">Password</label>
+                  <div class="input-with-icon input-with-toggle">
+                    <span class="input-icon">🔑</span>
+                    <input type="password" id="signup-password-input" class="form-input" placeholder="e.g. Career@2026" autocomplete="new-password" required />
+                    <button type="button" class="btn-toggle-password" id="signup-password-toggle" aria-label="Show password" onclick="togglePasswordVisibility('signup-password-input', this)">
+                      👁️
+                    </button>
+                  </div>
+
+                  <!-- Password Strength Indicator -->
+                  <div class="password-strength-container" id="password-strength-wrap">
+                    <div class="strength-bar-track">
+                      <div class="strength-bar-fill" id="strength-bar-fill"></div>
+                    </div>
+                    <div class="strength-label-row">
+                      <span class="strength-text">Strength: <strong id="strength-badge">Weak</strong></span>
+                      <span class="strength-score" id="strength-score-label">0/5</span>
+                    </div>
+                    <ul class="strength-checklist" id="strength-checklist">
+                      <li id="rule-length" class="strength-rule">At least 8 characters</li>
+                      <li id="rule-upper" class="strength-rule">At least 1 uppercase letter (A-Z)</li>
+                      <li id="rule-lower" class="strength-rule">At least 1 lowercase letter (a-z)</li>
+                      <li id="rule-number" class="strength-rule">At least 1 number (0-9)</li>
+                      <li id="rule-special" class="strength-rule">At least 1 special character (!@#$%^&*)</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="form-group">
+                  <label for="signup-confirm-input" class="form-label" data-i18n="authConfirmPasswordLabel">Confirm Password</label>
+                  <div class="input-with-icon input-with-toggle">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" id="signup-confirm-input" class="form-input" placeholder="••••••••" autocomplete="new-password" required />
+                    <button type="button" class="btn-toggle-password" id="signup-confirm-toggle" aria-label="Show password" onclick="togglePasswordVisibility('signup-confirm-input', this)">
+                      👁️
+                    </button>
+                  </div>
+                  <span class="field-feedback" id="signup-confirm-feedback"></span>
+                </div>
+
+                <!-- Terms Checkbox -->
+                <div class="form-checkbox-row">
+                  <label class="custom-checkbox">
+                    <input type="checkbox" id="signup-terms" required />
+                    <span class="checkbox-indicator"></span>
+                    <span class="checkbox-label" data-i18n="authTermsLabel">I accept the Privacy Policy &amp; Terms of Service</span>
+                  </label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn-primary btn-auth-submit" id="signup-submit-btn">
+                  <span class="btn-spinner hidden" id="signup-spinner">⏳</span>
+                  <span class="btn-text" data-i18n="authBtnSignUp">Create Free Account</span>
+                </button>
+              </form>
+
+              <div class="auth-card-footer">
+                <span data-i18n="authAlreadyHaveAccount">Already have an account?</span>
+                <button type="button" class="auth-switch-link" onclick="navigateTo('login')" data-i18n="navLogin">Sign In</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================= -->
+      <!-- VIEW 12: FORGOT PASSWORD -->
+      <!-- ========================================================= -->
+      <section class="page-view hidden" id="view-forgot-password" aria-label="Forgot Password">
+        <div class="auth-page-container">
+          <div class="auth-card-wrapper" style="max-width: 540px; margin: 0 auto;">
+            <div class="auth-card">
+              <div class="auth-card-header">
+                <div class="auth-logo-icon">🔐</div>
+                <h2 class="auth-card-title">Reset Your Password</h2>
+                <p class="auth-card-subtitle">Verify your registered Gmail account to reset your credentials</p>
+              </div>
+
+              <div class="auth-notice-card">
+                <span class="anc-icon">ℹ️</span>
+                <div class="anc-text">
+                  <strong>Client-Side Security Model:</strong>
+                  <p>HireLens operates 100% locally in your browser. If connected to a backend provider, a secure reset token is emailed. In local cryptographic mode, you can verify your registered phone number to reset your password.</p>
+                </div>
+              </div>
+
+              <form id="forgot-password-form" class="auth-form" novalidate>
+                <div class="auth-alert hidden" id="forgot-alert" role="alert"></div>
+
+                <div class="form-group">
+                  <label for="forgot-email-input" class="form-label" data-i18n="authEmailLabel">Registered Gmail Address</label>
+                  <div class="input-with-icon">
+                    <span class="input-icon">✉️</span>
+                    <input type="email" id="forgot-email-input" class="form-input" placeholder="you@gmail.com" autocomplete="email" required />
+                  </div>
+                </div>
+
+                <div class="form-group hidden" id="forgot-reset-section">
+                  <label for="forgot-phone-verify" class="form-label">Verify Registered Mobile (+91)</label>
+                  <div class="input-with-icon">
+                    <span class="input-icon">🇮🇳</span>
+                    <input type="tel" id="forgot-phone-verify" class="form-input" placeholder="+91 9876543210" />
+                  </div>
+
+                  <label for="forgot-new-pass" class="form-label" style="margin-top:12px;">New Strong Password</label>
+                  <div class="input-with-icon input-with-toggle">
+                    <span class="input-icon">🔑</span>
+                    <input type="password" id="forgot-new-pass" class="form-input" placeholder="e.g. Career@2026" />
+                    <button type="button" class="btn-toggle-password" onclick="togglePasswordVisibility('forgot-new-pass', this)">👁️</button>
+                  </div>
+                </div>
+
+                <button type="submit" class="btn-primary btn-auth-submit" id="forgot-submit-btn">
+                  <span class="btn-text">Verify &amp; Reset Password</span>
+                </button>
+              </form>
+
+              <div class="auth-card-footer">
+                <button type="button" class="auth-switch-link" onclick="navigateTo('login')">← Back to Sign In</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================= -->
+      <!-- VIEW 13: ACCOUNT & PROFILE -->
+      <!-- ========================================================= -->
+      <section class="page-view hidden" id="view-account" aria-label="Account & Profile">
+        <div class="account-page-wrapper">
+          <!-- Account Header Hero -->
+          <div class="account-hero-card">
+            <div class="account-hero-avatar" id="account-avatar-large">U</div>
+            <div class="account-hero-info">
+              <h1 class="account-user-name" id="account-user-name">User</h1>
+              <div class="account-badges-row">
+                <span class="account-badge" id="account-badge-email">✉️ user@gmail.com</span>
+                <span class="account-badge" id="account-badge-phone">📱 +91 9876543210</span>
+                <span class="account-badge badge-success">🔒 Encrypted Storage</span>
+              </div>
+              <p class="account-meta-text">Member since <span id="account-created-date">Recently</span> • Isolated Storage Workspace</p>
+            </div>
+            <div class="account-hero-action">
+              <button type="button" class="btn-secondary" onclick="handleLogoutClick()">🚪 Log Out</button>
+            </div>
+          </div>
+
+          <div class="account-grid">
+            <!-- Edit Profile Card -->
+            <div class="account-card">
+              <div class="account-card-header">
+                <h3>👤 Personal Profile</h3>
+                <p>Update your display name and contact phone number</p>
+              </div>
+              <form id="profile-edit-form" class="account-form">
+                <div class="auth-alert hidden" id="profile-alert" role="alert"></div>
+                <div class="form-group">
+                  <label for="profile-name-input" class="form-label">Full Name</label>
+                  <input type="text" id="profile-name-input" class="form-input" required />
+                </div>
+                <div class="form-group">
+                  <label for="profile-email-readonly" class="form-label">Gmail Address (Primary ID)</label>
+                  <input type="email" id="profile-email-readonly" class="form-input" readonly disabled style="opacity:0.75;" />
+                  <span class="field-hint">Primary email cannot be changed once registered.</span>
+                </div>
+                <div class="form-group">
+                  <label for="profile-phone-input" class="form-label">Mobile Number (+91)</label>
+                  <input type="tel" id="profile-phone-input" class="form-input" required />
+                </div>
+                <button type="submit" class="btn-primary btn-sm" id="profile-save-btn">Save Changes</button>
+              </form>
+            </div>
+
+            <!-- Change Password Card -->
+            <div class="account-card">
+              <div class="account-card-header">
+                <h3>🔑 Security &amp; Password</h3>
+                <p>Update your master password with client-side PBKDF2 hashing</p>
+              </div>
+              <form id="change-password-form" class="account-form">
+                <div class="auth-alert hidden" id="password-change-alert" role="alert"></div>
+                <div class="form-group">
+                  <label for="cp-current-input" class="form-label">Current Password</label>
+                  <div class="input-with-icon input-with-toggle">
+                    <span class="input-icon">🔑</span>
+                    <input type="password" id="cp-current-input" class="form-input" required />
+                    <button type="button" class="btn-toggle-password" onclick="togglePasswordVisibility('cp-current-input', this)">👁️</button>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="cp-new-input" class="form-label">New Strong Password</label>
+                  <div class="input-with-icon input-with-toggle">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" id="cp-new-input" class="form-input" required />
+                    <button type="button" class="btn-toggle-password" onclick="togglePasswordVisibility('cp-new-input', this)">👁️</button>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="cp-confirm-input" class="form-label">Confirm New Password</label>
+                  <div class="input-with-icon input-with-toggle">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" id="cp-confirm-input" class="form-input" required />
+                    <button type="button" class="btn-toggle-password" onclick="togglePasswordVisibility('cp-confirm-input', this)">👁️</button>
+                  </div>
+                </div>
+                <button type="submit" class="btn-primary btn-sm" id="cp-submit-btn">Update Password</button>
+              </form>
+            </div>
+
+            <!-- Privacy & Data Isolation Info -->
+            <div class="account-card full-width">
+              <div class="account-card-header">
+                <h3>🛡️ Privacy Architecture &amp; Data Isolation</h3>
+                <p>How your career information is secured inside your browser</p>
+              </div>
+              <div class="security-pillars-grid">
+                <div class="security-pillar">
+                  <div class="sp-icon">💾</div>
+                  <h4>User-Scoped IndexedDB</h4>
+                  <p>Your resume versions, job matches, and pipeline status are indexed by your User ID. Other accounts on this browser cannot access your records.</p>
+                </div>
+                <div class="security-pillar">
+                  <div class="sp-icon">🔐</div>
+                  <h4>PBKDF2 Cryptography</h4>
+                  <p>Passwords are salted with a 128-bit cryptographically secure salt and derived over 10,000 iterations. Zero plaintext credentials are ever written to disk.</p>
+                </div>
+                <div class="security-pillar">
+                  <div class="sp-icon">🚪</div>
+                  <h4>Zero-Telemetry Logout</h4>
+                  <p>Logging out securely wipes all active resume states from browser memory while preserving your history in your encrypted local partition.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== FOOTER ===== -->
+      <footer class="footer">
+        <p data-i18n="footerText">Crafted for job seekers worldwide · 100% Client-Side Processing · Local Browser Storage · Privacy-Guaranteed Architecture</p>
+        <p class="footer-privacy-note" data-i18n="footerDisclaimer">ResumeMatch AI is a rule-based career guidance platform. Compatibility scores and suggestions are estimates designed to help improve your application materials.</p>
+      </footer>
+
+    </main>
+
+    <!-- ===== MOBILE BOTTOM NAVIGATION BAR ===== -->
+    <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
+      <button type="button" class="mb-nav-item active" data-nav="dashboard">
+        <span class="mb-icon">🏠</span>
+        <span class="mb-label" data-i18n="mNavHome">Home</span>
+      </button>
+      <button type="button" class="mb-nav-item" data-nav="analyze">
+        <span class="mb-icon">📄</span>
+        <span class="mb-label" data-i18n="mNavResume">Resume</span>
+      </button>
+      <button type="button" class="mb-nav-item" data-nav="job-match">
+        <span class="mb-icon">🎯</span>
+        <span class="mb-label" data-i18n="mNavMatch">Match</span>
+      </button>
+      <button type="button" class="mb-nav-item" data-nav="studio">
+        <span class="mb-icon">✨</span>
+        <span class="mb-label" data-i18n="mNavStudio">Studio</span>
+      </button>
+      <button type="button" class="mb-nav-item" id="btn-mobile-more" onclick="openMobileDrawer()">
+        <span class="mb-icon">⋯</span>
+        <span class="mb-label" data-i18n="mNavMore">More</span>
+      </button>
+    </nav>
+
+  </div><!-- /.app-layout -->
+
+  <!-- ========================================================= -->
+  <!-- FIRST-TIME ONBOARDING MODAL -->
+  <!-- ========================================================= -->
+  <div id="onboarding-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="ob-modal-title">
+    <div class="modal-box onboarding-modal-box">
+      <div class="ob-header">
+        <div class="ob-icon">✨</div>
+        <h2 id="ob-modal-title" data-i18n="onboardingTitle">Welcome to ResumeMatch AI</h2>
+        <p data-i18n="onboardingSub">Your private, browser-based resume optimization guide. Let's get you set up in seconds!</p>
+      </div>
+
+      <!-- Step Indicators -->
+      <div class="ob-steps-indicator">
+        <span class="ob-dot active" id="ob-dot-1"></span>
+        <span class="ob-dot" id="ob-dot-2"></span>
+        <span class="ob-dot" id="ob-dot-3"></span>
+        <span class="ob-dot" id="ob-dot-4"></span>
+      </div>
+
+      <!-- Step 1: Goal -->
+      <div class="ob-step-content active" id="ob-step-1">
+        <h3 class="ob-step-heading" data-i18n="obStep1Title">What would you like to do first?</h3>
+        <div class="ob-cards-grid">
+          <div class="ob-goal-card selected" onclick="selectOnboardingGoal('analyze', this)">
+            <div class="ob-goal-icon">🔍</div>
+            <h4 data-i18n="obCard1Title">Analyze My Resume</h4>
+            <p data-i18n="obCard1Desc">Check structure, detected skills, formatting, and overall quality.</p>
+          </div>
+          <div class="ob-goal-card" onclick="selectOnboardingGoal('match', this)">
+            <div class="ob-goal-icon">🎯</div>
+            <h4 data-i18n="obCard2Title">Match With a Job</h4>
+            <p data-i18n="obCard2Desc">Compare your resume against a specific job description to find missing skills.</p>
+          </div>
+          <div class="ob-goal-card" onclick="selectOnboardingGoal('improve', this)">
+            <div class="ob-goal-icon">✨</div>
+            <h4 data-i18n="obCard3Title">Improve My Resume</h4>
+            <p data-i18n="obCard3Desc">Fix grammar, polish bullet points, and humanize phrasing.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Upload -->
+      <div class="ob-step-content hidden" id="ob-step-2">
+        <h3 class="ob-step-heading" data-i18n="obStep2Title">Upload or Paste Your Resume</h3>
+        <p class="ob-step-sub" data-i18n="obStep2Desc">All processing happens securely inside your browser. No files leave your device.</p>
+        <textarea id="ob-resume-input" class="ob-textarea" placeholder="Paste your resume here, or drag and drop a file..."></textarea>
+        <label class="btn-secondary ob-file-btn">
+          <span>📁 Choose PDF or TXT File</span>
+          <input type="file" id="ob-resume-file" accept=".txt,.pdf" style="display:none" onchange="handleOnboardingFileUpload(event)" />
+        </label>
+      </div>
+
+      <!-- Step 3: Optional JD -->
+      <div class="ob-step-content hidden" id="ob-step-3">
+        <h3 class="ob-step-heading" data-i18n="obStep3Title">Add Target Job (Optional)</h3>
+        <p class="ob-step-sub" data-i18n="obStep3Desc">Paste a job description now, or skip this step to focus only on your resume.</p>
+        <textarea id="ob-jd-input" class="ob-textarea" placeholder="Paste target job description from LinkedIn, Indeed, etc. (Optional)"></textarea>
+        <button type="button" class="ob-skip-btn" onclick="nextOnboardingStep()" data-i18n="obStep3Skip">Skip this step for now →</button>
+      </div>
+
+      <!-- Step 4: Ready -->
+      <div class="ob-step-content hidden" id="ob-step-4">
+        <div class="ob-ready-badge">🎉</div>
+        <h3 class="ob-step-heading" data-i18n="obStep4Title">Your Resume Is Ready!</h3>
+        <p class="ob-step-sub" data-i18n="obStep4Sub">Click below to run your instant rule-based analysis.</p>
+      </div>
+
+      <div class="ob-actions">
+        <button type="button" class="btn-secondary" id="ob-btn-back" onclick="prevOnboardingStep()" style="display:none" data-i18n="obBtnBack">Back</button>
+        <button type="button" class="btn-primary" id="ob-btn-next" onclick="nextOnboardingStep()" data-i18n="obBtnNext">Continue</button>
+        <button type="button" class="btn-text" onclick="closeOnboardingModal()" data-i18n="obBtnDismiss">Close Tour</button>
+      </div>
     </div>
   </div>
-  <div id="history-overlay" class="history-overlay" role="presentation"
-       onclick="document.getElementById('history-sidebar').classList.remove('open');this.classList.remove('open')"></div>
+
+  <!-- ========================================================= -->
+  <!-- JOB APPLICATION MODAL -->
+  <!-- ========================================================= -->
+  <div id="job-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="job-modal-title">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="job-modal-title">Add Job Application</h3>
+        <button type="button" class="modal-close-btn" onclick="closeJobModal()">✕</button>
+      </div>
+      <form id="job-modal-form" onsubmit="saveJobApplication(event)">
+        <input type="hidden" id="job-edit-id" value="" />
+        <div class="modal-field">
+          <label for="job-input-company">Company Name *</label>
+          <input type="text" id="job-input-company" required placeholder="e.g. Google, Microsoft, Startup Inc." />
+        </div>
+        <div class="modal-field">
+          <label for="job-input-role">Target Role *</label>
+          <input type="text" id="job-input-role" required placeholder="e.g. Senior Frontend Engineer" />
+        </div>
+        <div class="modal-row">
+          <div class="modal-field">
+            <label for="job-input-status">Pipeline Status</label>
+            <select id="job-input-status">
+              <option value="Saved">Saved</option>
+              <option value="Applied">Applied</option>
+              <option value="Online Assessment">Online Assessment</option>
+              <option value="Interview">Interview</option>
+              <option value="Selected">Selected</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+          </div>
+          <div class="modal-field">
+            <label for="job-input-score">Compatibility Score (%)</label>
+            <input type="number" id="job-input-score" min="0" max="100" placeholder="e.g. 82" />
+          </div>
+        </div>
+        <div class="modal-row">
+          <div class="modal-field">
+            <label for="job-input-applied-date">Applied Date</label>
+            <input type="date" id="job-input-applied-date" />
+          </div>
+          <div class="modal-field">
+            <label for="job-input-interview-date">Interview Date</label>
+            <input type="date" id="job-input-interview-date" />
+          </div>
+        </div>
+        <div class="modal-field">
+          <label for="job-input-notes">Notes / Follow-ups</label>
+          <textarea id="job-input-notes" rows="3" placeholder="Recruiter contact, referral, topics to prepare..."></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-modal-cancel" onclick="closeJobModal()">Cancel</button>
+          <button type="submit" class="btn-modal-save">Save Application</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- ACTIVE RESUME TEXT VIEWER MODAL -->
+  <!-- ========================================================= -->
+  <div id="resume-viewer-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="rv-modal-title">
+    <div class="modal-box" style="max-width:700px;">
+      <div class="modal-header">
+        <h3 id="rv-modal-title">Active Resume Text</h3>
+        <button type="button" class="modal-close-btn" onclick="document.getElementById('resume-viewer-modal').classList.add('hidden')">✕</button>
+      </div>
+      <div class="modal-field">
+        <textarea id="rv-modal-text" class="styled-textarea" rows="14" readonly style="font-family:var(--font-mono);font-size:13px;"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-primary" onclick="copyActiveResumeText()">📋 Copy Text</button>
+        <button type="button" class="btn-secondary" onclick="document.getElementById('resume-viewer-modal').classList.add('hidden')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- EXPLAINABILITY "WHY THIS SCORE?" MODAL -->
+  <!-- ========================================================= -->
+  <div id="explainability-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="exp-modal-title">
+    <div class="modal-box" style="max-width:840px;">
+      <div class="modal-header">
+        <h3 id="exp-modal-title">💡 Why this score? Explainable Alignment Breakdown</h3>
+        <button type="button" class="modal-close-btn" onclick="closeExplainabilityModal()">✕</button>
+      </div>
+      <div id="explainability-container" style="max-height:68vh;overflow-y:auto;padding:8px 0;"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn-primary" onclick="closeExplainabilityModal()">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- OAUTH / SSO SETUP MODAL (HONEST ARCHITECTURE DISCLOSURE) -->
+  <!-- ========================================================= -->
+  <div id="oauth-setup-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="oauth-modal-title">
+    <div class="modal-box" style="max-width:600px;">
+      <div class="modal-header">
+        <h3 id="oauth-modal-title">🌐 Enterprise SSO &amp; Google OAuth Integration</h3>
+        <button type="button" class="modal-close-btn" onclick="closeOAuthSetupModal()">✕</button>
+      </div>
+      <div class="modal-body" style="padding:16px 0; font-size:14px; color:var(--text-secondary); line-height:1.6;">
+        <p>HireLens uses an extensible <code>AuthProvider</code> interface. In default standalone mode, it uses in-browser PBKDF2 cryptography with multi-tenant IndexedDB isolation.</p>
+        <div style="background:rgba(217,119,6,0.08); border:1px solid rgba(217,119,6,0.25); border-radius:10px; padding:16px; margin:16px 0;">
+          <strong style="color:var(--purple-light);">Connecting Google OAuth / Enterprise IdP:</strong>
+          <ol style="margin-left:20px; margin-top:10px; display:flex; flex-direction:column; gap:6px;">
+            <li>Deploy HireLens with your backend service or Firebase / Supabase instance.</li>
+            <li>Configure OAuth client credentials in your environment configuration.</li>
+            <li>Register the provider: <code>window.HIRELENS_AUTH_CONFIG = { provider: 'google', clientId: '...' }</code>.</li>
+          </ol>
+        </div>
+        <p style="font-size:13px; color:var(--text-muted);">To maintain 100% technical honesty and avoid misleading mock buttons, Google Sign-In is only displayed when active OAuth credentials are provided.</p>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-primary" onclick="closeOAuthSetupModal()">Understood</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
 
   <!-- Scripts — order matters! -->
   <script src="i18n.js"></script>
   <script src="analyzer.js"></script>
+  <script src="grammar.js"></script>
+  <script src="ai-signals.js"></script>
+  <script src="humanizer.js"></script>
+  <script src="resume-improver.js"></script>
+  <script src="resume-quality.js"></script>
+  <script src="auth.js"></script>
+  <script src="storage.js"></script>
+  <script src="resume-versions.js"></script>
+  <script src="job-tracker.js"></script>
+  <script src="career-alignment.js"></script>
   <script src="ui.js"></script>
   <script src="features.js"></script>
   <script src="career-risk.js"></script>
-  <script src="storage.js"></script>
   <script src="app.js"></script>
 
 </body>
-
 </html>

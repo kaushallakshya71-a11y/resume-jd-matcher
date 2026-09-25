@@ -1,7 +1,7 @@
 {
-  "name": "resumematch-ai",
-  "version": "1.0.0",
-  "description": "Resume & Job Description Matcher",
+  "name": "hirelens-ai",
+  "version": "4.0.0",
+  "description": "HireLens — Align your skills. Match your career. AI-Powered Career Alignment & Job-Readiness Platform",
   "scripts": {
     "start": "serve . -l $PORT",
     "dev": "serve .",
